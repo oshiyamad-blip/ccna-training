@@ -71,6 +71,63 @@ async function api(method, path, params = {}) {
   return res.json()
 }
 
+// 画像添付ファイルのインライン参照記法。スペースの書式設定により異なる場合が
+// あるため、初回投入後に表示を確認し、必要ならこのテンプレートを調整すること
+// （Markdown 書式なら添付ファイル名での相対参照、Backlog 記法なら #image(名前)）。
+const imageRef = (alt, filename) => `![${alt}](${filename})`
+
+// 本文中の ../images/xxx.png 参照を抽出し、{alt, filename, absPath} の配列で返す
+function extractImages(content, mdDir) {
+  const refs = []
+  for (const m of content.matchAll(/!\[([^\]]*)\]\((\.\.\/images\/([^)]+))\)/g)) {
+    refs.push({ alt: m[1], rel: m[2], filename: m[3], absPath: join(mdDir, m[2]) })
+  }
+  return refs
+}
+
+// 画像参照を添付ファイル参照へ書き換える
+function rewriteImageRefs(content, images) {
+  let out = content
+  for (const img of images) {
+    out = out.replaceAll(`![${img.alt}](${img.rel})`, imageRef(img.alt, img.filename))
+  }
+  return out
+}
+
+// スペースへ添付ファイルをアップロードし attachment id を返す（multipart）
+async function uploadSpaceAttachment(absPath, filename) {
+  const buf = await readFile(absPath)
+  const form = new FormData()
+  form.set('file', new Blob([buf], { type: 'image/png' }), filename)
+  const url = new URL(`${SPACE_URL}/api/v2/space/attachment`)
+  url.searchParams.set('apiKey', API_KEY)
+  const res = await fetch(url, { method: 'POST', body: form })
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`添付アップロード失敗 (${filename}): ${res.status} ${text}`)
+  }
+  return (await res.json()).id
+}
+
+// ページの画像を Wiki に添付する（既に同名が添付済みならスキップ）
+async function attachImagesToWiki(wikiId, images) {
+  if (!images.length) return 0
+  const existing = await api('GET', `/wikis/${wikiId}/attachments`)
+  const existingNames = new Set(existing.map((a) => a.name))
+  let attached = 0
+  for (const img of images) {
+    if (existingNames.has(img.filename)) continue
+    try {
+      const attachmentId = await uploadSpaceAttachment(img.absPath, img.filename)
+      await api('POST', `/wikis/${wikiId}/attachments`, { 'attachmentId[]': attachmentId })
+      attached++
+    } catch (err) {
+      console.warn(`  画像添付をスキップ: ${img.filename} (${err.message})`)
+    }
+  }
+  return attached
+}
+
 async function collectPages() {
   const pages = []
 
@@ -78,7 +135,7 @@ async function collectPages() {
   for (const g of GUIDANCE_FILES) {
     try {
       const content = await readFile(g.file, 'utf8')
-      pages.push({ name: g.page, content })
+      pages.push({ name: g.page, content, images: [] })
     } catch {
       console.warn(`スキップ（読めません）: ${g.file}`)
     }
@@ -97,11 +154,14 @@ async function collectPages() {
       if (!m) continue
       const [, day, kind] = m
       if (kind === 'quiz' && !INCLUDE_QUIZ) continue
-      const content = await readFile(join(MATERIALS_DIR, week, f), 'utf8')
+      const mdDir = join(MATERIALS_DIR, week)
+      const raw = await readFile(join(mdDir, f), 'utf8')
+      const images = extractImages(raw, mdDir)
       const weekLabel = week.replace('week', 'Week')
       pages.push({
         name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/Day${day} ${KIND_LABEL[kind]}`,
-        content,
+        content: rewriteImageRefs(raw, images),
+        images,
       })
     }
   }
@@ -113,7 +173,7 @@ async function main() {
   console.log(`投入対象: ${pages.length} ページ${INCLUDE_QUIZ ? '（小テスト原本を含む — 受講者に Wiki 閲覧権限がないことを確認してください）' : '（小テストは除外。--include-quiz で含められます）'}`)
 
   if (DRY_RUN) {
-    for (const p of pages) console.log(`[dry-run] ${p.name} (${p.content.length} 文字)`)
+    for (const p of pages) console.log(`[dry-run] ${p.name} (${p.content.length} 文字${p.images.length ? `・画像 ${p.images.length} 点` : ''})`)
     return
   }
 
@@ -123,19 +183,29 @@ async function main() {
 
   let created = 0
   let updated = 0
+  let attachedTotal = 0
   for (const p of pages) {
+    let wikiId
     if (byName.has(p.name)) {
-      await api('PATCH', `/wikis/${byName.get(p.name)}`, { name: p.name, content: p.content, mailNotify: 'false' })
+      wikiId = byName.get(p.name)
+      await api('PATCH', `/wikis/${wikiId}`, { name: p.name, content: p.content, mailNotify: 'false' })
       updated++
       console.log(`更新: ${p.name}`)
     } else {
-      await api('POST', '/wikis', { projectId: project.id, name: p.name, content: p.content, mailNotify: 'false' })
+      const wiki = await api('POST', '/wikis', { projectId: project.id, name: p.name, content: p.content, mailNotify: 'false' })
+      wikiId = wiki.id
       created++
       console.log(`作成: ${p.name}`)
     }
+    const attached = await attachImagesToWiki(wikiId, p.images)
+    if (attached) {
+      attachedTotal += attached
+      console.log(`  画像を添付: ${attached} 点`)
+    }
   }
-  console.log(`\n完了: 作成 ${created} / 更新 ${updated}`)
+  console.log(`\n完了: 作成 ${created} / 更新 ${updated} / 画像添付 ${attachedTotal}`)
   console.log('次の手順: Backlog の「Wiki → ドキュメント移行機能」で各ページをドキュメントへ変換し、フォルダと権限（講師用は受講者非公開）を整えてください。')
+  if (attachedTotal) console.log('注意: 画像のインライン表示はスペースの書式設定に依存します。表示されない場合は upload-wiki.mjs の imageRef テンプレートを調整してください。')
 }
 
 main().catch((err) => {
