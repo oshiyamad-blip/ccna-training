@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; text-anchor: middle; }
+      .cable { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .ip { font-size: 14px; font-weight: 700; fill: #1d4ed8; text-anchor: middle; }
+      .note { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .net { font-size: 16px; font-weight: 700; fill: #1d4ed8; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .goalhead { font-size: 16px; font-weight: 700; fill: #1e3a8a; }
+      .goalitem { font-size: 14px; fill: #1f2937; }
+    </style>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-55" y="-30" width="110" height="60" rx="10" fill="#0e9aa7" stroke="#0b7f8a" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-32" y1="-8" x2="20" y2="-8"/>
+        <line x1="-22" y1="8" x2="32" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 20 -14 L 34 -8 L 20 -2 Z"/>
+        <path d="M -22 2 L -36 8 L -22 14 Z"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1200" height="680" fill="#ffffff"/>
+
+  <text class="title" x="40" y="52">Day 1 ラボ: 完成トポロジ</text>
+  <text class="sub" x="40" y="80">PT 入門 — PC0 とスイッチ、PC1 をストレートケーブルで接続した最小構成</text>
+
+  <!-- network group box -->
+  <rect x="90" y="105" width="1020" height="380" rx="28" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="net" x="120" y="142">192.168.1.0/24 ネットワーク（サブネットマスク 255.255.255.0）</text>
+
+  <!-- links (drawn first so device icons overlap the endpoints cleanly) -->
+  <line class="link" x1="260" y1="300" x2="600" y2="300"/>
+  <line class="link" x1="600" y1="300" x2="940" y2="300"/>
+
+  <!-- interface labels -->
+  <text class="iface" x="345" y="282">FastEthernet0</text>
+  <text class="iface" x="505" y="282">Fa0/1</text>
+  <text class="iface" x="695" y="282">Fa0/2</text>
+  <text class="iface" x="855" y="282">FastEthernet0</text>
+
+  <!-- cable type labels -->
+  <text class="cable" x="430" y="322">ストレートケーブル</text>
+  <text class="cable" x="770" y="322">ストレートケーブル</text>
+
+  <!-- devices -->
+  <text class="devname" x="260" y="245">PC0</text>
+  <use href="#pc" x="260" y="300"/>
+  <text class="ip" x="260" y="368">192.168.1.10 /24</text>
+
+  <text class="devname" x="600" y="245">スイッチ 2960</text>
+  <use href="#switch" x="600" y="300"/>
+  <text class="note" x="600" y="368">L2 スイッチ（IP アドレス設定なし）</text>
+
+  <text class="devname" x="940" y="245">PC1</text>
+  <use href="#pc" x="940" y="300"/>
+  <text class="ip" x="940" y="368">192.168.1.20 /24</text>
+
+  <!-- in-box note -->
+  <text class="note" x="600" y="455" text-anchor="middle">PC0 と PC1 は同一ネットワーク内 → デフォルトゲートウェイの設定は不要</text>
+
+  <!-- goal note box -->
+  <rect x="40" y="510" width="1120" height="130" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text class="goalhead" x="60" y="536">🎯 ラボのゴール</text>
+  <text class="goalitem" x="60" y="562">・Packet Tracer で機器の配置・接続・保存ができる</text>
+  <text class="goalitem" x="60" y="586">・PC に IP アドレスを設定し、ping で疎通確認ができる</text>
+  <text class="goalitem" x="60" y="610">・シミュレーションモードで、講義で学んだカプセル化（フレーム / パケット）を観察できる</text>
+</svg>

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14.5px; fill: #6b7280; }
+      .rowlabel { font-size: 15px; font-weight: 700; fill: #374151; text-anchor: middle; }
+      .cell { font-size: 17px; font-weight: 700; text-anchor: middle; fill: #ffffff; font-family: "DejaVu Sans Mono", monospace; }
+      .grouplabel { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .steplabel { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .tag { font-size: 12px; font-weight: 700; text-anchor: middle; fill: #6d28d9; }
+      .result { font-size: 25px; font-weight: 700; text-anchor: middle; fill: #4c1d95; font-family: "DejaVu Sans Mono", monospace; }
+      .binline { font-size: 14px; font-family: "DejaVu Sans Mono", monospace; }
+      .binhead { font-size: 13px; font-weight: 700; fill: #92400e; }
+      .goal { font-size: 14.5px; fill: #1f2937; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="720" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">EUI-64: MAC アドレスからインターフェース ID への変換</text>
+  <text class="sub" x="40" y="66">例: MAC アドレス 00:12:34:56:78:9A の場合</text>
+
+  <!-- Row1: MAC address -->
+  <text class="rowlabel" x="550" y="108">MAC アドレス（48 ビット）</text>
+  <g>
+    <rect x="255" y="122" width="90" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="300" y="150">00</text>
+    <rect x="355" y="122" width="90" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="400" y="150">12</text>
+    <rect x="455" y="122" width="90" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="500" y="150">34</text>
+    <rect x="555" y="122" width="90" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="600" y="150">56</text>
+    <rect x="655" y="122" width="90" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="700" y="150">78</text>
+    <rect x="755" y="122" width="90" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="800" y="150">9A</text>
+  </g>
+  <line x1="255" y1="180" x2="545" y2="180" stroke="#2779ca" stroke-width="2"/>
+  <text class="grouplabel" x="400" y="196" fill="#1d4ed8">OUI（ベンダ識別子・前半 24 ビット）</text>
+  <line x1="555" y1="180" x2="845" y2="180" stroke="#7ea800" stroke-width="2"/>
+  <text class="grouplabel" x="700" y="196" fill="#3f6212">デバイス識別部（後半 24 ビット）</text>
+
+  <!-- Arrow 1 -->
+  <line x1="550" y1="218" x2="550" y2="258" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text class="steplabel" x="550" y="240" fill="#b45309">① 中央に fffe（16 ビット）を挿入</text>
+
+  <!-- Row2: after insertion -->
+  <text class="rowlabel" x="550" y="290">挿入後（64 ビット）</text>
+  <g>
+    <rect x="202" y="304" width="80" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="242" y="332">00</text>
+    <rect x="290" y="304" width="80" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="330" y="332">12</text>
+    <rect x="378" y="304" width="80" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="418" y="332">34</text>
+    <rect x="466" y="304" width="80" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="506" y="332">FF</text>
+    <rect x="554" y="304" width="80" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="594" y="332">FE</text>
+    <rect x="642" y="304" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="682" y="332">56</text>
+    <rect x="730" y="304" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="770" y="332">78</text>
+    <rect x="818" y="304" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="858" y="332">9A</text>
+  </g>
+  <text class="tag" x="550" y="368">↑ fffe が中央に挿入され 48→64 ビットに拡張</text>
+
+  <!-- binary detail box -->
+  <rect x="790" y="378" width="270" height="112" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+  <text class="binhead" x="808" y="400">先頭バイトの U/L ビット反転</text>
+  <text class="binline" x="808" y="422" fill="#374151">00 = 0000 000<tspan fill="#dc2626" font-weight="700">0</tspan></text>
+  <text class="binline" x="808" y="444" fill="#6b7280">　　　　7番目のビットを反転</text>
+  <text class="binline" x="808" y="466" fill="#374151">02 = 0000 001<tspan fill="#dc2626" font-weight="700">0</tspan></text>
+
+  <!-- Arrow 2 -->
+  <line x1="550" y1="392" x2="550" y2="432" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text class="steplabel" x="550" y="414" fill="#b45309">② 先頭バイトの U/L ビットを反転（00 → 02）</text>
+
+  <!-- Row3: final -->
+  <text class="rowlabel" x="550" y="464">インターフェース ID（64 ビット・完成）</text>
+  <text class="tag" x="242" y="472">反転</text>
+  <g>
+    <rect x="202" y="478" width="80" height="44" rx="6" fill="#8b5cf6"/>
+    <text class="cell" x="242" y="506">02</text>
+    <rect x="290" y="478" width="80" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="330" y="506">12</text>
+    <rect x="378" y="478" width="80" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="418" y="506">34</text>
+    <rect x="466" y="478" width="80" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="506" y="506">FF</text>
+    <rect x="554" y="478" width="80" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="594" y="506">FE</text>
+    <rect x="642" y="478" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="682" y="506">56</text>
+    <rect x="730" y="478" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="770" y="506">78</text>
+    <rect x="818" y="478" width="80" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="858" y="506">9A</text>
+  </g>
+
+  <!-- final formatted result -->
+  <rect x="330" y="540" width="440" height="56" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+  <text class="result" x="550" y="576">0212:34ff:fe56:789a</text>
+
+  <!-- footer -->
+  <rect x="50" y="616" width="1000" height="72" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="goal" x="70" y="642">🎯 試験のポイント: MAC アドレスの中央に fffe を挿入し、先頭バイトの U/L ビットを反転させる。</text>
+  <text class="goal" x="70" y="664">元の先頭バイトが 00 の場合は 02 になる（U/L ビット反転＝グローバルに一意であることを示す）パターンが頻出。</text>
+</svg>

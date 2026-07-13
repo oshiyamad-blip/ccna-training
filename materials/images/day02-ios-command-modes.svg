@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="780" viewBox="0 0 1360 780">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .hdr { font-size: 16px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .prompt { font-size: 16px; font-weight: 700; text-anchor: middle; font-family: "DejaVu Sans Mono", monospace; }
+      .desc { font-size: 12.5px; fill: #4b5563; text-anchor: middle; }
+      .lbl { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .lblsub { font-size: 11px; fill: #6b7280; text-anchor: middle; }
+      .arc-lbl { font-size: 14px; font-weight: 700; fill: #8b5cf6; text-anchor: middle; }
+      .note { font-size: 14px; }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151"/>
+    </marker>
+    <marker id="arrowhead-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
+    </marker>
+    <marker id="arrowhead-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <rect width="1360" height="780" fill="#ffffff"/>
+
+  <text class="title" x="40" y="44">IOS コマンドモードの状態遷移</text>
+  <text class="sub" x="40" y="70">プロンプトの形でモードを判別する／ exit は「1 段階だけ戻る」、end（Ctrl+Z）は「特権 EXEC へ一気に戻る」</text>
+
+  <!-- long arc: end from sub-config straight to privileged EXEC -->
+  <path d="M 1240 300 C 1240 145, 520 145, 520 300" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="2 6" marker-end="url(#arrowhead-purple)"/>
+  <text class="arc-lbl" x="880" y="128">end （または Ctrl+Z）</text>
+  <text class="lblsub" x="880" y="146">どのモードにいても特権 EXEC へ一気に戻る</text>
+
+  <!-- forward/backward transitions between boxes -->
+  <!-- Box1 <-> Box2 -->
+  <line x1="260" y1="345" x2="420" y2="345" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="340" y="330">enable</text>
+  <line x1="420" y1="415" x2="260" y2="415" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="340" y="440">disable</text>
+
+  <!-- Box2 <-> Box3 -->
+  <line x1="620" y1="345" x2="780" y2="345" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="700" y="330">conf t</text>
+  <text class="lblsub" x="700" y="313">（configure terminal）</text>
+  <line x1="780" y1="415" x2="620" y2="415" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="700" y="440">exit / end</text>
+
+  <!-- Box3 <-> Box4 -->
+  <line x1="980" y1="345" x2="1140" y2="345" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="1060" y="330">interface / line</text>
+  <line x1="1140" y1="415" x2="980" y2="415" stroke="#374151" stroke-width="2.2" marker-end="url(#arrowhead)"/>
+  <text class="lbl" x="1060" y="440">exit</text>
+
+  <!-- Box1: ユーザ EXEC -->
+  <g>
+    <rect x="60" y="300" width="200" height="160" rx="12" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5"/>
+    <path d="M 60 312 a 12 12 0 0 1 12 -12 h 176 a 12 12 0 0 1 12 12 v 22 h -200 z" fill="#2779ca"/>
+    <text class="hdr" x="160" y="328">ユーザ EXEC</text>
+    <text class="prompt" x="160" y="378">Router&gt;</text>
+    <text class="desc" x="160" y="412">ping など限定的な</text>
+    <text class="desc" x="160" y="428">確認コマンドのみ</text>
+  </g>
+
+  <!-- Box2: 特権 EXEC -->
+  <g>
+    <rect x="420" y="300" width="200" height="160" rx="12" fill="#f0f9ec" stroke="#7ea800" stroke-width="2.5"/>
+    <path d="M 420 312 a 12 12 0 0 1 12 -12 h 176 a 12 12 0 0 1 12 12 v 22 h -200 z" fill="#7ea800"/>
+    <text class="hdr" x="520" y="328">特権 EXEC</text>
+    <text class="prompt" x="520" y="378">Router#</text>
+    <text class="desc" x="520" y="412">全 show/debug、</text>
+    <text class="desc" x="520" y="428">設定モードへの入口</text>
+  </g>
+
+  <!-- Box3: グローバル設定 -->
+  <g>
+    <rect x="780" y="300" width="200" height="160" rx="12" fill="#fff5e8" stroke="#ff9200" stroke-width="2.5"/>
+    <path d="M 780 312 a 12 12 0 0 1 12 -12 h 176 a 12 12 0 0 1 12 12 v 22 h -200 z" fill="#ff9200"/>
+    <text class="hdr" x="880" y="328">グローバル設定</text>
+    <text class="prompt" x="880" y="378" font-size="14.5">Router(config)#</text>
+    <text class="desc" x="880" y="412">ホスト名・パスワード等、</text>
+    <text class="desc" x="880" y="428">機器全体に関わる設定</text>
+  </g>
+
+  <!-- Box4: サブ設定 -->
+  <g>
+    <rect x="1140" y="300" width="200" height="160" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5"/>
+    <path d="M 1140 312 a 12 12 0 0 1 12 -12 h 176 a 12 12 0 0 1 12 12 v 22 h -200 z" fill="#8b5cf6"/>
+    <text class="hdr" x="1240" y="328">サブ設定</text>
+    <text class="prompt" x="1240" y="370" font-size="13.5">Router(config-if)#</text>
+    <text class="prompt" x="1240" y="392" font-size="13.5">Router(config-line)#</text>
+    <text class="desc" x="1240" y="424">個別インタフェース／</text>
+    <text class="desc" x="1240" y="440">回線の設定</text>
+  </g>
+
+  <!-- session end -->
+  <line x1="520" y1="460" x2="520" y2="536" stroke="#9ca3af" stroke-width="2.2" stroke-dasharray="5 5" marker-end="url(#arrowhead-gray)"/>
+  <text class="lblsub" x="600" y="490">exit ／ logout</text>
+  <text class="lblsub" x="600" y="505">（特権 EXEC から）</text>
+  <rect x="390" y="536" width="260" height="56" rx="10" fill="#f3f4f6" stroke="#9ca3af" stroke-dasharray="4 4"/>
+  <text x="520" y="558" font-size="13.5" text-anchor="middle" fill="#374151">セッション終了</text>
+  <text x="520" y="576" font-size="11.5" text-anchor="middle" fill="#6b7280">コンソール: 再ログイン画面／SSH・Telnet: 切断</text>
+
+  <!-- footer note -->
+  <rect x="60" y="660" width="1240" height="72" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="note" x="80" y="688">🎯 試験のポイント: exit は「1 つ上のモードへ戻る」だけ、end（Ctrl+Z）は「どのモードからでも特権 EXEC へ一気に戻る」。</text>
+  <text class="note" x="80" y="712">特権 EXEC での exit / logout はモードを下げず、EXEC セッションそのものを終了させる点に注意。</text>
+</svg>

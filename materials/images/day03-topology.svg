@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="920" viewBox="0 0 1200 920">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .model { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; }
+      .ip { font-size: 13px; fill: #374151; text-anchor: middle; }
+      .zoneTitle { font-size: 16px; font-weight: 700; }
+      .zoneSub { font-size: 13px; fill: #4b5563; }
+      .net { font-size: 15px; font-weight: 700; fill: #b45309; }
+      .netsub { font-size: 12px; fill: #6b7280; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="#0e9aa7"/>
+      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="none" stroke="#0b7f8a" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="3" stroke-linecap="round">
+        <line x1="-26" y1="-9" x2="18" y2="-9"/>
+        <line x1="-18" y1="9" x2="26" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 18 -14 L 30 -9 L 18 -4 Z"/>
+        <path d="M -26 -14 L -38 -9 L -26 -4 Z"/>
+        <path d="M -18 4 L -30 9 L -18 14 Z"/>
+        <path d="M 26 4 L 38 9 L 26 14 Z"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1200" height="920" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 3 ラボ: 完成トポロジ図（VLSM アドレス設計）</text>
+  <text class="sub" x="40" y="78">192.168.100.0/24 を 部署A(/26)・部署B(/27)・WANリンク(/30) に VLSM 分割してルーティングを構成する</text>
+
+  <!-- Department A zone -->
+  <rect x="70" y="100" width="470" height="300" rx="24" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="zoneTitle" x="95" y="132" fill="#2779ca">部署A ネットワーク 192.168.100.0/26</text>
+  <text class="zoneSub" x="95" y="152">有効ホスト .1〜.62（要件 50 台）</text>
+
+  <!-- Department B zone -->
+  <rect x="660" y="100" width="470" height="300" rx="24" fill="#f0fdf4" stroke="#7ea800" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="zoneTitle" x="685" y="132" fill="#7ea800">部署B ネットワーク 192.168.100.64/27</text>
+  <text class="zoneSub" x="685" y="152">有効ホスト .65〜.94（要件 25 台）</text>
+
+  <!-- ===== links (drawn first, under icons) ===== -->
+  <!-- SW1 to PCs -->
+  <line class="link" x1="430" y1="260" x2="200" y2="195"/>
+  <line class="link" x1="430" y1="260" x2="200" y2="310"/>
+  <!-- SW2 to PCs -->
+  <line class="link" x1="770" y1="260" x2="1000" y2="195"/>
+  <line class="link" x1="770" y1="260" x2="1000" y2="310"/>
+  <!-- SW1/SW2 to R1 -->
+  <line class="link" x1="430" y1="260" x2="600" y2="480"/>
+  <line class="link" x1="770" y1="260" x2="600" y2="480"/>
+  <!-- R1 to R2 (WAN link) -->
+  <line class="link" x1="600" y1="516" x2="600" y2="709"/>
+
+  <!-- iface labels: SW1-PC1 / SW1-PC2 -->
+  <text class="iface" x="245" y="196" text-anchor="middle">Fa0/2</text>
+  <text class="iface" x="245" y="290" text-anchor="middle">Fa0/3</text>
+  <!-- iface labels: SW2-PC3 / SW2-PC4 -->
+  <text class="iface" x="955" y="196" text-anchor="middle">Fa0/2</text>
+  <text class="iface" x="955" y="290" text-anchor="middle">Fa0/3</text>
+
+  <!-- iface labels: SW1-R1 -->
+  <text class="iface" x="470" y="304">Fa0/1</text>
+  <text class="iface" x="558" y="432" text-anchor="end">Gi0/0</text>
+  <text class="ip" x="500" y="450" text-anchor="end">192.168.100.1/26</text>
+  <!-- iface labels: SW2-R1 -->
+  <text class="iface" x="730" y="304" text-anchor="end">Fa0/1</text>
+  <text class="iface" x="642" y="432">Gi0/1</text>
+  <text class="ip" x="702" y="450">192.168.100.65/27</text>
+
+  <!-- WAN link labels -->
+  <text class="iface" x="558" y="540" text-anchor="end">Gi0/2</text>
+  <text class="ip" x="500" y="558" text-anchor="end">192.168.100.97/30</text>
+  <text class="net" x="500" y="596" text-anchor="end">WAN リンク 192.168.100.96/30</text>
+  <text class="netsub" x="500" y="614" text-anchor="end">有効ホスト .97〜.98（要件 2 台）</text>
+  <text class="ip" x="500" y="654" text-anchor="end">192.168.100.98/30</text>
+  <text class="iface" x="558" y="672" text-anchor="end">Gi0/0</text>
+
+  <!-- ===== switches ===== -->
+  <use href="#switch" x="430" y="260"/>
+  <text class="devname" x="430" y="204">SW1</text>
+  <text class="model" x="430" y="222">(2960)</text>
+
+  <use href="#switch" x="770" y="260"/>
+  <text class="devname" x="770" y="204">SW2</text>
+  <text class="model" x="770" y="222">(2960)</text>
+
+  <!-- ===== PCs ===== -->
+  <use href="#pc" x="200" y="195"/>
+  <text class="devname" x="200" y="255">PC1</text>
+  <text class="ip" x="200" y="273">192.168.100.2/26</text>
+
+  <use href="#pc" x="200" y="310"/>
+  <text class="devname" x="200" y="370">PC2</text>
+  <text class="ip" x="200" y="388">192.168.100.3/26</text>
+
+  <use href="#pc" x="1000" y="195"/>
+  <text class="devname" x="1000" y="255">PC3</text>
+  <text class="ip" x="1000" y="273">192.168.100.66/27</text>
+
+  <use href="#pc" x="1000" y="310"/>
+  <text class="devname" x="1000" y="370">PC4</text>
+  <text class="ip" x="1000" y="388">192.168.100.67/27</text>
+
+  <!-- ===== routers ===== -->
+  <use href="#router" x="600" y="480"/>
+  <text class="devname" x="600" y="414">R1</text>
+  <text class="model" x="600" y="432">(2911)</text>
+
+  <use href="#router" x="600" y="745"/>
+  <text class="devname" x="600" y="679">R2</text>
+  <text class="model" x="600" y="697">(2911)</text>
+
+  <!-- goal note -->
+  <rect x="70" y="800" width="1060" height="90" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="90" y="828" font-size="14">ゴール: 部署内（同一サブネット）・部署間（R1 経由）・WAN リンク越し（R2 まで）の End-to-End 疎通を確認し、</text>
+  <text x="90" y="850" font-size="14">192.168.100.0/24 の VLSM 設計にアドレスの重複（オーバーラップ）がないことを計算と実機の両方で検証する。</text>
+  <text x="90" y="874" font-size="13" fill="#6b7280">未使用アドレス: 192.168.100.100 〜 192.168.100.255（将来の拡張用として保持）</text>
+</svg>

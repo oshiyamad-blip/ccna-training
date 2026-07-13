@@ -134,6 +134,8 @@ Router>                       ← disable でユーザ EXEC へ戻る
 - 語呂で覚えるなら「`end` = 一気に `#` まで、`exit` = 一段だけ（ただし特権 EXEC
   の `exit` はセッション終了）、`disable` = `#` から `>` へ」です。
 
+![IOS コマンドモードの状態遷移](../images/day02-ios-command-modes.png)
+
 ### 編集ショートカット
 
 | キー操作 | 動作 |

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="680" viewBox="0 0 1080 680">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 22px; font-weight: 700; }
+      .layer { font-size: 15px; font-weight: 700; fill: #6b7280; }
+      .pdu { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .cell { font-size: 14px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .celld { font-size: 14px; text-anchor: middle; fill: #374151; }
+      .note { font-size: 13px; fill: #6b7280; }
+      .decap { font-size: 14px; font-weight: 700; fill: #6d28d9; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+    <marker id="arrowup" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <rect width="1080" height="680" fill="#ffffff"/>
+  <text class="title" x="40" y="48">カプセル化と非カプセル化 — 送信側は上から下へヘッダを付加し、受信側は下から上へ外していく</text>
+
+  <!-- L7 データ -->
+  <text class="layer" x="40" y="122">アプリケーション層</text>
+  <g>
+    <rect x="420" y="96" width="320" height="44" rx="6" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="124">データ</text>
+  </g>
+  <text class="pdu" x="860" y="124" fill="#6b7280">データ</text>
+
+  <line x1="580" y1="150" x2="580" y2="180" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L4 セグメント -->
+  <text class="layer" x="40" y="222">L4 トランスポート層</text>
+  <g>
+    <rect x="320" y="196" width="100" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="370" y="224">TCPヘッダ</text>
+    <rect x="420" y="196" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="224">データ</text>
+  </g>
+  <text class="pdu" x="860" y="224" fill="#2779ca">= セグメント</text>
+  <text class="note" x="320" y="258">ポート番号で通信を識別</text>
+
+  <line x1="580" y1="250" x2="580" y2="280" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L3 パケット -->
+  <text class="layer" x="40" y="322">L3 ネットワーク層</text>
+  <g>
+    <rect x="220" y="296" width="100" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="270" y="324">IPヘッダ</text>
+    <rect x="320" y="296" width="100" height="44" fill="#2779ca"/>
+    <text class="cell" x="370" y="324">TCPヘッダ</text>
+    <rect x="420" y="296" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="324">データ</text>
+  </g>
+  <text class="pdu" x="860" y="324" fill="#7ea800">= パケット</text>
+  <text class="note" x="220" y="358">送信元・宛先の IP アドレス（ルータ通過中も変化しない）</text>
+
+  <line x1="580" y1="350" x2="580" y2="380" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L2 フレーム -->
+  <text class="layer" x="120" y="388">L2 データリンク層</text>
+  <g>
+    <rect x="120" y="396" width="100" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="170" y="424">Ethヘッダ</text>
+    <rect x="220" y="396" width="100" height="44" fill="#7ea800"/>
+    <text class="cell" x="270" y="424">IPヘッダ</text>
+    <rect x="320" y="396" width="100" height="44" fill="#2779ca"/>
+    <text class="cell" x="370" y="424">TCPヘッダ</text>
+    <rect x="420" y="396" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="424">データ</text>
+    <rect x="740" y="396" width="60" height="44" rx="6" fill="#64748b"/>
+    <text class="cell" x="770" y="424">FCS</text>
+  </g>
+  <text class="pdu" x="860" y="424" fill="#d97706">= フレーム</text>
+  <text class="note" x="120" y="458">宛先 MAC（ルータ通過ごとに書き換わる）＋ 誤り検出（FCS）</text>
+
+  <line x1="580" y1="450" x2="580" y2="480" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L1 ビット -->
+  <text class="layer" x="120" y="488">L1 物理層</text>
+  <g>
+    <rect x="120" y="496" width="680" height="44" rx="6" fill="#111827"/>
+    <text x="460" y="524" font-size="15" text-anchor="middle" fill="#4ade80" font-family="monospace">0 1 0 1 1 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 1 0 0 1 …</text>
+  </g>
+  <text class="pdu" x="860" y="524" fill="#111827">= ビット</text>
+
+  <!-- decapsulation arrow (receiver side, reverse direction) -->
+  <line x1="1010" y1="528" x2="1010" y2="112" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowup)"/>
+  <text class="decap" x="1032" y="320" transform="rotate(-90 1032 320)" text-anchor="middle">受信側は下から上へ非カプセル化</text>
+
+  <!-- footer -->
+  <rect x="40" y="562" width="1000" height="88" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="60" y="586" font-size="14">🎯 試験のポイント: PDU 名（セグメント→パケット→フレーム→ビット）を層と対応づけて覚える</text>
+  <text x="60" y="608" font-size="14">L2 ヘッダ（MAC）はルータ通過ごとに書き換わるが、L3 ヘッダ（IP）は送信元から宛先まで変わらない（NAT を除く）</text>
+  <text x="60" y="630" font-size="14">L4 の PDU は TCP=セグメント、UDP=データグラムと呼び分ける（総称してセグメントと呼ぶこともある）</text>
+</svg>

@@ -14,6 +14,7 @@
 //               受講者ごとに独立した課題セット・マイルストーンが作られる。
 //               受講者ごとにプロジェクトを分ける運用（推奨）では指定不要。
 //   --assignee  課題の担当者のユーザー ID（数値、省略可）
+//   --skip-precourse  Week0「ITベーシック」プレコースを省略する（IT経験者向け）
 //   --dry-run   API を呼ばず作成予定の内容を表示する
 //
 // ローリング型（受講者が随時入学）の運用では、受講者の入学ごとに本スクリプトを
@@ -23,7 +24,7 @@
 // Node.js 18 以上（fetch 内蔵）で動作。依存パッケージなし。
 
 import {
-  ISSUE_TYPES, CATEGORIES, MILESTONES, DAYS, EXAM_PHASE_ISSUES,
+  ISSUE_TYPES, CATEGORIES, MILESTONES, DAYS, EXAM_PHASE_ISSUES, PRE_PHASE_ISSUES,
   lectureDescription, labDescription, quizDescription,
 } from './curriculum-data.mjs'
 
@@ -39,6 +40,10 @@ const START = argValue('--start')
 const TRAINEE = argValue('--trainee')
 const ASSIGNEE = argValue('--assignee')
 const DRY_RUN = args.includes('--dry-run')
+// 既定では Week0「ITベーシック」プレコース（5営業日）から開始する（受講者はITリテラシーゼロ前提）。
+// IT経験者には --skip-precourse を指定すると Day1 から開始し、Day00（環境構築）課題を別途作成する
+const SKIP_PRE = args.includes('--skip-precourse')
+const OFFSET = SKIP_PRE ? 0 : 5 // 本編 Day1 の開始が Week0 のぶん後ろにずれる
 
 // 受講者名によるプレフィックス（単一プロジェクト同居モード用）
 const summaryPrefix = TRAINEE ? `[${TRAINEE}] ` : ''
@@ -162,11 +167,11 @@ async function main() {
     const versions = await api('GET', `/projects/${PROJECT_KEY}/versions`)
     milestoneIds = await ensureByName(
       versions,
-      MILESTONES.map((m) => ({
+      MILESTONES.filter((m) => !(SKIP_PRE && m.week === 0)).map((m) => ({
         ...m,
         name: milestonePrefix + m.name,
-        startDate: addBusinessDays(START, (m.week - 1) * 5),
-        releaseDueDate: addBusinessDays(START, (m.week - 1) * 5 + 4),
+        startDate: addBusinessDays(START, m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5),
+        releaseDueDate: addBusinessDays(START, (m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5) + 4),
       })),
       (m) => api('POST', `/projects/${PROJECT_KEY}/versions`, {
         name: m.name, startDate: m.startDate, releaseDueDate: m.releaseDueDate,
@@ -185,7 +190,32 @@ async function main() {
   // 課題の生成
   let created = 0
 
-  // Day 0: 環境構築（期限 = 開講前日）
+  // Week 0 プレコース（既定）: P1〜P5 の課題
+  if (!SKIP_PRE) {
+    for (const e of PRE_PHASE_ISSUES) {
+      const dueDate = addBusinessDays(START, e.day - 1)
+      const summary = summaryPrefix + e.summary
+      if (DRY_RUN) {
+        console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=${e.type} 週=Week0`)
+        created++
+        continue
+      }
+      await api('POST', '/issues', {
+        projectId,
+        summary,
+        description: e.description,
+        issueTypeId: issueTypeIds.get(e.type),
+        priorityId,
+        dueDate,
+        'milestoneId[]': [milestoneIds.get(milestonePrefix + MILESTONES.find((m) => m.week === 0).name)],
+        ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
+      })
+      created++
+      console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+    }
+  }
+
+  // Day 0: 環境構築（期限 = 開講前日）。プレコースあり時は P5 に統合されるため作成しない
   const day00 = {
     summary: `${summaryPrefix}[Day00] 環境構築: Packet Tracer セットアップ`,
     dueDate: prevBusinessDay(START),
@@ -207,7 +237,9 @@ async function main() {
       '- [ ] スクリーンショットと .pkt を提出した',
     ].join('\n'),
   }
-  if (DRY_RUN) {
+  if (!SKIP_PRE) {
+    // プレコースありの場合、環境構築は P5 で実施
+  } else if (DRY_RUN) {
     console.log(`[dry-run] 課題: ${day00.summary}  期限=${day00.dueDate} 種別=ラボ 週=Week1`)
     created++
   } else {
@@ -227,7 +259,7 @@ async function main() {
 
   for (const d of DAYS) {
     const dd = String(d.day).padStart(2, '0')
-    const dueDate = addBusinessDays(START, d.day - 1)
+    const dueDate = addBusinessDays(START, OFFSET + d.day - 1)
     const quizType = d.weeklyTest ? '週次テスト' : '小テスト'
     const quizTitle = d.finalTest
       ? `${summaryPrefix}[Day${dd}] 修了テスト: 全範囲（60問/120分）`
@@ -265,7 +297,7 @@ async function main() {
 
   // 試験対策フェーズ（Day 21〜25）: 模試サイクルの課題
   for (const e of EXAM_PHASE_ISSUES) {
-    const dueDate = addBusinessDays(START, e.day - 1)
+    const dueDate = addBusinessDays(START, OFFSET + e.day - 1)
     const summary = summaryPrefix + e.summary
     if (DRY_RUN) {
       console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=${e.type} 週=Week5`)
