@@ -51,10 +51,10 @@
   <line class="trunk" x1="478" y1="380" x2="722" y2="380"/>
 
   <!-- interface labels near switches -->
-  <text class="iface" x="356" y="322">Fa0/1</text>
-  <text class="iface" x="356" y="440">Fa0/2</text>
-  <text class="iface" x="844" y="322" text-anchor="end">Fa0/1</text>
-  <text class="iface" x="844" y="440" text-anchor="end">Fa0/2</text>
+  <text class="iface" x="336" y="347" text-anchor="end">Fa0/1</text>
+  <text class="iface" x="336" y="418" text-anchor="end">Fa0/2</text>
+  <text class="iface" x="824" y="347">Fa0/1</text>
+  <text class="iface" x="824" y="418">Fa0/2</text>
 
   <!-- inter-switch link labels -->
   <text class="linklabel" x="500" y="366">Gi0/1</text>

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .model { font-size: 13px; text-anchor: middle; fill: #6b7280; }
+      .iface { font-size: 13px; font-weight: 700; fill: #0e9aa7; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .vlanhead { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .link10 { stroke: #2779ca; stroke-width: 3; }
+      .link20 { stroke: #7ea800; stroke-width: 3; }
+    </style>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="#0e9aa7"/>
+      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="none" stroke="#0b7a85" stroke-width="2.5"/>
+      <line x1="-30" y1="-11" x2="30" y2="-11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M -30 -11 L -21 -17 L -21 -5 Z" fill="#ffffff"/>
+      <path d="M 30 -11 L 21 -17 L 21 -5 Z" fill="#ffffff"/>
+      <line x1="-30" y1="11" x2="30" y2="11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M -30 11 L -21 5 L -21 17 Z" fill="#ffffff"/>
+      <path d="M 30 11 L 21 5 L 21 17 Z" fill="#ffffff"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="760" fill="#ffffff"/>
+
+  <text class="title" x="40" y="52">Day 6 ラボ: 完成トポロジ</text>
+  <text class="sub" x="40" y="80">スイッチ 1 台（2960）・PC 4 台 ／ VLAN 10（SALES）と VLAN 20（IT）でブロードキャストドメインを分離</text>
+
+  <!-- VLAN 10 area -->
+  <rect x="40" y="102" width="480" height="560" rx="22" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="9 6"/>
+  <text class="vlanhead" x="280" y="134" fill="#2779ca">VLAN 10（SALES） — 192.168.10.0/24</text>
+
+  <!-- VLAN 20 area -->
+  <rect x="680" y="102" width="480" height="560" rx="22" fill="#f0fdf4" stroke="#7ea800" stroke-width="2.5" stroke-dasharray="9 6"/>
+  <text class="vlanhead" x="920" y="134" fill="#4d7c0f">VLAN 20（IT） — 192.168.20.0/24</text>
+
+  <!-- PC-SW connecting links -->
+  <line class="link10" x1="280" y1="190" x2="600" y2="380"/>
+  <line class="link10" x1="280" y1="570" x2="600" y2="380"/>
+  <line class="link20" x1="920" y1="190" x2="600" y2="380"/>
+  <line class="link20" x1="920" y1="570" x2="600" y2="380"/>
+
+  <!-- interface labels near switch -->
+  <text class="iface" x="500" y="308" text-anchor="end">Fa0/1</text>
+  <text class="iface" x="500" y="456" text-anchor="end">Fa0/2</text>
+  <text class="iface" x="700" y="308">Fa0/3</text>
+  <text class="iface" x="700" y="456">Fa0/4</text>
+
+  <!-- SW1 -->
+  <use href="#switch" x="600" y="380"/>
+  <text class="devname" x="600" y="300">SW1</text>
+  <text class="model" x="600" y="320">Catalyst 2960</text>
+
+  <!-- PC1 -->
+  <use href="#pc" x="280" y="190"/>
+  <text class="devname" x="280" y="248">PC1</text>
+  <text class="ip" x="280" y="268">192.168.10.11 /24</text>
+
+  <!-- PC2 -->
+  <use href="#pc" x="280" y="570"/>
+  <text class="devname" x="280" y="500">PC2</text>
+  <text class="ip" x="280" y="520">192.168.10.12 /24</text>
+
+  <!-- PC3 -->
+  <use href="#pc" x="920" y="190"/>
+  <text class="devname" x="920" y="248">PC3</text>
+  <text class="ip" x="920" y="268">192.168.20.21 /24</text>
+
+  <!-- PC4 -->
+  <use href="#pc" x="920" y="570"/>
+  <text class="devname" x="920" y="500">PC4</text>
+  <text class="ip" x="920" y="520">192.168.20.22 /24</text>
+
+  <!-- goal note -->
+  <rect x="40" y="680" width="1120" height="56" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="60" y="705" font-size="14">ゴール: 同一 VLAN 内（PC1⇄PC2、PC3⇄PC4）では ping が成功し、異なる VLAN 間（例: PC1→PC3）では ping が失敗すること</text>
+  <text x="60" y="726" font-size="14">（Request timed out）を、show vlan brief ／ show mac address-table と疎通試験の両方から検証する。</text>
+</svg>

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="700" viewBox="0 0 1000 700">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .stepnum { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .desc { font-size: 13px; text-anchor: middle; }
+      .branch { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .diamondtext { font-size: 15px; font-weight: 700; text-anchor: middle; }
+      .note { font-size: 13px; text-anchor: middle; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="700" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">スイッチのフレーム転送判断ロジック</text>
+  <text class="sub" x="40" y="68">フレームを 1 枚受信するたびに「学習 → 転送判断 →（必要なら）フィルタリング」の順で処理する</text>
+
+  <!-- Start box -->
+  <rect x="380" y="90" width="240" height="50" rx="8" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="500" y="121" font-size="15" font-weight="700" text-anchor="middle">フレームを受信</text>
+
+  <line x1="500" y1="140" x2="500" y2="170" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- Learn box -->
+  <rect x="280" y="172" width="440" height="64" rx="10" fill="#2779ca"/>
+  <text x="500" y="198" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff">① 学習（Learning）</text>
+  <text x="500" y="222" font-size="13" text-anchor="middle" fill="#ffffff">送信元 MAC アドレス＋受信ポートを MAC アドレステーブルに記録</text>
+
+  <line x1="500" y1="236" x2="500" y2="256" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- Decision diamond -->
+  <polygon points="500,256 670,318 500,380 330,318" fill="#fff7ed" stroke="#ff9200" stroke-width="3"/>
+  <text class="diamondtext" x="500" y="313">宛先 MAC アドレスは</text>
+  <text class="diamondtext" x="500" y="333">MAC アドレステーブルにある？</text>
+
+  <!-- branch lines -->
+  <line x1="500" y1="380" x2="750" y2="428" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="500" y1="380" x2="250" y2="428" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text class="branch" x="655" y="398" fill="#7ea800">はい（既知）</text>
+  <text class="branch" x="345" y="398" fill="#8b5cf6">いいえ（未知／ブロードキャスト等）</text>
+
+  <!-- Yes: unicast forward box -->
+  <rect x="600" y="430" width="300" height="90" rx="10" fill="#7ea800"/>
+  <text x="750" y="458" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff">② ユニキャスト転送</text>
+  <text x="750" y="480" font-size="13" text-anchor="middle" fill="#ffffff">該当ポートだけへ転送</text>
+  <text x="750" y="500" font-size="13" text-anchor="middle" fill="#ffffff">（フォワーディング）</text>
+
+  <!-- No: flooding box -->
+  <rect x="100" y="430" width="300" height="90" rx="10" fill="#8b5cf6"/>
+  <text x="250" y="458" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff">② フラッディング</text>
+  <text x="250" y="480" font-size="13" text-anchor="middle" fill="#ffffff">受信ポート以外の全ポートへ転送</text>
+  <text x="250" y="500" font-size="12.5" text-anchor="middle" fill="#ffffff">unknown unicast／ブロードキャスト／マルチキャスト</text>
+
+  <line x1="750" y1="520" x2="750" y2="548" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- Filtering box -->
+  <rect x="600" y="550" width="300" height="80" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="750" y="576" font-size="15" font-weight="700" text-anchor="middle" fill="#374151">③ フィルタリング</text>
+  <text x="750" y="597" font-size="12.5" text-anchor="middle" fill="#374151">送信元・宛先が同じポート内と分かれば</text>
+  <text x="750" y="616" font-size="12.5" text-anchor="middle" fill="#374151">他ポートへは転送しない</text>
+
+  <!-- footer note -->
+  <rect x="40" y="650" width="920" height="40" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="500" y="675" font-size="13.5" text-anchor="middle" fill="#1e3a8a">💡 学習した動的エントリにはエージングタイム（既定 300 秒）があり、無通信が続くと自動的に削除される</text>
+</svg>

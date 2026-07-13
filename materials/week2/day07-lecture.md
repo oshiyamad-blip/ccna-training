@@ -165,6 +165,8 @@ Switch(config-if)# switchport trunk native vlan 99
 %CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch discovered on FastEthernet0/24 (99), with Switch2 FastEthernet0/24 (1).
 ```
 
+![トランクにおけるタグ付け／ネイティブVLANの挙動](../images/day07-native-vlan-mismatch.png)
+
 ### セキュリティ上の推奨 — VLAN ホッピング攻撃
 
 **VLAN ホッピング攻撃**とは、本来アクセスできないはずの VLAN へ不正に

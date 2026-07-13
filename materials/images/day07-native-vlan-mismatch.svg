@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="800" viewBox="0 0 1100 800">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .panel { font-size: 16px; font-weight: 700; }
+      .devname { font-size: 15px; font-weight: 700; text-anchor: middle; }
+      .devsub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .lbl { font-size: 13px; text-anchor: middle; }
+      .lblsub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .tag { font-size: 12px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .log { font-family: monospace; font-size: 12px; fill: #4ade80; }
+      .warn { font-size: 13px; font-weight: 700; fill: #b45309; }
+    </style>
+    <marker id="arrowblue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2779ca"/>
+    </marker>
+    <marker id="arrowgray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arroworange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff9200"/>
+    </marker>
+    <g id="pc">
+      <rect x="-24" y="-22" width="48" height="33" rx="4" fill="#475569"/>
+      <rect x="-19" y="-17.5" width="38" height="24" rx="2" fill="#bfdbfe"/>
+      <rect x="-7" y="11" width="14" height="5" fill="#475569"/>
+      <rect x="-16" y="16" width="32" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-48" y="-32" width="96" height="64" rx="9" fill="#0e9aa7"/>
+      <rect x="-48" y="-32" width="96" height="64" rx="9" fill="none" stroke="#0b7a85" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-29" y1="-10" x2="29" y2="-10"/>
+        <line x1="-29" y1="10" x2="29" y2="10"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -29 -10 L -20 -15.5 L -20 -4.5 Z"/>
+        <path d="M 29 -10 L 20 -15.5 L 20 -4.5 Z"/>
+        <path d="M 29 10 L 20 4.5 L 20 15.5 Z"/>
+        <path d="M -29 10 L -20 4.5 L -20 15.5 Z"/>
+      </g>
+    </g>
+    <g id="warnTri">
+      <path d="M 0 -14 L 14 12 L -14 12 Z" fill="#ff9200"/>
+      <text x="0" y="8" font-size="16" font-weight="700" text-anchor="middle" fill="#ffffff">!</text>
+    </g>
+  </defs>
+
+  <rect width="1100" height="800" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">トランクにおけるタグ付け／ネイティブ VLAN の挙動</text>
+  <text class="sub" x="40" y="66">アクセスポートで受信したフレームはトランクへ出る際にタグが付き、反対側のアクセスポートでタグが外れる。</text>
+  <text class="sub" x="40" y="84">ネイティブ VLAN が両端で不一致だと、タグなしフレームが別の VLAN として誤解釈され VLAN リークが発生する。</text>
+
+  <!-- ===================== Panel A: 正常系 ===================== -->
+  <rect x="30" y="106" width="1040" height="290" rx="16" fill="#f0fdf4" stroke="#7ea800" stroke-width="2"/>
+  <text class="panel" x="52" y="136" fill="#5a7d00">① 正常系 ― ネイティブ VLAN が両端で一致（既定の VLAN1）</text>
+
+  <!-- devices -->
+  <use href="#pc" x="110" y="284"/>
+  <text class="devname" x="110" y="236">PC1</text>
+  <text class="devsub" x="110" y="329">VLAN10 ／ アクセスポート</text>
+
+  <use href="#switch" x="330" y="284"/>
+  <text class="devname" x="330" y="236">SW1</text>
+  <text class="devsub" x="330" y="329">Native VLAN 1</text>
+
+  <use href="#switch" x="740" y="284"/>
+  <text class="devname" x="740" y="236">SW2</text>
+  <text class="devsub" x="740" y="329">Native VLAN 1</text>
+
+  <use href="#pc" x="960" y="284"/>
+  <text class="devname" x="960" y="236">PC3</text>
+  <text class="devsub" x="960" y="329">VLAN10 ／ アクセスポート</text>
+
+  <!-- PC1-SW1 -->
+  <line x1="134" y1="284" x2="282" y2="284" stroke="#94a3b8" stroke-width="2.5"/>
+  <text class="lbl" x="208" y="270">untagged</text>
+  <text class="lblsub" x="208" y="306">（VLAN10 のフレーム）</text>
+
+  <!-- trunk: tagged frame -->
+  <line x1="378" y1="266" x2="692" y2="266" stroke="#2779ca" stroke-width="3" marker-end="url(#arrowblue)"/>
+  <rect x="500" y="248" width="70" height="22" rx="4" fill="#2779ca"/>
+  <text class="tag" x="535" y="263">VID=10</text>
+  <text class="lblsub" x="535" y="236" fill="#2779ca">タグ付きフレームでトランクを通過</text>
+
+  <!-- trunk: native untagged (e.g. CDP) -->
+  <line x1="378" y1="306" x2="692" y2="306" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#arrowgray)"/>
+  <text class="lblsub" x="535" y="326">ネイティブ VLAN（CDP 等）はタグなしのまま通過</text>
+
+  <!-- SW2-PC3 -->
+  <line x1="788" y1="284" x2="936" y2="284" stroke="#94a3b8" stroke-width="2.5"/>
+  <text class="lbl" x="862" y="270">untagged</text>
+  <text class="lblsub" x="862" y="306">（タグを除去して転送）</text>
+
+  <!-- ===================== Panel B: 異常系 ===================== -->
+  <rect x="30" y="416" width="1040" height="360" rx="16" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="panel" x="52" y="446" fill="#b45309">② 異常系 ― ネイティブ VLAN 不一致（SW1 = VLAN99 ／ SW2 = VLAN1）</text>
+
+  <use href="#switch" x="330" y="530"/>
+  <text class="devname" x="330" y="482">SW1</text>
+  <text class="devsub" x="330" y="575">Native VLAN 99</text>
+
+  <use href="#switch" x="740" y="530"/>
+  <text class="devname" x="740" y="482">SW2</text>
+  <text class="devsub" x="740" y="575">Native VLAN 1（既定のまま）</text>
+
+  <!-- untagged frame from SW1 -->
+  <line x1="378" y1="518" x2="692" y2="518" stroke="#ff9200" stroke-width="3" marker-end="url(#arroworange)"/>
+  <rect x="470" y="494" width="200" height="24" rx="4" fill="#ffffff" stroke="#ff9200" stroke-width="2"/>
+  <text class="lbl" x="570" y="511" fill="#b45309">untagged（SW1: VLAN99 送信）</text>
+
+  <!-- SW2 misinterprets -->
+  <line x1="740" y1="562" x2="740" y2="606" stroke="#ff9200" stroke-width="3" marker-end="url(#arroworange)"/>
+  <use href="#warnTri" x="820" y="606"/>
+  <rect x="620" y="616" width="240" height="48" rx="8" fill="#ffffff" stroke="#ff9200" stroke-width="2"/>
+  <text class="lbl" x="740" y="636" fill="#b45309" font-weight="700">SW2 は自分の Native VLAN1 と</text>
+  <text class="lbl" x="740" y="654" fill="#b45309" font-weight="700">誤解釈 → VLAN リーク発生</text>
+
+  <!-- CDP log callout -->
+  <rect x="60" y="616" width="500" height="86" rx="8" fill="#111827"/>
+  <text class="log" x="76" y="640">%CDP-4-NATIVE_VLAN_MISMATCH: Native VLAN mismatch</text>
+  <text class="log" x="76" y="660">discovered on FastEthernet0/24 (99), with Switch2</text>
+  <text class="log" x="76" y="680">FastEthernet0/24 (1).</text>
+
+  <text class="warn" x="60" y="726">対処: 両スイッチの switchport trunk native vlan を同じ値に揃える</text>
+</svg>

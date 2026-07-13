@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .devsub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .iface { font-size: 13px; font-weight: 700; fill: #374151; }
+      .ip { font-size: 13px; text-anchor: middle; fill: #374151; }
+      .vlan10 { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #1d5a94; }
+      .vlan20 { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #5a7d00; }
+      .net { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .trunklabel { font-size: 14px; font-weight: 700; text-anchor: middle; fill: #6d28d9; }
+      .trunksub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .legend { font-size: 13px; fill: #374151; }
+      .linkv10 { stroke: #2779ca; stroke-width: 3; }
+      .linkv20 { stroke: #7ea800; stroke-width: 3; }
+      .linktrunk { stroke: #8b5cf6; stroke-width: 6; }
+    </style>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-55" y="-35" width="110" height="70" rx="10" fill="#0e9aa7"/>
+      <rect x="-55" y="-35" width="110" height="70" rx="10" fill="none" stroke="#0b7a85" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-34" y1="-11" x2="34" y2="-11"/>
+        <line x1="-34" y1="11" x2="34" y2="11"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -34 -11 L -24 -17 L -24 -5 Z"/>
+        <path d="M 34 -11 L 24 -17 L 24 -5 Z"/>
+        <path d="M 34 11 L 24 5 L 24 17 Z"/>
+        <path d="M -34 11 L -24 5 L -24 17 Z"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1200" height="760" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 7 ラボ: トランクの構築とネイティブ VLAN 不一致のトラブルシューティング</text>
+  <text class="sub" x="40" y="76">完成トポロジ ― SW1・SW2 間を 802.1Q トランクで接続し、VLAN をまたいだ PC 間通信を確認する</text>
+
+  <!-- legend -->
+  <g>
+    <rect x="40" y="94" width="16" height="16" fill="#2779ca"/>
+    <text class="legend" x="62" y="107">VLAN10（SALES）192.168.10.0/24</text>
+    <rect x="330" y="94" width="16" height="16" fill="#7ea800"/>
+    <text class="legend" x="352" y="107">VLAN20（DEV）192.168.20.0/24</text>
+    <rect x="620" y="98" width="26" height="8" fill="#8b5cf6"/>
+    <text class="legend" x="654" y="107">トランク（802.1Q・タグ付き）</text>
+  </g>
+
+  <!-- ================= links (drawn first, icons on top) ================= -->
+  <line class="linkv10" x1="150" y1="230" x2="450" y2="400"/>
+  <line class="linkv20" x1="150" y1="570" x2="450" y2="400"/>
+  <line class="linktrunk" x1="505" y1="400" x2="735" y2="400"/>
+  <line class="linkv10" x1="790" y1="400" x2="1080" y2="230"/>
+  <line class="linkv20" x1="790" y1="400" x2="1080" y2="570"/>
+
+  <!-- trunk labels -->
+  <text class="trunklabel" x="620" y="378">トランク（クロスケーブル）</text>
+  <text class="trunksub" x="620" y="424">Native VLAN 99 ／ 許可VLAN 10,20</text>
+  <text class="iface" x="540" y="392">Fa0/24</text>
+  <text class="iface" x="723" y="392" text-anchor="end">Fa0/24</text>
+
+  <!-- ================= SW1 ================= -->
+  <use href="#switch" x="450" y="400"/>
+  <text class="devname" x="450" y="350">SW1（Catalyst 2960）</text>
+
+  <!-- SW1 port labels toward PC1 / PC2 -->
+  <text class="iface" x="335" y="290">Fa0/1</text>
+  <text class="iface" x="335" y="520">Fa0/2</text>
+
+  <!-- ================= SW2 ================= -->
+  <use href="#switch" x="790" y="400"/>
+  <text class="devname" x="790" y="350">SW2（Catalyst 2960）</text>
+
+  <!-- SW2 port labels toward PC3 / PC4 -->
+  <text class="iface" x="905" y="290">Fa0/1</text>
+  <text class="iface" x="905" y="520">Fa0/2</text>
+
+  <!-- ================= PC1 ================= -->
+  <use href="#pc" x="150" y="230"/>
+  <text class="devname" x="150" y="180">PC1</text>
+  <text class="ip" x="150" y="270">192.168.10.11/24</text>
+  <text class="vlan10" x="150" y="290">VLAN10（SALES）</text>
+
+  <!-- ================= PC2 ================= -->
+  <use href="#pc" x="150" y="570"/>
+  <text class="devname" x="150" y="620">PC2</text>
+  <text class="ip" x="150" y="530">192.168.20.21/24</text>
+  <text class="vlan20" x="150" y="510">VLAN20（DEV）</text>
+
+  <!-- ================= PC3 ================= -->
+  <use href="#pc" x="1080" y="230"/>
+  <text class="devname" x="1080" y="180">PC3</text>
+  <text class="ip" x="1080" y="270">192.168.10.13/24</text>
+  <text class="vlan10" x="1080" y="290">VLAN10（SALES）</text>
+
+  <!-- ================= PC4 ================= -->
+  <use href="#pc" x="1080" y="570"/>
+  <text class="devname" x="1080" y="620">PC4</text>
+  <text class="ip" x="1080" y="530">192.168.20.22/24</text>
+  <text class="vlan20" x="1080" y="510">VLAN20（DEV）</text>
+
+  <!-- goal note -->
+  <rect x="40" y="666" width="1120" height="70" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="60" y="692" font-size="14">ゴール: SW1-SW2 間を 802.1Q トランクで接続し、同一 VLAN の PC がスイッチをまたいで通信できることを確認する。</text>
+  <text x="60" y="716" font-size="14">許可 VLAN リストの add の有無による挙動の違いを体験し、ネイティブ VLAN 不一致（CDP ログ）を作り込んで修正する。</text>
+</svg>

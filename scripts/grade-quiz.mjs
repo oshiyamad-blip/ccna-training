@@ -34,10 +34,16 @@ if (!ISSUE || ANSWERS.length === 0 || !SPACE_URL || !API_KEY) {
   console.error('  引数    : --issue <課題キー> --answers "B,C,..." [--points 10] [--post]')
   process.exit(1)
 }
-if (ANSWERS.some((a) => !/^[A-D]$/.test(a))) {
-  console.error('--answers には A〜D のみをカンマ区切りで指定してください（記述問題は含めない）。')
+// 単一選択は "B"、複数選択は "B|D" のようにパイプ区切りで指定する
+// （--answers はカンマが設問区切りのため。例: --answers "B,C,A|C,D"）
+if (ANSWERS.some((a) => !/^[A-D](\|[A-D])*$/.test(a))) {
+  console.error('--answers には A〜D（複数選択は "A|C" のようにパイプ区切り）をカンマ区切りで指定してください。')
   process.exit(1)
 }
+
+// 解答の正規化: 大文字化し、区切り（,、|、・、スペース）を除いて文字を昇順に並べる
+// （受講者が「A,C」「c a」「AC」のどれで書いても同一視する）
+const normalize = (v) => (v ?? '').toUpperCase().replace(/[^A-D]/g, '').split('').sort().join('')
 
 async function api(method, path, params = {}) {
   const url = new URL(`${SPACE_URL}/api/v2${path}`)
@@ -87,10 +93,10 @@ async function main() {
   const lines = []
   for (let i = 0; i < ANSWERS.length; i++) {
     const q = i + 1
-    const ans = (given.get(q) ?? '').toUpperCase()
-    const ok = ans === ANSWERS[i]
+    const ans = normalize(given.get(q))
+    const ok = ans !== '' && ans === normalize(ANSWERS[i])
     if (ok) correct++
-    lines.push(`Q${q}: 提出=${given.get(q) ?? '（未解答）'} 正答=${ANSWERS[i]} ${ok ? '○' : '×'}`)
+    lines.push(`Q${q}: 提出=${given.get(q) ?? '（未解答）'} 正答=${ANSWERS[i].replaceAll('|', ',')} ${ok ? '○' : '×'}`)
   }
 
   // 正答リストより後の設問（記述式）は手動採点
