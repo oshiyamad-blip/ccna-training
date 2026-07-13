@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .layer { font-size: 15px; font-weight: 700; fill: #6b7280; }
+      .pdu { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .cell { font-size: 14px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .celld { font-size: 14px; text-anchor: middle; fill: #374151; }
+      .note { font-size: 13px; fill: #6b7280; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="640" fill="#ffffff"/>
+  <text class="title" x="40" y="50">カプセル化の流れ（送信側）— 各層でヘッダが付き、PDU の名前が変わる</text>
+
+  <!-- L7 データ -->
+  <text class="layer" x="40" y="122">アプリケーション層</text>
+  <g>
+    <rect x="420" y="96" width="320" height="44" rx="6" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="124">データ</text>
+  </g>
+  <text class="pdu" x="880" y="124" fill="#6b7280">データ</text>
+
+  <line x1="580" y1="150" x2="580" y2="180" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L4 セグメント -->
+  <text class="layer" x="40" y="222">L4 トランスポート層</text>
+  <g>
+    <rect x="320" y="196" width="100" height="44" rx="6" fill="#2779ca"/>
+    <text class="cell" x="370" y="224">TCPヘッダ</text>
+    <rect x="420" y="196" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="224">データ</text>
+  </g>
+  <text class="pdu" x="880" y="224" fill="#2779ca">= セグメント</text>
+  <text class="note" x="320" y="258">ポート番号で通信を識別</text>
+
+  <line x1="580" y1="250" x2="580" y2="280" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L3 パケット -->
+  <text class="layer" x="40" y="322">L3 ネットワーク層</text>
+  <g>
+    <rect x="220" y="296" width="100" height="44" rx="6" fill="#7ea800"/>
+    <text class="cell" x="270" y="324">IPヘッダ</text>
+    <rect x="320" y="296" width="100" height="44" fill="#2779ca"/>
+    <text class="cell" x="370" y="324">TCPヘッダ</text>
+    <rect x="420" y="296" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="324">データ</text>
+  </g>
+  <text class="pdu" x="880" y="324" fill="#7ea800">= パケット</text>
+  <text class="note" x="220" y="358">送信元・宛先の IP アドレス</text>
+
+  <line x1="580" y1="350" x2="580" y2="380" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L2 フレーム -->
+  <text class="layer" x="120" y="388">L2 データリンク層</text>
+  <g>
+    <rect x="120" y="396" width="100" height="44" rx="6" fill="#ff9200"/>
+    <text class="cell" x="170" y="424">Ethヘッダ</text>
+    <rect x="220" y="396" width="100" height="44" fill="#7ea800"/>
+    <text class="cell" x="270" y="424">IPヘッダ</text>
+    <rect x="320" y="396" width="100" height="44" fill="#2779ca"/>
+    <text class="cell" x="370" y="424">TCPヘッダ</text>
+    <rect x="420" y="396" width="320" height="44" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+    <text class="celld" x="580" y="424">データ</text>
+    <rect x="740" y="396" width="60" height="44" rx="6" fill="#64748b"/>
+    <text class="cell" x="770" y="424">FCS</text>
+  </g>
+  <text class="pdu" x="890" y="424" fill="#d97706">= フレーム</text>
+  <text class="note" x="120" y="458">宛先 MAC（ルータ通過ごとに書き換わる）＋ 誤り検出（FCS）</text>
+
+  <line x1="580" y1="450" x2="580" y2="480" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <!-- L1 ビット -->
+  <text class="layer" x="120" y="488">L1 物理層</text>
+  <g>
+    <rect x="120" y="496" width="680" height="44" rx="6" fill="#111827"/>
+    <text x="460" y="524" font-size="15" text-anchor="middle" fill="#4ade80" font-family="monospace">0 1 0 1 1 1 0 0 1 0 1 1 0 0 1 0 1 0 1 1 1 0 0 1 …</text>
+  </g>
+  <text class="pdu" x="880" y="524" fill="#111827">= ビット</text>
+
+  <!-- footer -->
+  <rect x="40" y="572" width="920" height="44" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="60" y="600" font-size="14">🎯 試験のポイント: PDU 名（セグメント→パケット→フレーム→ビット）と、受信側は逆順に「非カプセル化」すること</text>
+</svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; }
+      .net { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #6d28d9; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="680" fill="#ffffff"/>
+
+  <text class="title" x="40" y="52">Day 12 ラボ: シングルエリア OSPF の構成</text>
+  <text class="sub" x="40" y="80">ルータ 3 台をトライアングル接続し、全区間を OSPF エリア 0 で経路交換する</text>
+
+  <!-- OSPF Area 0 -->
+  <rect x="240" y="120" width="720" height="440" rx="28" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="270" y="152">OSPF エリア 0（バックボーン）</text>
+
+  <!-- links -->
+  <line class="link" x1="600" y1="220" x2="390" y2="470"/>
+  <line class="link" x1="600" y1="220" x2="810" y2="470"/>
+  <line class="link" x1="390" y1="470" x2="810" y2="470"/>
+  <line class="link" x1="390" y1="470" x2="180" y2="470"/>
+  <line class="link" x1="810" y1="470" x2="1020" y2="470"/>
+
+  <!-- link labels -->
+  <text class="net" x="440" y="330">10.0.12.0/30</text>
+  <text class="ip"  x="440" y="350">R1: .1 ／ R2: .2</text>
+  <text class="net" x="762" y="330">10.0.13.0/30</text>
+  <text class="ip"  x="762" y="350">R1: .1 ／ R3: .2</text>
+  <text class="net" x="600" y="445">10.0.23.0/30</text>
+  <text class="ip"  x="600" y="465">R2: .1 ／ R3: .2</text>
+
+  <!-- interface labels -->
+  <text class="iface" x="505" y="268">Gi0/0</text>
+  <text class="iface" x="652" y="268">Gi0/1</text>
+  <text class="iface" x="398" y="425">Gi0/0</text>
+  <text class="iface" x="438" y="492">Gi0/1</text>
+  <text class="iface" x="762" y="425">Gi0/0</text>
+  <text class="iface" x="732" y="492">Gi0/1</text>
+  <text class="iface" x="330" y="492">Gi0/2</text>
+  <text class="iface" x="838" y="492">Gi0/2</text>
+
+  <!-- routers -->
+  <use href="#router" x="600" y="220"/>
+  <text class="devname" x="600" y="180">R1</text>
+  <text class="ip" x="600" y="305">router-id 1.1.1.1</text>
+
+  <use href="#router" x="390" y="470"/>
+  <text class="devname" x="390" y="530">R2</text>
+  <text class="ip" x="390" y="550">router-id 2.2.2.2</text>
+
+  <use href="#router" x="810" y="470"/>
+  <text class="devname" x="810" y="530">R3</text>
+  <text class="ip" x="810" y="550">router-id 3.3.3.3</text>
+
+  <!-- PCs -->
+  <use href="#pc" x="120" y="470"/>
+  <text class="devname" x="120" y="530">PC-A</text>
+  <text class="ip" x="120" y="550">10.0.2.10/24</text>
+  <text class="net" x="255" y="445">10.0.2.0/24</text>
+
+  <use href="#pc" x="1080" y="470"/>
+  <text class="devname" x="1080" y="530">PC-B</text>
+  <text class="ip" x="1080" y="550">10.0.3.10/24</text>
+  <text class="net" x="945" y="445">10.0.3.0/24</text>
+
+  <!-- goal note -->
+  <rect x="40" y="596" width="1120" height="52" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="60" y="628" font-size="15">ゴール: PC-A から PC-B へ ping が成功し、show ip route で 3 台すべてに「O」（OSPF学習経路）が表示されること</text>
+</svg>
