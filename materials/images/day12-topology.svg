@@ -76,8 +76,8 @@
   <text class="iface" x="498" y="645">Gi0/0</text>
 
   <!-- R2-PC2 link labels (192.168.2.0/24) -->
-  <text class="net" x="1065" y="260">192.168.2.0/24</text>
-  <text class="ip"  x="1065" y="278">R2 Gi0/2: .1</text>
+  <text class="net" x="1000" y="260">192.168.2.0/24</text>
+  <text class="ip"  x="1000" y="278">R2 Gi0/2: .1</text>
   <text class="iface" x="1030" y="316">Gi0/2</text>
 
   <!-- R4-PC1 link labels (192.168.4.0/24) -->

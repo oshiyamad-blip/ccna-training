@@ -10,7 +10,7 @@
       .lbl { font-size: 13px; text-anchor: middle; }
       .lblsub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
       .tag { font-size: 12px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
-      .log { font-family: monospace; font-size: 12px; fill: #4ade80; }
+      .log { font-family: "DejaVu Sans Mono", monospace; font-size: 12px; fill: #4ade80; }
       .warn { font-size: 13px; font-weight: 700; fill: #b45309; }
     </style>
     <marker id="arrowblue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">

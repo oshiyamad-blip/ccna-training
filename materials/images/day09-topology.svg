@@ -74,8 +74,8 @@
   <text class="iface" x="600" y="234" text-anchor="middle">Fa0/10</text>
   <text class="iface" x="912" y="612">Fa0/10</text>
 
-  <text class="iface" x="648" y="318">Gi0/2</text>
-  <text class="iface" x="855" y="528">Gi0/2</text>
+  <text class="iface" x="663" y="322">Gi0/2</text>
+  <text class="iface" x="836" y="519" text-anchor="end">Gi0/2</text>
 
   <text class="iface" x="390" y="605" text-anchor="middle">Gi0/2</text>
   <text class="iface" x="808" y="605" text-anchor="end">Gi0/1</text>

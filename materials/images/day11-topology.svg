@@ -17,6 +17,7 @@
       .linkprimary { stroke: #2779ca; stroke-width: 4.5; }
       .linkbackup { stroke: #ff9200; stroke-width: 3.5; stroke-dasharray: 9 6; }
       .linklan { stroke: #94a3b8; stroke-width: 3; }
+      .haloed { paint-order: stroke; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
     </style>
     <g id="router">
       <circle r="34" fill="#2779ca"/>
@@ -70,15 +71,15 @@
   <text class="iface" x="659" y="264">Gi0/1</text>
 
   <!-- backup link R1-R2 labels -->
-  <text class="linklabel netbackup" x="465" y="338">バックアップ経路</text>
-  <text class="linksub" x="465" y="356">10.0.12.0/30 ／ 2001:db8:12::/64</text>
-  <text class="linksub" x="465" y="373">R1: .1 ／ R2: .2（AD=5）</text>
+  <text class="linklabel netbackup haloed" x="425" y="338">バックアップ経路</text>
+  <text class="linksub haloed" x="425" y="356">10.0.12.0/30 ／ 2001:db8:12::/64</text>
+  <text class="linksub haloed" x="425" y="373">R1: .1 ／ R2: .2（AD=5）</text>
   <text class="iface" x="397" y="440">Gi0/1</text>
 
   <!-- backup link R2-R3 labels -->
-  <text class="linklabel netbackup" x="735" y="338">バックアップ経路</text>
-  <text class="linksub" x="735" y="356">10.0.23.0/30 ／ 2001:db8:23::/64</text>
-  <text class="linksub" x="735" y="373">R2: .1 ／ R3: .2（AD=5）</text>
+  <text class="linklabel netbackup haloed" x="775" y="338">バックアップ経路</text>
+  <text class="linksub haloed" x="775" y="356">10.0.23.0/30 ／ 2001:db8:23::/64</text>
+  <text class="linksub haloed" x="775" y="373">R2: .1 ／ R3: .2（AD=5）</text>
   <text class="iface" x="806" y="440">Gi0/0</text>
 
   <!-- ===== R1（base-left）===== -->

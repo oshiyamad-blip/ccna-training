@@ -110,11 +110,11 @@
   <text class="term-val" x="730" y="530">203.0.113.10</text>
   <text class="term-note" x="730" y="548">外部から見える変換後</text>
 
-  <line class="leader" x1="910" y1="460" x2="910" y2="486"/>
-  <rect x="810" y="486" width="200" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
-  <text class="term-title" x="910" y="506" fill="#475569">outside local＝outside global</text>
-  <text class="term-val" x="910" y="528">198.51.100.8</text>
-  <text class="term-note" x="910" y="546">Srv1 の実アドレス（通常は変換なし）</text>
+  <line class="leader" x1="910" y1="460" x2="922" y2="486"/>
+  <rect x="810" y="486" width="226" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text class="term-title" x="923" y="506" fill="#475569" style="font-size:13px">outside local＝outside global</text>
+  <text class="term-val" x="923" y="528">198.51.100.8</text>
+  <text class="term-note" x="923" y="546">Srv1 の実アドレス（通常は変換なし）</text>
 
   <!-- footer note -->
   <rect x="40" y="592" width="1070" height="90" rx="10" fill="#fff7ed" stroke="#fdba74"/>

@@ -31,11 +31,9 @@
   <!-- badges above bar -->
   <text class="badge" x="325" y="210" text-anchor="middle" fill="#1d4ed8">営業部 /25</text>
   <text class="badge" x="662.5" y="210" text-anchor="middle" fill="#4d7c0f">サポート部 /26</text>
-  <text class="badge" x="795" y="210" text-anchor="end" fill="#6d28d9">プリンタ /28</text>
-  <text class="badge" x="845" y="210" text-anchor="start" fill="#c2620a">WAN /30</text>
+  <text class="badge" x="803.1" y="210" text-anchor="middle" fill="#6d28d9">プリンタ /28</text>
   <text class="badge" x="922.6" y="210" text-anchor="middle" fill="#6b7280">未使用</text>
-  <path class="leader" d="M 795 214 L 803 230"/>
-  <path class="leader" d="M 845 214 L 838.3 230"/>
+  <path class="leader" d="M 803.1 214 L 803.1 230"/>
 
   <!-- the block bar (clipped for rounded outer corners) -->
   <clipPath id="barClip">

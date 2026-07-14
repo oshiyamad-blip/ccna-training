@@ -71,8 +71,8 @@
   <!-- router -->
   <use href="#router" x="600" y="250"/>
   <text class="devname" x="600" y="200">Router RT1（2911）</text>
-  <text class="rtip" x="600" y="310">Gi0/0: 192.168.10.1/24</text>
-  <text class="rtnote" x="600" y="328">（デフォルトゲートウェイ）</text>
+  <text class="rtip" x="645" y="322" style="text-anchor:start">Gi0/0: 192.168.10.1/24</text>
+  <text class="rtnote" x="645" y="340" style="text-anchor:start">（デフォルトゲートウェイ）</text>
 
   <!-- link: router to switch -->
   <line class="link" x1="600" y1="286" x2="600" y2="392"/>

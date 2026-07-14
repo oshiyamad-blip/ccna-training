@@ -6,7 +6,7 @@
       .sub { font-size: 15px; fill: #6b7280; }
       .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
       .model { font-size: 13px; text-anchor: middle; fill: #6b7280; }
-      .iface { font-size: 13px; font-weight: 700; fill: #0e9aa7; }
+      .iface { font-size: 13px; font-weight: 700; fill: #0e9aa7; paint-order: stroke; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
       .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
       .vlanhead { font-size: 16px; font-weight: 700; text-anchor: middle; }
       .link { stroke: #94a3b8; stroke-width: 3; }
@@ -51,10 +51,10 @@
   <line class="link20" x1="920" y1="570" x2="600" y2="380"/>
 
   <!-- interface labels near switch -->
-  <text class="iface" x="500" y="308" text-anchor="end">Fa0/1</text>
-  <text class="iface" x="500" y="456" text-anchor="end">Fa0/2</text>
-  <text class="iface" x="700" y="308">Fa0/3</text>
-  <text class="iface" x="700" y="456">Fa0/4</text>
+  <text class="iface" x="500" y="288" text-anchor="end">Fa0/1</text>
+  <text class="iface" x="500" y="430" text-anchor="end">Fa0/2</text>
+  <text class="iface" x="700" y="288">Fa0/3</text>
+  <text class="iface" x="700" y="430">Fa0/4</text>
 
   <!-- SW1 -->
   <use href="#switch" x="600" y="380"/>
@@ -64,22 +64,22 @@
   <!-- PC1 -->
   <use href="#pc" x="280" y="190"/>
   <text class="devname" x="280" y="248">PC1</text>
-  <text class="ip" x="280" y="268">192.168.10.11 /24</text>
+  <text class="ip" x="280" y="268">192.168.10.11/24</text>
 
   <!-- PC2 -->
   <use href="#pc" x="280" y="570"/>
   <text class="devname" x="280" y="500">PC2</text>
-  <text class="ip" x="280" y="520">192.168.10.12 /24</text>
+  <text class="ip" x="280" y="520">192.168.10.12/24</text>
 
   <!-- PC3 -->
   <use href="#pc" x="920" y="190"/>
   <text class="devname" x="920" y="248">PC3</text>
-  <text class="ip" x="920" y="268">192.168.20.21 /24</text>
+  <text class="ip" x="920" y="268">192.168.20.21/24</text>
 
   <!-- PC4 -->
   <use href="#pc" x="920" y="570"/>
   <text class="devname" x="920" y="500">PC4</text>
-  <text class="ip" x="920" y="520">192.168.20.22 /24</text>
+  <text class="ip" x="920" y="520">192.168.20.22/24</text>
 
   <!-- goal note -->
   <rect x="40" y="680" width="1120" height="56" rx="8" fill="#fff7ed" stroke="#fdba74"/>
