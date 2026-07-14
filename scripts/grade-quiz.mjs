@@ -108,17 +108,26 @@ async function main() {
   console.log(`\n自動採点: ${correct}/${ANSWERS.length} 問正解 = ${autoScore} 点（+ 記述 ${manual.length} 問は手動加点）`)
 
   if (POST) {
+    // 投稿本文には正答を含めない（解答解説は翌朝公開のため、採点コメントで正答キーを
+    // 開示すると同居プロジェクト等で未受験者へ流出し得る）。受講者へは ○/× と自分の
+    // 提出内容のみを返し、正答は端末表示（上記 console.log）に限定する。
+    const postLines = ANSWERS.map((_, i) => {
+      const q = i + 1
+      const a = normalize(given.get(q))
+      const ok = a !== '' && a === normalize(ANSWERS[i])
+      return `- Q${q}: 提出=${given.get(q) ?? '（未解答）'} ${ok ? '○' : '×'}`
+    })
     const body = [
       '## 採点結果（自動採点）',
       `選択式: ${correct}/${ANSWERS.length} 問正解 = ${autoScore} 点`,
       manual.length ? `記述式（Q${manual.join(', Q')}）: 講師が確認して加点します` : '',
       '',
-      ...lines.map((l) => `- ${l}`),
+      ...postLines,
       '',
       '解説は明朝公開の「解答解説」ドキュメントを確認してください。',
     ].filter((l) => l !== undefined).join('\n')
     await api('POST', `/issues/${ISSUE}/comments`, { content: body })
-    console.log('\n採点結果を課題にコメントしました。')
+    console.log('\n採点結果を課題にコメントしました（正答キーは投稿本文に含めていません）。')
   } else {
     console.log('\n（--post を付けると課題にコメント投稿します）')
   }

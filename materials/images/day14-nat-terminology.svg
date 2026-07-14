@@ -57,7 +57,7 @@
   <rect width="1150" height="700" fill="#ffffff"/>
 
   <text class="title" x="40" y="42">NAT の 4 用語 ― 「どちらの機器か」×「どちら側から見た住所か」</text>
-  <text class="sub" x="40" y="66">PC1 が Srv1（8.8.8.8）へアクセスするとき、R1 で送信元アドレスが 192.168.1.10 → 203.0.113.10 に変換される例</text>
+  <text class="sub" x="40" y="66">PC1 が Srv1（198.51.100.8）へアクセスするとき、R1 で送信元アドレスが 192.168.1.10 → 203.0.113.10 に変換される例</text>
 
   <!-- regions -->
   <rect x="40" y="150" width="380" height="310" rx="14" fill="#f0fdf4" stroke="#7ea800" stroke-width="2" stroke-dasharray="9 6"/>
@@ -69,11 +69,11 @@
   <!-- packet boxes (before / after translation) -->
   <rect x="240" y="200" width="220" height="52" rx="8" fill="#ffffff" stroke="#7ea800" stroke-width="2"/>
   <text class="pktsrc-old" x="350" y="222">送信元: 192.168.1.10</text>
-  <text class="pktline" x="350" y="242" fill="#374151">宛先: 8.8.8.8</text>
+  <text class="pktline" x="350" y="242" fill="#374151">宛先: 198.51.100.8</text>
 
   <rect x="620" y="200" width="220" height="52" rx="8" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
   <text class="pktsrc-new" x="730" y="222">送信元: 203.0.113.10</text>
-  <text class="pktline" x="730" y="242" fill="#374151">宛先: 8.8.8.8</text>
+  <text class="pktline" x="730" y="242" fill="#374151">宛先: 198.51.100.8</text>
 
   <line x1="460" y1="226" x2="616" y2="226" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow-gray)"/>
 
@@ -95,7 +95,7 @@
 
   <use href="#server" x="910" y="340"/>
   <text class="devname" x="910" y="399">Srv1</text>
-  <text class="devip" x="910" y="417">8.8.8.8/24</text>
+  <text class="devip" x="910" y="417">198.51.100.8/24</text>
 
   <!-- term callouts -->
   <line class="leader" x1="150" y1="460" x2="150" y2="486"/>
@@ -113,7 +113,7 @@
   <line class="leader" x1="910" y1="460" x2="910" y2="486"/>
   <rect x="810" y="486" width="200" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
   <text class="term-title" x="910" y="506" fill="#475569">outside local＝outside global</text>
-  <text class="term-val" x="910" y="528">8.8.8.8</text>
+  <text class="term-val" x="910" y="528">198.51.100.8</text>
   <text class="term-note" x="910" y="546">Srv1 の実アドレス（通常は変換なし）</text>
 
   <!-- footer note -->

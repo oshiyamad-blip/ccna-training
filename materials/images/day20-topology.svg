@@ -111,7 +111,7 @@
   <path class="linkdash" d="M 850 470 L 958 545"/>
 
   <!-- ===== Server segment labels ===== -->
-  <text class="net" x="430" y="250">8.8.8.0/24</text>
+  <text class="net" x="430" y="250">198.51.100.0/24</text>
   <text class="iface" x="430" y="284" text-anchor="middle">Gi0/1</text>
 
   <!-- ===== WAN segment labels ===== -->
@@ -182,7 +182,7 @@
   <!-- ===== device icons ===== -->
   <use href="#server" x="430" y="170"/>
   <text class="devname" x="478" y="163">Server (SRV)</text>
-  <text class="devsub" x="478" y="183">8.8.8.8 ／ HTTP サービス有効</text>
+  <text class="devsub" x="478" y="183">198.51.100.8 ／ HTTP サービス有効</text>
 
   <use href="#router" x="430" y="330"/>
   <text class="devname" x="478" y="323">R-ISP</text>

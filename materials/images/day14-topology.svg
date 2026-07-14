@@ -92,8 +92,8 @@
   <text class="iface" x="835" y="300">Gi0/1</text>
 
   <!-- R2 - Srv1 segment -->
-  <text class="net" x="1035" y="200">8.8.8.0/24</text>
-  <text class="ip"  x="1035" y="220">R2: 8.8.8.1 ／ Srv1: 8.8.8.8</text>
+  <text class="net" x="1035" y="200">198.51.100.0/24</text>
+  <text class="ip"  x="1035" y="220">R2: 198.51.100.1 ／ Srv1: 198.51.100.8</text>
   <text class="iface" x="965" y="300">Gi0/0</text>
   <text class="iface" x="1108" y="300">FastEthernet0</text>
 
@@ -125,11 +125,11 @@
   <use href="#server" x="1170" y="420"/>
   <text class="devname" x="1170" y="345">Srv1</text>
   <text class="devsub" x="1170" y="363">外部 Web サーバ役</text>
-  <text class="ip" x="1170" y="480">8.8.8.8/24</text>
-  <text class="ip" x="1170" y="498">GW: 8.8.8.1</text>
+  <text class="ip" x="1170" y="480">198.51.100.8/24</text>
+  <text class="ip" x="1170" y="498">GW: 198.51.100.1</text>
 
   <!-- goal note -->
   <rect x="40" y="710" width="1220" height="66" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
-  <text x="60" y="736" font-size="15">ゴール: R1 上で静的 NAT・動的 NAT・PAT（NAT Overload）を順に構成し、内部ホストから 8.8.8.8 へ ping が通ること</text>
+  <text x="60" y="736" font-size="15">ゴール: R1 上で静的 NAT・動的 NAT・PAT（NAT Overload）を順に構成し、内部ホストから 198.51.100.8 へ ping が通ること</text>
   <text x="60" y="758" font-size="15">を確認する。あわせて show ip nat translations／show ip nat statistics で 3 方式の変換テーブルの違いを観察する。</text>
 </svg>

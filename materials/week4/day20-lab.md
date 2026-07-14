@@ -38,8 +38,8 @@
 | R2 | Gi0/0.99（VLAN99 管理） | 192.168.99.3 | 255.255.255.0 | ネイティブ VLAN |
 | R2 | Gi0/1（R1-R2 リンク） | 10.0.0.2 | 255.255.255.252 | OSPF area0 |
 | R-ISP | Gi0/0（WAN） | 203.0.113.2 | 255.255.255.252 | R1 の対向 |
-| R-ISP | Gi0/1 | 8.8.8.1 | 255.255.255.0 | インターネット模擬セグメント |
-| Server | （R-ISP Gi0/1 配下） | 8.8.8.8 | 255.255.255.0 | GW 8.8.8.1。HTTP サービスを有効化 |
+| R-ISP | Gi0/1 | 198.51.100.1 | 255.255.255.0 | インターネット模擬セグメント |
+| Server | （R-ISP Gi0/1 配下） | 198.51.100.8 | 255.255.255.0 | GW 198.51.100.1。HTTP サービスを有効化 |
 | VLAN10 | HSRP 仮想 IP（group10） | 192.168.10.1 | 255.255.255.0 | 営業の既定ゲートウェイ |
 | VLAN20 | HSRP 仮想 IP（group20） | 192.168.20.1 | 255.255.255.0 | 経理の既定ゲートウェイ |
 | PC1 | VLAN10 / SW1 Fa0/1 | DHCP 取得 | 255.255.255.0 | GW 192.168.10.1（自動） |
@@ -226,7 +226,7 @@ R-ISP(config-if)# ip address 203.0.113.2 255.255.255.252
 R-ISP(config-if)# no shutdown
 R-ISP(config-if)# exit
 R-ISP(config)# interface GigabitEthernet0/1
-R-ISP(config-if)# ip address 8.8.8.1 255.255.255.0
+R-ISP(config-if)# ip address 198.51.100.1 255.255.255.0
 R-ISP(config-if)# no shutdown
 R-ISP(config-if)# exit
 ```
@@ -295,12 +295,12 @@ R1(config)# ip dhcp excluded-address 192.168.99.1 192.168.99.3
 R1(config)# ip dhcp pool VLAN10-EIGYO
 R1(dhcp-config)# network 192.168.10.0 255.255.255.0
 R1(dhcp-config)# default-router 192.168.10.1
-R1(dhcp-config)# dns-server 8.8.8.8
+R1(dhcp-config)# dns-server 198.51.100.8
 R1(dhcp-config)# exit
 R1(config)# ip dhcp pool VLAN20-KEIRI
 R1(dhcp-config)# network 192.168.20.0 255.255.255.0
 R1(dhcp-config)# default-router 192.168.20.1
-R1(dhcp-config)# dns-server 8.8.8.8
+R1(dhcp-config)# dns-server 198.51.100.8
 R1(dhcp-config)# exit
 ```
 
@@ -316,12 +316,12 @@ R2(config)# ip dhcp excluded-address 192.168.99.1 192.168.99.3
 R2(config)# ip dhcp pool VLAN10-EIGYO
 R2(dhcp-config)# network 192.168.10.0 255.255.255.0
 R2(dhcp-config)# default-router 192.168.10.1
-R2(dhcp-config)# dns-server 8.8.8.8
+R2(dhcp-config)# dns-server 198.51.100.8
 R2(dhcp-config)# exit
 R2(config)# ip dhcp pool VLAN20-KEIRI
 R2(dhcp-config)# network 192.168.20.0 255.255.255.0
 R2(dhcp-config)# default-router 192.168.20.1
-R2(dhcp-config)# dns-server 8.8.8.8
+R2(dhcp-config)# dns-server 198.51.100.8
 R2(dhcp-config)# exit
 ```
 
@@ -377,7 +377,7 @@ R1(config)# ip nat inside source list 1 interface GigabitEthernet0/2 overload
 ```
 R1(config)# ip access-list extended KEIRI-TO-SRV
 R1(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
-R1(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 8.8.8.8 eq 80
+R1(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R1(config-ext-nacl)# deny ip any any log
 R1(config-ext-nacl)# exit
 R1(config)# interface GigabitEthernet0/0.20
@@ -397,7 +397,7 @@ R1(config-subif)# exit
 ```
 R2(config)# ip access-list extended KEIRI-TO-SRV
 R2(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
-R2(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 8.8.8.8 eq 80
+R2(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R2(config-ext-nacl)# deny ip any any log
 R2(config-ext-nacl)# exit
 R2(config)# interface GigabitEthernet0/0.20
@@ -466,24 +466,24 @@ SW2 の Fa0/1・Fa0/2 にも同じ設定を行います。
    **Command Prompt** → `ipconfig`）
 3. 同一 VLAN 内（PC1 ⇔ PC3、PC2 ⇔ PC4）で ping が成功することを確認します
 4. 経理 VLAN（PC2/PC4）は手順9で適用した ACL『KEIRI-TO-SRV』により、
-   8.8.8.8 宛 HTTP 以外の通信がすべて遮断されます。そのため PC1 ⇔ PC2 の
+   198.51.100.8 宛 HTTP 以外の通信がすべて遮断されます。そのため PC1 ⇔ PC2 の
    VLAN 間 ping は**失敗するのが正しい動作**です（ACL の効果確認）。VLAN
    間ルーティング自体の疎通を確認したい場合は、手順9で ACL を適用する前に
    このping を実施してください
 5. インターネット（模擬）への到達を確認します
 
    ```
-   PC1> ping 8.8.8.8
+   PC1> ping 198.51.100.8
    ```
 
    → **成功**すること（営業 VLAN は ACL の制限を受けません）
 
    ```
-   PC2> ping 8.8.8.8
+   PC2> ping 198.51.100.8
    ```
 
    → **失敗**すること（経理 VLAN は HTTP 以外を拒否されます）。ただし
-   Web Browser から `http://8.8.8.8` へのアクセスは**成功**します
+   Web Browser から `http://198.51.100.8` へのアクセスは**成功**します
 
 ## 手順 13: 検証コマンドによる最終確認（15 分）
 
