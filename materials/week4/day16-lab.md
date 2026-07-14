@@ -37,12 +37,18 @@ SW1 の Fa0/3〜Fa0/22 は本ラボでは未使用ポートとして扱い、後
 
 1. Packet Tracer を新規作成し、ルータ **2911** を 1 台（R1）、スイッチ **2960** を
    2 台（SW1、SW2）、PC を 3 台（PC-Admin、PC1、PC2）配置する
-2. ケーブル（ストレート）で次のとおり接続する
-   - R1 `GigabitEthernet0/0` — SW1 `FastEthernet0/24`
-   - SW1 `FastEthernet0/1` — PC-Admin
-   - SW1 `FastEthernet0/2` — PC1
-   - SW1 `FastEthernet0/23` — SW2 `FastEthernet0/24`
-   - SW2 `FastEthernet0/1` — PC2
+2. 次のとおり接続する（機器の組み合わせに応じてケーブル種別を選ぶ）
+   - R1 `GigabitEthernet0/0` — SW1 `FastEthernet0/24`（ストレートケーブル）
+   - SW1 `FastEthernet0/1` — PC-Admin（ストレートケーブル）
+   - SW1 `FastEthernet0/2` — PC1（ストレートケーブル）
+   - SW1 `FastEthernet0/23` — SW2 `FastEthernet0/24`（クロスオーバーケーブル。
+     スイッチ同士の接続のため）
+   - SW2 `FastEthernet0/1` — PC2（ストレートケーブル）
+
+   > Packet Tracer の 2960 は auto-MDIX に対応しているため、実際にはストレート
+   > ケーブルを選んでもリンクアップします。ただし CCNA で学ぶ「同種機器同士は
+   > クロス、異種機器間はストレート」という基本ルールに沿って、本ラボではスイッチ
+   > 同士の接続にクロスオーバーケーブルを使用します。
 3. 各 PC の [Desktop] → **IP Configuration** で、上表の IP アドレス / サブネットマスクを
    設定する
 4. R1 の `GigabitEthernet0/0` に IP アドレスを設定し、`no shutdown` する
@@ -97,10 +103,14 @@ R1(config-line)# exit
 R1(config)# service password-encryption
 ```
 
-設定後、`show running-config` を実行し、`enable secret` と `username admin secret`
-が **Type 5**（`secret 5 ...`）のハッシュとして、手順 3 で VTY に追加した
-`password Vty@12345` が **Type 7**（`password 7 ...`）の難読化として、それぞれ
-表示が変わっていることを確認してください。
+設定後、`show running-config` を実行して確認します。`enable secret` と
+`username admin secret` は設定した時点で既に **Type 5**（`secret 5 ...`）の
+ハッシュとして保存されており、`service password-encryption` を有効にしても表示は
+変化しません。この手順で平文から **Type 7**（`password 7 ...`）の難読化に表示が
+変わるのは、手順 3 で VTY に追加した `password Vty@12345` だけです。
+`service password-encryption` が対象とするのは、ライン・`enable password`・
+`username` の平文パスワードのように Type 7 化できる平文パスワードに限られ、
+`secret` 系のハッシュには影響しない、という点を確認してください。
 
 ```
 R1# show running-config | include (secret|password)
@@ -169,7 +179,10 @@ ssh -l admin 192.168.10.1
 （誤ったパスワードを入力 × 3 回）
 ```
 
-その後、R1 の特権 EXEC で次を実行し、ログインがブロックされている状態を確認します。
+その後、**ブロックが解除される 60 秒以内**に R1 の特権 EXEC で次を実行し、
+ログインがブロックされている状態（Quiet-Mode）を確認します。60 秒を過ぎると
+ブロックは自動的に解除され、失敗回数もリセットされるため、必ず時間内に実行し、
+表示結果をスクリーンショットで記録してください（手順 14 の提出物で使用します）。
 
 ```
 R1# show login
@@ -234,7 +247,10 @@ R1# show login
   なっていること
 - `show interfaces status`（SW1 で実行）: `Fa0/3`〜`Fa0/22` が `disabled` に
   なっていること
-- `show login`: 手順 8 で発生したログイン失敗・ブロックの状態
+- `show login`: 手順 8 のブロック（Quiet-Mode）は 60 秒で解除され、失敗カウンタも
+  リセットされるため、手順 9〜12 を挟んだ本手順の時点では通常状態（ブロックされて
+  いない旨の表示）に戻っていることを確認する。ブロック中の状態は手順 8 で記録した
+  スクリーンショットを参照する
 
 ### 観察レポート（コメント提出用）
 

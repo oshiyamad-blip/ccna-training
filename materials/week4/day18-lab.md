@@ -122,14 +122,21 @@
 2. 代わりに PC2（別の MAC アドレスを持つ端末）を Fa0/1 に接続する（Day 1 で
    使ったのと同じ手順で、接続アイコン→ストレートケーブルを選び、PC2 と
    SW1 Fa0/1 をクリックしてつなぐ）
-3. 数秒待ち、次のコマンドでポートの状態を確認する
+3. PC2 の [Desktop] → Command Prompt で `ipconfig /release` に続けて
+   `ipconfig /renew` を実行する。Packet Tracer の PC はリンクアップしただけ
+   では自発的にフレームを送信しないため、明示的にトラフィックを発生させる
+   必要があります。この DHCP 要求（ブロードキャストの `DHCPDISCOVER`）に
+   PC2 の MAC アドレスが乗ってスイッチへ届くと、Fa0/1 に登録済みの MAC
+   （PC0 のもの）とは異なる未登録の MAC として検出され、ポートセキュリティ
+   違反が発火します
+4. 次のコマンドでポートの状態を確認する
 
    ```
    Switch# show interfaces fa0/1 status
    Switch# show port-security interface fa0/1
    ```
 
-4. **確認**: `show interfaces status` の Status 欄が `err-disabled` に
+5. **確認**: `show interfaces status` の Status 欄が `err-disabled` に
    なっていること、`show port-security interface` の Violation Count が
    増加していることを記録する
 

@@ -119,5 +119,5 @@
   <rect x="40" y="900" width="1270" height="110" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
   <text class="goal" x="60" y="928">ゴール: R1〜R4 全ルータがエリア 0 の OSPFv2 で FULL ネイバーとなり、全ネットワーク間で疎通できること。</text>
   <text class="goal" x="60" y="952">インターフェースコストの変更で R4→R2 LAN 宛の経路を R1→R3→R2 へ誘導し、priority 変更で R1-R2 間の DR を R1 に変更できること。</text>
-  <text class="goalsub" x="60" y="980">Router ID は router-id コマンドで明示設定（Lo0 の IP と一致させている）。ワイルドカードマスクはすべて /24 → 0.0.0.255。</text>
+  <text class="goalsub" x="60" y="980">Router ID は router-id コマンドで明示設定（Lo0 の IP と一致させている）。接続リンク（/24）のワイルドカードは 0.0.0.255、ループバック（/32）は 0.0.0.0。</text>
 </svg>

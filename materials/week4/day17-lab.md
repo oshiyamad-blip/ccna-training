@@ -198,8 +198,12 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
    PC> ping 192.168.30.100
    ```
 
-   → **失敗**すること。また PC-Eig から他の宛先（例: 192.168.10.10）への
-   通信は permit ip any any により影響を受けないことも確認してください
+   → **失敗**すること。また PC-Eig から他の宛先（例: 192.168.99.10 = PC-Adm）
+   への ping は permit ip any any により影響を受けず成功することも確認して
+   ください（192.168.10.10 = PC-Kei 宛の場合、行きは EIG-BLOCK の
+   permit ip any any を通過しますが、戻りの echo reply が Gi0/0/0.10 の in に
+   適用済みの KEI-TO-SRV に阻まれて失敗します。これは EIG-BLOCK ではなく
+   KEI-TO-SRV の影響なので、検証には他の VLAN の宛先を使ってください）
 
 ## 手順 6: ヒットカウンタの確認（15 分）
 
@@ -226,6 +230,7 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
    R1(config)# ip domain-name ccna-lab.local
    R1(config)# crypto key generate rsa
    How many bits in the modulus [512]: 1024
+   ← これは対話プロンプトです。512 は既定値なので、ここでは 1024 と入力して Enter
    R1(config)# username admin secret Cisco12345
    R1(config)# line vty 0 4
    R1(config-line)# transport input ssh
@@ -258,7 +263,8 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
    PC> ssh -l admin 192.168.99.1
    ```
 
-   → **成功**すること
+   → 接続後にパスワードを聞かれるので、手順 7 で設定した `Cisco12345` を
+   入力してください。`R1>` のプロンプトが表示されれば**成功**です
 
    PC-Eig から同様に SSH 接続を試みます（PC-Kei は手順 4 の KEI-TO-SRV
    により Gi0/0/0.10 の in 方向で SSH 自体が遮断されてしまうため、

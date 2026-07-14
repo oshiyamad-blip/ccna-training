@@ -180,7 +180,7 @@ ip dhcp pool LAN1
 **Q21.** 次の Syslog メッセージがルータに出力された。
 
 ```
-%SYS-4-CONFIG_I: Configured from console by vty0
+%SYS-5-CONFIG_I: Configured from console by vty0
 ```
 
 このメッセージの severity 番号と名称の組み合わせとして正しいものはどれか。
@@ -249,7 +249,7 @@ ip dhcp pool LAN1
 | Q18 | B | `ip helper-address <DHCPサーバIP>` をクライアント側インターフェースに設定すると、ブロードキャストのDHCPリクエストをユニキャストに変換してサーバへ転送する |
 | Q19 | B | `network` の行が DHCP プールの配布対象ネットワーク範囲を規定する。他の行はゲートウェイ・DNS・リース時間の指定 |
 | Q20 | B | L2 の CoS は 802.1Q タグ内 3 ビット、L3 の DSCP は IP ヘッダの ToS フィールド内 6 ビット |
-| Q21 | B | メッセージ中の `%SYS-4-CONFIG_I` の `4` が severity（Warning）。`logging trap warning` はしきい値 4 のため、severity 4 のメッセージも送出される |
+| Q21 | C | メッセージ中の `%SYS-5-CONFIG_I` の `5` が severity（Notification）。`logging trap warning` はしきい値 4 のため、severity 5 のこのメッセージは送出されない |
 | Q22 | B | 認証あり・暗号化なしは authNoPriv。noAuthNoPriv は認証・暗号化とも無し、authPriv は両方あり |
 | Q23 | C | シェーピングは超過分をバッファに貯めて遅延させ送出レートを平滑化する。ポリシングは即時に破棄・再マークしバッファしない |
 | Q24 | D | SSH 有効化には ip domain-name の設定、crypto key generate rsa による鍵生成、username によるローカルアカウント作成に加え、line vty で `login local`（ローカルユーザデータベースでの認証）と `transport input ssh` の両方が必要。C は `login local` が抜けており、これだけでは username/secret による認証が有効にならず SSH ログインが成立しない |

@@ -335,8 +335,11 @@ R2(dhcp-config)# exit
 
 R1 の LAN 側サブインターフェースと R1-R2 リンクを `inside`、WAN 側
 インターフェースを `outside` とし、PAT（NAT オーバーロード）を設定
-します。R2 配下の VLAN も OSPF 経由で R1 を通るため、R1-R2 リンクも
-`inside` として扱う点に注意してください。
+します。平常時は R1 が HSRP Active のため、PC からの通信は R1 の
+サブインターフェースで NAT されます。ただし HSRP フェイルオーバーで
+R2 が Active になると、PC の通信は R2 →（R1-R2 リンク）→ R1 という
+経路で流れて R1 で NAT される必要があるため、この経路を成立させる
+目的で R1-R2 リンク（Gi0/1）も `inside` として扱う点に注意してください。
 
 ```
 R1(config)# interface GigabitEthernet0/0.10
@@ -405,6 +408,10 @@ R2(config-subif)# exit
 ## 手順 10: ルータ管理の SSH 化（10 分）
 
 R1・R2 それぞれで Telnet を無効化し、SSH のみで管理できるようにします。
+`crypto key generate rsa` を実行すると装置から鍵長を尋ねるプロンプト
+`How many bits in the modulus [512]:` が表示されるので、そこでキーボード
+から `1024` と入力して Enter を押してください（このコマンドだけは他の行
+のように一括で流し込めず、実機の応答を待って手入力する必要があります）。
 
 ```
 R1(config)# ip domain-name ccna-lab.local
@@ -495,7 +502,11 @@ SW1# show port-security interface FastEthernet0/1
 
 - `show ip ospf neighbor`: R1-R2 間で Full 状態のネイバーが 1 つ確認できる
 - `show ip route`: OSPF 由来の経路（O）と、`default-information originate`
-  による `O*E2` のデフォルトルートが R2 側にも見えることを確認する
+  による `O*E2` のデフォルトルートが R2 側にも見えることを確認する。R2 で
+  `O*E2 0.0.0.0/0 [110/1] via 10.0.0.1` のような行が表示されれば正常です
+  （`O`＝OSPF で学習した経路、`*`＝デフォルトルート候補、`E2`＝OSPF の
+  外部経路タイプ2＝ `default-information originate` で配布されたデフォルト
+  ルートであることを示します。壊れているわけではありません）
 - `show standby brief`: VLAN10・VLAN20 とも R1 が Active、R2 が Standby
 - `show ip nat translations`: PC からの通信がポート番号付きで変換されている
   （PAT の動作）

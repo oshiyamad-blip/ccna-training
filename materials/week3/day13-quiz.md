@@ -32,8 +32,8 @@
 - C. 認証不一致
 - D. MTU 不一致
 
-**Q4.** OSPF ネイバーが Init のまま 2-Way に進まない場合の典型的な原因と、
-ブロードキャスト / P2P ネットワークにおける既定の Hello / Dead タイマーの
+**Q4.** OSPF ネイバーが（両側で設定が食い違い）そもそも成立しない場合の典型的な
+原因と、ブロードキャスト / P2P ネットワークにおける既定の Hello / Dead タイマーの
 組み合わせとして正しいものはどれか。
 
 - A. サブネット不一致、Hello 30 秒 / Dead 120 秒
@@ -98,8 +98,8 @@
 |---|---|---|
 | Q1 | A | エリア ID と Hello/Dead タイマーは一致が必須。Router ID は一致条件ではなく、ドメイン内での一意性が必須。MTU も一致が必要だが、選択肢の組み合わせとしては A が正しい |
 | Q2 | C | Down→Init→2-Way→Exstart→Exchange→Loading→Full の順。2-Way は双方向疎通の確認、Exstart は DBD 交換の主従関係決定、Full で LSDB 同期完了 |
-| Q3 | D | MTU 不一致は DBD 交換を完了できず、Exstart または Exchange で停滞する典型原因。Hello/Dead タイマー不一致は主に Init で停滞する原因 |
-| Q4 | B | Hello/Dead タイマー不一致が Init 停滞の典型原因。ブロードキャスト/P2P の既定値は Hello 10 秒・Dead 40 秒（NBMA は Hello 30 秒・Dead 120 秒） |
+| Q3 | D | MTU 不一致は DBD 交換を完了できず、Exstart または Exchange で停滞する典型原因。Hello/Dead タイマー不一致は、設定が一致しない Hello が相手に破棄されるためネイバーがそもそも成立しない（現れない）原因であり、Init 停滞とは異なる |
+| Q4 | B | Hello/Dead タイマー不一致は Hello パケットが相手に破棄されるため、ネイバーがそもそも成立しない（現れない）典型原因。ブロードキャスト/P2P の既定値は Hello 10 秒・Dead 40 秒（NBMA は Hello 30 秒・Dead 120 秒） |
 | Q5 | A | `show ip protocols` で `network` 文の対象ネットワークと Passive Interface の一覧を確認でき、`show ip ospf interface brief` でインターフェースが OSPF プロセスに参加しているかを確認できる |
 | Q6 | D | `always` キーワードを付けると、自身にデフォルトルートが存在しなくても常に広告する。`always` なしの `default-information originate` は自身にデフォルトルートが存在する場合のみ広告する |
 | Q7 | B | FHRP は複数ルータで仮想 IP / 仮想 MAC を共有し、デフォルトゲートウェイの単一障害点（Single Point of Failure）を排除する仕組み |

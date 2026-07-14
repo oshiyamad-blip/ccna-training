@@ -79,7 +79,7 @@ Gateway of last resort is not set
       192.168.1.0/24 is variably subnetted, 2 subnets, 2 masks
 C        192.168.1.0/24 is directly connected, GigabitEthernet0/0
 L        192.168.1.1/32 is directly connected, GigabitEthernet0/0
-S        192.168.3.0/24 [1/0] via 10.0.12.2, GigabitEthernet0/1
+S        192.168.3.0/24 [1/0] via 10.0.13.2, GigabitEthernet0/2
 ```
 
 1 行の情報は次のように分解して読みます。
@@ -89,8 +89,8 @@ S        192.168.3.0/24 [1/0] via 10.0.12.2, GigabitEthernet0/1
 | コード | `S` | 経路の由来（直接接続 / 静的 / 動的プロトコル） |
 | 宛先ネットワーク/プレフィックス長 | `192.168.3.0/24` | この経路が示す宛先の範囲 |
 | `[AD/メトリック]` | `[1/0]` | AD（管理距離）とメトリック（経路のコスト値） |
-| `via ネクストホップ` | `via 10.0.12.2` | パケットを転送する次のルータの IP アドレス |
-| 出力インターフェース | `GigabitEthernet0/1` | パケットを送り出すインターフェース |
+| `via ネクストホップ` | `via 10.0.13.2` | パケットを転送する次のルータの IP アドレス |
+| 出力インターフェース | `GigabitEthernet0/2` | パケットを送り出すインターフェース |
 | 経過時間 | （動的ルートのみ表示） | その経路を学習してからの経過時間 |
 
 ### L（Local）と C（Connected）の違い

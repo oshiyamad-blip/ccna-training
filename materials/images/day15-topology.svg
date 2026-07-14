@@ -100,8 +100,9 @@
   <text class="swlabel" x="485" y="412">Fa0/3=PC2／Fa0/4=Syslog</text>
 
   <!-- SW1-R1 link labels -->
-  <text class="iface" x="422" y="455">Fa0/1</text>
-  <text class="net" x="422" y="478">192.168.1.1/24</text>
+  <text class="iface" x="422" y="450">Fa0/1</text>
+  <text class="net" x="422" y="476">192.168.1.1/24</text>
+  <text class="iface" x="422" y="507">Gi0/0</text>
 
   <!-- R1 -->
   <use href="#router" x="410" y="560"/>

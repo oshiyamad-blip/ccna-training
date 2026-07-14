@@ -92,7 +92,7 @@
     <circle cx="26" cy="26" r="14" fill="#dc2626"/>
     <text x="26" y="31" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">✗</text>
     <text class="panelTitle" x="50" y="24" fill="#b91c1c">拡張 ACL：宛先近くに適用（誤り）</text>
-    <text class="panelSub" x="50" y="44">例）同じ ACL を SRV 側 Gi0/0/0.30 の in に適用してしまう</text>
+    <text class="panelSub" x="50" y="44">例）同じ ACL を SRV 側 Gi0/0/0.30 の out に適用してしまう</text>
 
     <!-- nodes -->
     <rect x="20" y="155" width="110" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>

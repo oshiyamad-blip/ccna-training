@@ -85,8 +85,8 @@
   <!-- callout 2: Init -> 2-Way -->
   <rect x="338" y="288" width="194" height="100" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
   <text class="calloutTitleWarn" x="435" y="312">⚠ 詰まる原因</text>
-  <text class="calloutLine" x="435" y="332">Hello / Dead</text>
-  <text class="calloutLine" x="435" y="350">タイマー不一致</text>
+  <text class="calloutLine" x="435" y="332">片方向 Hello</text>
+  <text class="calloutLine" x="435" y="350">（受信 ACL 等で遮断）</text>
   <text class="calloutEffect" x="435" y="372">→ Init で停滞</text>
 
   <!-- callout 3: 2-Way -> Exstart (informational) -->
@@ -111,6 +111,6 @@
   <!-- footer: link to lab -->
   <rect x="40" y="420" width="1420" height="90" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
   <text class="footerTitle" x="60" y="446">🔗 Day13 ラボの4つの障害との対応</text>
-  <text class="footerLine" x="60" y="470">障害1（Hello/Dead タイマー不一致）→ Init で停滞 ／ 障害2（network 文漏れ）・障害3（passive-interface 誤設定）→ Down のまま現れない</text>
+  <text class="footerLine" x="60" y="470">障害1（Hello/Dead タイマー不一致）→ ネイバーが現れない ／ 障害2（network 文漏れ）・障害3（passive-interface 誤設定）→ Down のまま現れない</text>
   <text class="footerLine" x="60" y="492">障害4（MTU 不一致）→ Exstart/Exchange で停滞 ― 4 つすべてを解消して初めて Full（隣接完了）に到達する</text>
 </svg>

@@ -128,10 +128,11 @@ R3(config-router)# exit
 「状態（State）を見る → 疑わしい原因を絞る → 設定を比較する」の順で進めれば
 必ず特定できます。時間をかけて構いません。
 
-## 手順 3: 障害 1（タイマ不一致・Init 停滞）の切り分けと修正（15 分）
+## 手順 3: 障害 1（Hello/Dead タイマー不一致・ネイバー不成立）の切り分けと修正（15 分）
 
 1. R1 と R3 で `show ip ospf neighbor` を実行し、R1-R3 間のネイバー状態を確認する
-   （現れない、または Init のまま停滞していないか）
+   （タイマーが一致しない Hello は相手に破棄されるため、Init にすら進まず
+   ネイバーとして一切現れないことを確認する）
 2. 両ルータの `show ip ospf interface GigabitEthernet0/1`（R1）・
    `GigabitEthernet0/0`（R3）を実行し、**Hello interval / Dead interval** を
    比較する
@@ -200,8 +201,16 @@ R3(config-router)# exit
 
 ## 手順 6: 障害 4（MTU 不一致・Exstart 停滞）の切り分けと修正（10 分）
 
+> ⚠️ **Packet Tracer での見え方について**: 実機 IOS では MTU 不一致は DBD 交換を
+> 妨げ EXSTART／EXCHANGE で停滞しますが、Packet Tracer はバージョンによって
+> この MTU チェックを厳密に再現しないことがあります。もし手順 1 の時点で
+> R1-R3 間がすでに **FULL** になっていても異常ではありません。その場合は
+> 停滞の再現を待たず、手順 2〜4 の「両側の IP MTU を比較し、既定値へ戻す」
+> 作業そのものを設定衛生（不要な変更の除去）の練習として実施してください。
+
 1. R1・R3 で `show ip ospf neighbor` を確認する。R1-R3 間のネイバーが
-   **EXSTART** または **EXCHANGE** のまま停滞していないか確認する
+   **EXSTART** または **EXCHANGE** のまま停滞していないか確認する（Packet Tracer
+   では上記のとおり停滞せず FULL になっている場合もあります）
 2. 両ルータの IP MTU を比較する（OSPF の DBD MTU チェックは IP MTU を見るため、
    L2 の `show interfaces` ではなく `show ip interface` で確認します）
 
@@ -366,10 +375,10 @@ R2(config-if)# exit
 
 | 症状 | 確認すること |
 |---|---|
-| R1-R3 間のネイバーが Init のまま進まない | `show ip ospf interface` で両側の Hello/Dead interval を比較（手順 3 の修正漏れ） |
+| R1-R3 間のネイバーが一切現れない（設定直後） | `show ip ospf interface` で両側の Hello/Dead interval を比較（手順 3 の修正漏れ。タイマー不一致の Hello は相手に破棄されるため Init にも進みません） |
 | R2-R3 間にネイバーが全く現れない（設定直後） | `show ip protocols` で R2 の `network` 文に `10.0.23.0/30` が含まれているか（手順 4） |
 | network 文を追加してもまだネイバーが現れない | R3 側の `show ip protocols` で Passive Interface に該当リンクが入っていないか（手順 5） |
-| R1-R3 間が Exstart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません） |
+| R1-R3 間が Exstart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません。Packet Tracer では停滞せず FULL のままのこともあります） |
 | PC1-PC3 の ping が通らない | 全リンクの `show ip ospf neighbor` が FULL か、`show ip route ospf` に経路があるか |
 | `O*E2` が学習されない | R3 で `ip route 0.0.0.0 0.0.0.0 Null0` と `default-information originate` の両方が投入されているか |
 | `show standby brief` で Active/Standby が逆 | R1 の priority が 110 になっているか、`standby 1 ip` の仮想 IP が両ルータで一致しているか |
