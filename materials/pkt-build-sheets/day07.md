@@ -191,7 +191,9 @@ copy running-config startup-config
 ```
 
 > 補足（講師用・演習手順の再現）: 手順3ではトランク化前（上記から `interface fastEthernet 0/24`
-> 以下の3行を除いた状態）で PC1→PC3 の ping が失敗することを確認させる。手順6では SW1 の Fa0/24 に
+> 以下の4行（`switchport mode trunk` / `switchport trunk native vlan 99` /
+> `switchport trunk allowed vlan 10,20` / `switchport nonegotiate`）を除いた状態）で
+> PC1→PC3 の ping が失敗することを確認させる。手順6では SW1 の Fa0/24 に
 > 一時的に `switchport trunk allowed vlan 10`（`add` なし）を投入して VLAN20 を遮断し、
 > `switchport trunk allowed vlan add 20` で `10,20` に復旧させる（結果は上記の最終状態と同じ）。
 > 手順7では SW1 のみ先に `switchport trunk native vlan 99` を投入し、SW2 が VLAN1 のままの間

@@ -55,6 +55,11 @@ GigabitEthernet（Gi0/0〜Gi0/2）をすべて使用します。
 
 ## 手順 1: VLAN の作成とアクセスポートの割当（15 分）
 
+> 注意: 本ラボでは **VLAN10 = 営業・VLAN20 = 経理** です。Day17（ACL）では
+> VLAN10 = 経理・VLAN20 = 営業 と割り当てており、番号と部署の対応が逆になって
+> います。Day17 の記憶のまま進めると経理宛て ACL を誤った VLAN に適用しやすいので、
+> 本ラボの上記アドレス表で番号と部署の対応を必ず確認してください。
+
 SW1・SW2 それぞれで VLAN を作成し、PC 接続ポートに割り当てます。
 
 ```
@@ -370,13 +375,19 @@ R1(config)# ip nat inside source list 1 interface GigabitEthernet0/2 overload
 経理 VLAN（VLAN20）からサーバへの通信を **HTTP のみ**に制限する名前付き
 拡張 ACL を作成します。拡張 ACL は「送信元にできるだけ近いインターフェース」
 に適用する原則に従い、R1 の Gi0/0.20（経理 VLAN の入口）に適用します。
-先頭の `permit udp` 行は、経理 VLAN の DHCP DISCOVER/REQUEST（ブロード
-キャスト、宛先 UDP67）が ACL によって遮断され、リースの取得・更新に失敗
-することを防ぐためのものです。
+1 行目の `permit udp ... eq 67` は、経理 VLAN の DHCP DISCOVER/REQUEST
+（ブロードキャスト、宛先 UDP67）が ACL によって遮断され、リースの取得・
+更新に失敗することを防ぐためのものです。2 行目の `permit udp any host
+224.0.0.2 eq 1985` は HSRP（v1）のハローパケット（宛先マルチキャスト
+224.0.0.2 / UDP1985）を許可するためのものです。この Gi0/0.20 は R1・R2
+間で HSRP group 20 を張っており、末尾の `deny ip any any` が相手ルータの
+ハローまで落とすと両系が Active になって仮想 IP/MAC が重複するため、
+明示的に許可しておく必要があります。
 
 ```
 R1(config)# ip access-list extended KEIRI-TO-SRV
 R1(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
+R1(config-ext-nacl)# permit udp any host 224.0.0.2 eq 1985
 R1(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R1(config-ext-nacl)# deny ip any any log
 R1(config-ext-nacl)# exit
@@ -397,6 +408,7 @@ R1(config-subif)# exit
 ```
 R2(config)# ip access-list extended KEIRI-TO-SRV
 R2(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
+R2(config-ext-nacl)# permit udp any host 224.0.0.2 eq 1985
 R2(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R2(config-ext-nacl)# deny ip any any log
 R2(config-ext-nacl)# exit

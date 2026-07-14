@@ -243,6 +243,7 @@ access-list 1 permit 192.168.0.0 0.0.255.255
 ip nat inside source list 1 interface GigabitEthernet0/2 overload
 ip access-list extended KEIRI-TO-SRV
  permit udp any host 255.255.255.255 eq 67
+ permit udp any host 224.0.0.2 eq 1985
  permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
  deny ip any any log
  exit
@@ -314,6 +315,7 @@ ip dhcp pool VLAN20-KEIRI
  exit
 ip access-list extended KEIRI-TO-SRV
  permit udp any host 255.255.255.255 eq 67
+ permit udp any host 224.0.0.2 eq 1985
  permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
  deny ip any any log
  exit
