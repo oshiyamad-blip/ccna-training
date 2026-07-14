@@ -828,7 +828,7 @@ resource "aws_vpc" "main" {
 | Q23 | C | VLAN はブロードキャストドメインであり、トランクで接続された複数スイッチをまたいで同一 VLAN のポート全体が 1 つのブロードキャストドメインを構成する。異なる VLAN(VLAN20)へは届かない。(→ Day6・Day7) |
 | Q24 | D | transparent モードは VLAN データベースの同期に参加せず自身の VLAN のみを保持するが、受信した VTP 広告はそのまま他のトランクポートへ転送する。(→ Day7) |
 | Q25 | A | ISL/dot1q 両対応機種ではトランクの encapsulation が既定で Auto(negotiate)になっており、`switchport mode trunk` の前に `switchport trunk encapsulation dot1q` で明示する必要がある。(→ Day7・Day8) |
-| Q26 | A,B | スイッチスプーフィングは攻撃者が DTP フレームを送ってポートをトランク化させる手法で、対策は `switchport mode access`(A)と `switchport nonegotiate`(B)の併用。C はダブルタギング対策、D は BPDU 偽装対策で、いずれも別の攻撃への対策。(→ Day7) |
+| Q26 | A,B | スイッチスプーフィングは攻撃者が DTP フレームを送ってポートをトランク化させる手法で、対策は `switchport mode access`(A)と `switchport nonegotiate`(B)の併用。C はダブルタギング対策、D は BPDU 偽装対策で、いずれも別の攻撃への対策。仕組み・対策コマンドはトランク/DTP を扱う Day7 が主(同一概念の L2 セキュリティ運用面は Q87/Day18)。(→ Day7) |
 | Q27 | C | `switchport nonegotiate` はポートが静的モード(access/trunk)である場合のみ設定でき、dynamic のままだと Command rejected になる。先にモードを固定する必要がある。(→ Day7) |
 | Q28 | D | 物理インタフェースがダウンすると、その上に作成された全サブインタフェースが道連れでダウンし、単一障害点になる。(→ Day8) |
 | Q29 | A | Router-on-a-Stick は全 VLAN のトラフィックが 1 本の物理トランクリンクを共有するため、トラフィック増加とともにボトルネックになりやすい。(→ Day8) |
@@ -889,7 +889,7 @@ resource "aws_vpc" "main" {
 | Q84 | A | `established` は ACK/RST フラグ付きのセグメント、すなわち既に確立済みの通信の戻りパケットのみを許可するキーワード。（→ Day17） |
 | Q85 | B | 名前付きACLはシーケンス番号を使って既存行を消さずに特定の位置へ行を挿入できる点が番号付きACLに対する利点。（→ Day17） |
 | Q86 | C | ワイルドカードマスク0.0.15.255は255.255.255.255-255.255.240.0（/20）に相当し、172.20.16.0〜172.20.31.255の連続する16個の/24をまとめて一致させる。（→ Day17） |
-| Q87 | D | DTPによるトランクネゴシエーションの悪用で本来入れないVLANへ到達するのはVLANホッピングで、対策はアクセスポートを`switchport mode access`に固定しDTPを無効化すること。（→ Day18） |
+| Q87 | D | DTPによるトランクネゴシエーションの悪用で本来入れないVLANへ到達するのはVLANホッピングで、対策はアクセスポートを`switchport mode access`に固定しDTPを無効化すること。対策コマンド・仕組みはトランク/DTPを扱うDay7が主で、L2セキュリティ運用の文脈としてDay18でも再掲する（Q26と同一概念）。（→ Day7・Day18） |
 | Q88 | A,B | ポートセキュリティは接続されている端末ごとにMACアドレスを個別に学習するため(B)、IP電話とPCの2台構成では`maximum`に最低2以上を設定する必要がある(A)。C・Dは1台分の学習しか許さない、またはセキュリティ自体を無効化してしまうため不適切。（→ Day18） |
 | Q89 | B | DHCPスヌーピングは `ip dhcp snooping`（グローバル）と `ip dhcp snooping vlan <VLAN>` の両方が揃って初めて該当VLANで動作する。（→ Day18） |
 | Q90 | A,B | 双方の拠点がNAT配下にある場合、ESP等がNATで正しく通過できるようIKEはNAT-Tへ切り替わり(A)UDP 4500でカプセル化する(B)。IKE本来のUDP 500のみでは正しく通過できず（Cは誤り）、GRE/TCP179は無関係（Dは誤り）。（→ Day18, Day14） |

@@ -185,7 +185,7 @@
 - C. `spanning-tree mode rapid-pvst`
 - D. `switchport mode trunk`
 
-**Q30.** SVI(`interface vlan`)がup/up状態になるための条件として、**正しいもの**はどれか。（2つ選べ）
+**Q30.** SVI(`interface vlan`)がup/up状態になるための条件として、次の選択肢のうち**正しいもの**はどれか。（2つ選べ）
 - A. 対応するVLANがVLANデータベースに作成済みであること
 - B. そのVLANに所属するポートが1つ以上upしていること
 - C. SVI自身が `shutdown` 状態のままであること
@@ -718,7 +718,7 @@ Security Violation Count                   : 0
 | Q27 | D | `add` を付けずに `allowed vlan` を実行すると既存リストが丸ごと上書きされてしまうため、追加時は必ず `add` を使う。(→ Day7) |
 | Q28 | C | サブインタフェースでは先に `encapsulation dot1q <VLAN-ID>` でVLANを紐付けてから `ip address` を設定する必要がある。(→ Day8) |
 | Q29 | A | L3スイッチは初期状態でL2スイッチとしてしか動作せず、`ip routing` を有効化しないとVLAN間ルーティングが行われない。(→ Day8) |
-| Q30 | A,B | SVIがup/upになるには、対応するVLANがVLANデータベースに作成済みであること、そのVLANに所属するポートが1つ以上upしていることが条件（加えてSVI自身にno shutdownの設定も必要）。CはSVIがshutdown状態のままではup/upにならないため誤り、Dは`ip routing`はVLAN間通信の前提として有効化されている必要があるため誤り。(→ Day8) |
+| Q30 | A,B | SVIがup/upになるには、対応するVLANがVLANデータベースに作成済みであること、そのVLANに所属するポートが1つ以上upしていることが条件。CはSVI自身が`shutdown`のままではup/upにならない（=`no shutdown`が必要）ため誤り、Dは`ip routing`はVLAN間通信の前提として有効化されている必要があるため誤り。(→ Day8) |
 | Q31 | B | ルートブリッジはBID(ブリッジプライオリティ+MACアドレス)が最小のスイッチが選出される。SW2のプライオリティ24576はSW1・SW3の32768より小さいため、MACアドレスを比較するまでもなくSW2がルートブリッジとなる。(→ Day9) |
 | Q32 | C | ブリッジプライオリティは4096の倍数(0〜61440)でのみ設定可能。(→ Day9) |
 | Q33 | B | 直接リンク障害はリンクダウンを即座に検知できるため、Max Ageを待たず2×Forward Delay(15秒×2=30秒)で収束する。(→ Day9) |
@@ -776,7 +776,7 @@ Security Violation Count                   : 0
 | Q85 | D | 標準ACLは送信元しか見ないため経理部門の送信元近くに置くと他の宛先への通信まで巻き込む。宛先まで条件にできる拡張ACLを使い、不要な通信を早期に破棄する原則どおり送信元近くに適用するのが正しい。（→ Day17） |
 | Q86 | B | VTY回線へのアクセス制限にはインタフェース用の`ip access-group`ではなく、回線専用の`access-class <ACL> in`を使う。この違いは頻出の落とし穴。（→ Day17） |
 | Q87 | A | protectモードはフレームを破棄しつつポートの稼働を継続し、Syslog通知も違反カウンタの増加も行わない唯一のモード。出力でPort StatusがSecure-up（err-disabledでない）のままでSecurity Violation Countも0であることから判断できる。restrictは通知とカウンタ増加あり、shutdown（既定）ではPort StatusがSecure-shutdownになりerr-disabledへ遷移する。（→ Day18） |
-| Q88 | B,D | untrustedポートで破棄されるのは、DHCPサーバが送るはずのメッセージ（DHCPOFFER/DHCPACK、および実際にはDHCPNAKも含む）。クライアント発のDHCPDISCOVER/DHCPREQUESTは通常どおり転送される。（→ Day18） |
+| Q88 | B,D | untrustedポートで破棄されるのは、DHCPサーバが送信元となるメッセージ。本問の選択肢のうちではDHCPOFFERとDHCPACKが該当する（このほかDHCPNAKなどのサーバ発メッセージも破棄対象だが、選択肢には含まれない）。クライアント発のDHCPDISCOVER/DHCPREQUESTは通常どおり転送される。（→ Day18） |
 | Q89 | C | DAIはDHCPスヌーピングのバインディングテーブル（IP・MAC・ポートの対応情報）を判定根拠にするため、DHCPスヌーピングが先に有効化され機能している必要がある。（→ Day18） |
 | Q90 | C | サイト間VPNはゲートウェイ（ルータ/FW）同士でIPsecトンネルを確立しネットワーク全体を透過的に接続する方式で、端末側にクライアントソフトは不要。リモートアクセスVPNは個々の端末にクライアントソフトが必要。（→ Day18） |
 | Q91 | A | SDNではコントロールプレーン（経路を決める機能）をコントローラへ集中させ、データプレーン（実際に転送する機能）は各機器に残す。（→ Day19） |
