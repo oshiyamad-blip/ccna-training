@@ -34,10 +34,10 @@
 
 <details><summary>解答</summary>
 
-- W1: **SYN → SYN/ACK → ACK**。HTTPS = **443**、SSH = **22**（いずれも TCP）
+- W1: **SYN、SYN/ACK、ACK の順**。HTTPS = **443**、SSH = **22**（いずれも TCP）
 - W2: ブリッジプライオリティの既定値は **32768**。LACP は `passive` / `passive`
   の組み合わせのみ**成立しない**（少なくとも片方は `active` が必要）
-- W3: **ロンゲストマッチ → AD（管理距離）→ メトリック**の順。デフォルトルートは
+- W3: **ロンゲストマッチ、AD（管理距離）、メトリック**の順。デフォルトルートは
   `show ip route` で **`S*`** と表示される
 
 </details>
@@ -481,10 +481,10 @@ Router# clear ip ospf process
 - OSPF の AD は 110（静的ルート 1、EIGRP 90 より低優先、RIP 120 より高優先）
 - ネイバー成立にはエリア ID・サブネット・タイマー・認証・スタブフラグ・MTU の一致が必要。
   Router ID は一致不要だが一意性が必須
-- 状態遷移は Down → Init → 2-Way → ExStart → Exchange → Loading → Full。
+- 状態遷移は Down、Init、2-Way、ExStart、Exchange、Loading、Full の順に進む。
   マルチアクセス網では DROTHER 同士は 2-Way で正常に停止する
-- Router ID は明示設定 → 最大ループバック IP → 最大物理 IP の順で決まる
-- DR/BDR はプライオリティ（既定 1）→ Router ID の順で選出され、非プリエンプティブ
+- Router ID は明示設定、最大ループバック IP、最大物理 IP の順で決まる
+- DR/BDR はプライオリティ（既定 1）、Router ID の順で選出され、非プリエンプティブ
 - コストは参照帯域幅（既定 10^8）÷ 帯域幅で計算され、`ip ospf cost` で直接調整できる
 - `network` 文はワイルドカードマスクと `area` 指定が必須。パッシブインターフェースは
   Hello を止めるが経路広告は継続する
