@@ -371,6 +371,22 @@ R1(config)# crypto key generate rsa
 How many bits in the modulus [512]: 1024
 ```
 
+なお、すでに RSA 鍵が生成済みの機器で `crypto key generate rsa` を実行すると、
+「鍵がすでに存在する（置き換えるか）」という確認や、環境によってはエラーで先に
+進めないことがあります。鍵を作り直したい場合は、先に既存の鍵を削除してから
+生成し直します。削除には `crypto key zeroize rsa` を使います。
+
+```
+R1(config)# crypto key zeroize rsa
+R1(config)# crypto key generate rsa
+```
+
+`crypto key zeroize rsa` は既存の RSA 鍵ペアを破棄するコマンドです。鍵を破棄すると
+その鍵に依存する SSH は一時的に使えなくなるため、リモート作業中の実行には注意します。
+つまり「既存の RSA 鍵を破棄して新規に生成し直す」正しい手順は、**先に
+`crypto key zeroize rsa` で削除してから `crypto key generate rsa` で生成する**、
+という順序になります。
+
 ### 手順 3: SSH バージョンの固定
 
 ```
@@ -484,6 +500,37 @@ R1# reload
 3. **IOS のロード**（通常はフラッシュメモリから）
 4. **startup-config を running-config へ適用**（NVRAM から読み込み）
 
+### コンフィグレジスタとパスワード回復
+
+**コンフィグレジスタ（configuration register）**は、機器が起動時にどう振る舞うかを
+決める 16 進数の設定値です。`show version` の出力末尾に `Configuration register is
+0x2102` のように表示されます。代表的な値は次の 2 つです。
+
+| 値 | 意味 |
+|---|---|
+| `0x2102` | **既定値**。起動時に NVRAM の startup-config を読み込み、通常どおり起動する |
+| `0x2142` | 起動時に startup-config を**無視**して起動する（設定が読み込まれず、工場出荷相当の状態で立ち上がる） |
+
+この `0x2142` の「startup-config を無視して起動する」性質は、**パスワード回復**
+（パスワードを忘れてログインできなくなった機器を、設定を消さずに復旧する作業）で
+利用します。startup-config を読み込まずに起動すれば、パスワードによる認証を通らずに
+機器へ入り、保存済みの設定を保ったままパスワードだけを付け替えられるからです。
+概略の手順は次のとおりです。
+
+1. 機器を**再起動**し、起動中に **ROMMON**（ROM Monitor。IOS が起動する前に動く
+   最小限の保守用モード）へ入る
+2. コンフィグレジスタを一時的に **`0x2142`** に変更する
+3. 再起動すると startup-config を無視して立ち上がるので、認証を通らずに特権 EXEC へ入る
+4. 保存済みの設定を使いたいので、`copy startup-config running-config` で startup-config を
+   running-config へ読み込む
+5. パスワード（`enable secret` など）を新しい値に**再設定**する
+6. コンフィグレジスタを既定の **`0x2102`** に戻す
+7. `copy running-config startup-config` で保存して再起動する
+
+> **試験のポイント**: `0x2102` は既定値で startup-config を読み込んで起動、`0x2142` は
+> startup-config を無視して起動、という 2 値の意味は頻出です。パスワード回復では
+> config-register を一時的に `0x2142` に変更し、作業後に `0x2102` へ戻します。
+
 > **試験のポイント**: running-config（RAM）と startup-config（NVRAM）の格納場所の
 > 違い、そして変更を永続化するための `copy running-config startup-config` は
 > 非常によく出題されます。
@@ -512,6 +559,8 @@ R1# reload
 3. スイッチの管理用 IP アドレスは、どのインタフェースに設定するか。
 4. SSH を有効化する際、RSA 鍵を生成する前に必ず設定しておくべき 2 つの項目は何か。
 5. 電源を切っても設定を残すために実行するコマンドは何か。
+6. `show version` に `Configuration register is 0x2102` と表示されているとき、機器は
+   起動時にどう振る舞うか。また、パスワード回復ではこの値を一時的にどの値へ変更するか。
 
 <details><summary>解答</summary>
 
@@ -520,6 +569,9 @@ R1# reload
 3. SVI（`interface vlan 1` などの VLAN インタフェース）
 4. ホスト名（`hostname`）とドメイン名（`ip domain-name`）
 5. `copy running-config startup-config`（または `write memory`）
+6. `0x2102` は既定値で、起動時に startup-config を読み込んで通常どおり起動する。
+   パスワード回復では一時的に `0x2142`（startup-config を無視して起動）へ変更し、
+   作業後に `0x2102` へ戻す。
 
 </details>
 

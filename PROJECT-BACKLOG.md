@@ -83,7 +83,7 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 
 | ID | 区分 | 内容 | 優先 |
 |---|---|---|---|
-| IMP-1 | 教材補強 | 模試で問われるが教材に無い8論点を追記（Day19: SWIM/YANG/SD-Access、Day2: config-register/パスワード回復/`crypto key zeroize`、Day16: `login quiet-mode`、Day10: 隠れ端末/RTS-CTS、Day18: DMVPN） | 高 |
+| ~~IMP-1~~ ✅ | 教材補強 | **完了**。模試で問われるが教材に無い8論点を該当Dayの既存セクションへ追記（Day19: SWIM/YANG/SD-Access、Day2: config-register/パスワード回復/`crypto key zeroize`、Day16: `login quiet-mode`、Day10: 隠れ端末/RTS-CTS、Day18: DMVPN）。対応する模試10問がすべて教材だけで解ける状態を検証済み | 高 |
 | IMP-2 | 模試設計 | シムレット模擬（show出力＋設定断片のマルチステップ）を各回3〜5問追加し、本試験のSim欠落を補償 | 高 |
 | IMP-3 | 模試設計 | 5本のフォーム等価化（シナリオ比率40±5%）、またはGO基準を「全5本平均85%かつ各回80%」へ変更 | 中 |
 | IMP-4 | 整合 | Day12/Day13の範囲境界明示、VLANホッピングのアンカー統一、一部曖昧設問の設問文精緻化 | 低 |

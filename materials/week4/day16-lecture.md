@@ -371,8 +371,33 @@ R1(config-line)# exec-timeout 5 0
 
 - `login block-for 60 attempts 3 within 30`: 30 秒以内に 3 回ログインに失敗すると、
   60 秒間すべてのログイン試行をブロックします。ブルートフォース攻撃の緩和に有効です。
+  このブロックが発動している状態を**クワイエットモード**と呼びます。
 - `exec-timeout 5 0`: 無操作状態が 5 分続くと自動的にログアウトします。
   離席時に端末を放置されるリスクを減らします。
+
+#### クワイエットモード中の締め出しを防ぐ（login quiet-mode access-class）
+
+`login block-for` のクワイエットモードが発動している間は、既定では**管理者自身を含む
+すべてのログイン試行がブロック**されます。攻撃者だけでなく、正規の運用担当者も一時的に
+ログインできなくなるため、対応中に自分が締め出される事故が起こり得ます。
+
+これを防ぐには、あらかじめ管理用の ACL（許可する管理端末・管理サブネットを列挙した
+アクセスリスト）を作成し、`login quiet-mode access-class <管理用 ACL>` を設定します。
+
+```
+R1(config)# ip access-list standard MGMT-ACL
+R1(config-std-nacl)# permit 192.168.99.0 0.0.0.255
+R1(config)# login quiet-mode access-class MGMT-ACL
+```
+
+こうしておくと、クワイエットモード中でも ACL で許可した管理サブネット・ホストからの
+ログイン試行だけは**ブロック対象から除外**され、通常どおり接続できます。ブルートフォース
+対策（`login block-for`）を有効にしたまま、管理者自身の締め出しだけを避けられます。
+
+なお、VTY 回線に適用する通常の `access-class <ACL> in`（Day 17 で扱います）は、
+VTY 回線へ「到達できるかどうか」そのものを制御するコマンドで、クワイエットモードの
+ブロックを回避する用途には使えません。締め出し対策には `login quiet-mode access-class`
+を使う点を区別してください。
 
 > 💼 **実務では**: `login block-for` のクワイエットモードは、監視中に「急にログイン
 > できなくなった」というアラートや問い合わせとして保守側に飛んでくることがあります。
@@ -443,6 +468,7 @@ This system is for authorized use only. Unauthorized access is prohibited.
 3. RADIUS と TACACS+ のうち、パケット全体を暗号化し、TCP 49 番を使うのはどちらか。
 4. パスワードと「秘密の質問」の組み合わせが多要素認証（MFA）にならない理由を説明せよ。
 5. `enable secret` と `enable password` のうち、CCNA の学習において常に使うべきなのはどちらか。その理由も述べよ。
+6. `login block-for` のクワイエットモード発動中に管理者自身が締め出された。今後、ブルートフォース対策を有効にしたまま、特定の管理サブネットだけをブロック対象から除外するには、どのコマンドを事前に設定しておけばよいか。
 
 <details><summary>解答</summary>
 
@@ -453,6 +479,9 @@ This system is for authorized use only. Unauthorized access is prohibited.
    いないため。MFA は異なる種類の要素（知識・所持・生体）を 2 つ以上組み合わせる必要がある
 5. `enable secret`。ハッシュ化されて保存されるため、平文または弱い可逆暗号でしか
    保護されない `enable password` より安全だから
+6. 管理サブネットを許可する ACL をあらかじめ作成し、`login quiet-mode access-class <管理用 ACL>`
+   を設定しておく。これにより、クワイエットモード中でも許可した管理サブネット・ホストからの
+   ログイン試行はブロック対象から除外される
 
 </details>
 
