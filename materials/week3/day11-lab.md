@@ -47,8 +47,14 @@
 ## 手順 1: トポロジの作成とインターフェース設定（40 分）
 
 1. Packet Tracer を起動し、新規ファイルを開く
-2. [Network Devices] → [Routers] → **2911** を 3 台配置し、`hostname` を
-   `R1` / `R2` / `R3` に設定する
+2. [Network Devices] → [Routers] → **2911** を 3 台配置し、各ルータの CLI で
+   `hostname` を `R1` / `R2` / `R3` に設定する
+
+   ```
+   Router(config)# hostname R1
+   ```
+
+   R2・R3 も同様に、それぞれ `hostname R2` / `hostname R3` を実行する
 3. [End Devices] → **PC** を 2 台配置し、`PC1` / `PC3` とする
 4. ストレートケーブルで次のように接続する
    - PC1 ⇔ R1 Gi0/0

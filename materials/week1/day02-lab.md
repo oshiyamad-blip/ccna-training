@@ -43,11 +43,14 @@
 
 ## 手順 1: R1 へのコンソール接続とモード遷移確認（5 分）
 
-1. Admin-PC の [Desktop] → **Terminal** を開き、R1 の Console ポートへロールオーバー
-   ケーブルで接続する（設定はデフォルトの 9600/8-N-1 のままで OK）
-2. 接続後に表示される `Router>` プロンプトで `enable` を実行し、`Router#` に
+1. トポロジ画面で、Day 1 手順 1 と同じ要領で接続ツール（稲妻アイコン）→
+   **ロールオーバーケーブル**を選び、Admin-PC の **RS232** ポートと R1 の
+   **Console** ポートを順にクリックしてケーブルをつなぐ
+2. Admin-PC をクリックし、[Desktop] → **Terminal** を開く（設定はデフォルトの
+   9600/8-N-1 のままで OK）
+3. 接続後に表示される `Router>` プロンプトで `enable` を実行し、`Router#` に
    変わることを確認する
-3. `configure terminal` を実行し、`Router(config)#` に変わることを確認する
+4. `configure terminal` を実行し、`Router(config)#` に変わることを確認する
 
 ## 手順 2: R1 の基本設定（ホスト名・enable secret・バナー）（10 分）
 

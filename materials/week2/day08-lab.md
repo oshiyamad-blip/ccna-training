@@ -39,7 +39,7 @@ Multilayer Switch 3560 x1（Part2 用の L3 スイッチ）、PC x4
    PC1・PC2 を SW1 の `Fa0/1`・`Fa0/2`、PC3・PC4 を `Fa0/3`・`Fa0/4` に
    ストレートケーブルで接続する
 2. R1 の `GigabitEthernet0/0` と SW1 の `Fa0/24` をストレートケーブルで接続する
-3. SW1 に CLI（Terminal）で接続し、VLAN を作成する
+3. SW1 をクリックし [CLI] タブを開き、VLAN を作成する
 
    ```
    Switch> enable
@@ -148,10 +148,12 @@ Multilayer Switch 3560 x1（Part2 用の L3 スイッチ）、PC x4
 
 ## 手順 5: Part2 への移行 — L3 スイッチへの置き換え（20 分）
 
-1. SW1（2960）を削除し、代わりに **Multilayer Switch 3560** を配置する
-   （R1 は今回使用しないため配置したままで構わない）
+1. SW1（2960）をクリックして選択し、Delete キーを押して削除する（または右クリック
+   → Delete）。代わりに **Multilayer Switch 3560** を配置する（R1 は今回使用しない
+   ため配置したままで構わない）
 2. PC1〜PC4 を MLS の `Fa0/1`〜`Fa0/4` に、Part1 と同じ割り当てで接続し直す
-3. MLS に CLI で接続し、VLAN を作成してアクセスポートを設定する
+   （SW1 削除により切れたケーブルを、ストレートケーブルで MLS に接続し直す）
+3. MLS をクリックし [CLI] タブを開き、VLAN を作成してアクセスポートを設定する
 
    ```
    Switch> enable

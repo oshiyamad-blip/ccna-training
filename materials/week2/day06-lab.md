@@ -5,7 +5,8 @@
 
 ## ゴール
 
-- 1 台のアクセススイッチ上に 2 つの VLAN（VLAN 10 / VLAN 20）を作成できる
+- 1 台のアクセススイッチ（PC などの端末が直接つながる末端のスイッチ）上に
+  2 つの VLAN（VLAN 10 / VLAN 20）を作成できる
 - 4 台の PC を、部署ごとに異なる VLAN のアクセスポートへ収容できる
 - 同一 VLAN 内では ping が通り、異なる VLAN 間では ping が通らない
   （ブロードキャストドメインが分離されている）ことを、`show` コマンドと
@@ -179,7 +180,8 @@ SW1# copy running-config startup-config
 ```
 
 - VLAN の定義（VLAN 10 / VLAN 20 とその名前）自体は、`running-config` とは別に
-  フラッシュメモリ上の **`vlan.dat`** にすでに保存されています。
+  フラッシュメモリ（電源を切ってもデータが消えない記憶装置）上の **`vlan.dat`**
+  にすでに保存されています。
   `copy running-config startup-config` は、ポートへの割り当てなど
   `running-config` 側の設定を `startup-config` に反映するために実行します
 

@@ -1,4 +1,4 @@
-# Week0 P4 実習：仕事のITきほん（Backlog・Markdown・セキュリティ）
+# Week0 P4 実習：仕事のIT基礎（Backlog・Markdown・セキュリティ）
 
 > 配置先: ドキュメント `01_教材 > Week0 > P4`
 

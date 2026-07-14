@@ -158,9 +158,11 @@ R4(config-router)# passive-interface GigabitEthernet0/1
    R1# show ip ospf neighbor
    ```
 
-2. **確認**: R1 は R2・R3・R4 の 3 台とネイバーになっており、状態が **FULL**
-   （R1-R2、R1-R3、R1-R4 の各リンクは 2 台しかいないため DR/BDR いずれかになる）
-   であること
+2. **確認**: R1 は R2・R3・R4 の 3 台とネイバーになっており、いずれも状態が
+   **FULL** であること。R1-R2、R1-R3、R1-R4 の各リンクはそれぞれ 2 台しか
+   ルータがいないため、DROTHER（DR/BDR 以外の役割）が存在せず、両方とも
+   DR か BDR のどちらかになります。講義で学んだ「DROTHER 同士は 2-Way で
+   停止する」ケースは、この構成では発生しません
 3. R2・R3・R4 でも同様に確認し、結果を記録する（RID、状態、DR/BDR の役割、
    接続インターフェース）
 

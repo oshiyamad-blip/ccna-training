@@ -43,7 +43,8 @@ SW1 の Fa0/3〜Fa0/22 は本ラボでは未使用ポートとして扱い、後
    - SW1 `FastEthernet0/2` — PC1
    - SW1 `FastEthernet0/23` — SW2 `FastEthernet0/24`
    - SW2 `FastEthernet0/1` — PC2
-3. 各 PC に上表の IP アドレス / サブネットマスクを設定する
+3. 各 PC の [Desktop] → **IP Configuration** で、上表の IP アドレス / サブネットマスクを
+   設定する
 4. R1 の `GigabitEthernet0/0` に IP アドレスを設定し、`no shutdown` する
 
    ```
