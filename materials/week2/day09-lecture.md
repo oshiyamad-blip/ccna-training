@@ -216,6 +216,8 @@ Switch# show spanning-tree vlan 10
         SW2 ──1Gbps(コスト4)── SW3
 ```
 
+![ポートロール選出の数値例](../images/day09-port-role-selection.png)
+
 - **SW2**: SWroot への直接リンク（コスト 4）と、SW3 経由（4 + 4 = 8）を比較する
   → **直接リンク（コスト 4）が最小** → SWroot 側のポートがルートポートになる
 - **SW3**: SWroot への直接リンク（コスト 19）と、SW2 経由（4 + 4 = 8）を比較する

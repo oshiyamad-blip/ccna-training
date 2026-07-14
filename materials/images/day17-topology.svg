@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .devtype { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .iface { font-size: 12.5px; font-weight: 700; fill: #374151; text-anchor: middle; }
+      .net { font-size: 12.5px; fill: #6b7280; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .gw { font-size: 12px; fill: #9ca3af; text-anchor: middle; }
+      .box-title { font-size: 15px; font-weight: 700; fill: #6d28d9; }
+      .box-line { font-size: 13px; fill: #374151; }
+      .legend { font-size: 12.5px; fill: #374151; }
+      .legend-title { font-size: 12.5px; font-weight: 700; fill: #6b7280; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .trunk { stroke: #64748b; stroke-width: 5; }
+      .goal-title { font-size: 15px; font-weight: 700; fill: #1d4ed8; }
+      .goal-body { font-size: 13.5px; fill: #1f2937; }
+    </style>
+    <g id="router">
+      <circle r="34" fill="#2779ca"/>
+      <circle r="34" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-15" y1="-8" x2="7" y2="-8"/>
+        <line x1="15" y1="8" x2="-7" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -14 L 19 -8 L 7 -2 Z"/>
+        <path d="M -7 2 L -19 8 L -7 14 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="#0e9aa7" stroke="#0b7a85" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-26" y1="-9" x2="20" y2="-9"/>
+        <line x1="-20" y1="9" x2="26" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 20 -14 L 32 -9 L 20 -4 Z"/>
+        <path d="M -26 -14 L -38 -9 L -26 -4 Z"/>
+        <path d="M 26 4 L 38 9 L 26 14 Z"/>
+        <path d="M -20 4 L -32 9 L -20 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-24" y="-22" width="48" height="34" rx="4" fill="#475569"/>
+      <rect x="-19" y="-17" width="38" height="24" rx="2" fill="#bfdbfe"/>
+      <rect x="-7" y="12" width="14" height="5" fill="#475569"/>
+      <rect x="-16" y="17" width="32" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="server">
+      <rect x="-18" y="-40" width="36" height="80" rx="5" fill="#334155"/>
+      <rect x="-18" y="-40" width="36" height="80" rx="5" fill="none" stroke="#1e293b" stroke-width="2"/>
+      <rect x="-11" y="-29" width="22" height="6" rx="1.5" fill="#94a3b8"/>
+      <rect x="-11" y="-14" width="22" height="6" rx="1.5" fill="#94a3b8"/>
+      <rect x="-11" y="1" width="22" height="6" rx="1.5" fill="#94a3b8"/>
+      <circle cx="7" cy="20" r="2.6" fill="#4ade80"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="900" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 17 ラボ: 拡張 ACL によるアクセス制御と VTY 管理制限 — 完成トポロジ</text>
+  <text class="sub" x="40" y="78">R1 の Router-on-a-Stick で 4 VLAN を分離し、拡張 ACL と標準 ACL（access-class）でアクセスを制御する</text>
+
+  <!-- R1 サブインターフェース情報ボックス -->
+  <rect x="730" y="92" width="430" height="196" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2"/>
+  <text class="box-title" x="750" y="118">R1 Gi0/0/0 サブインターフェース（ROAS）</text>
+  <text class="box-line" x="750" y="144">.10  encapsulation dot1Q 10 → 192.168.10.1/24</text>
+  <text class="box-line" x="750" y="166">.20  encapsulation dot1Q 20 → 192.168.20.1/24</text>
+  <text class="box-line" x="750" y="188">.30  encapsulation dot1Q 30 → 192.168.30.1/24</text>
+  <text class="box-line" x="750" y="210">.99  encapsulation dot1Q 99 → 192.168.99.1/24</text>
+  <line x1="750" y1="224" x2="1140" y2="224" stroke="#ddd6fe" stroke-width="1.5"/>
+  <text class="legend-title" x="750" y="244">VLAN カラー</text>
+  <rect x="750" y="252" width="13" height="13" fill="#2779ca"/>
+  <text class="legend" x="769" y="263">VLAN10 KEIRI（経理）</text>
+  <rect x="945" y="252" width="13" height="13" fill="#7ea800"/>
+  <text class="legend" x="964" y="263">VLAN20 EIGYO（営業）</text>
+  <rect x="750" y="272" width="13" height="13" fill="#8b5cf6"/>
+  <text class="legend" x="769" y="283">VLAN99 MGMT（管理）</text>
+  <rect x="945" y="272" width="13" height="13" fill="#ff9200"/>
+  <text class="legend" x="964" y="283">VLAN30 SERVER（サーバ）</text>
+
+  <!-- R1 -->
+  <text class="devname" x="600" y="118">R1</text>
+  <text class="devtype" x="600" y="136">ISR 4331</text>
+  <use href="#router" x="600" y="185"/>
+
+  <!-- trunk link R1-SW1 -->
+  <line class="trunk" x1="600" y1="219" x2="600" y2="317"/>
+  <text class="iface" x="618" y="248" text-anchor="start">トランク（802.1Q）</text>
+  <text class="net" x="618" y="266" text-anchor="start">R1 Gi0/0/0 ⇔ SW1 Gi0/1</text>
+
+  <!-- SW1 -->
+  <use href="#switch" x="600" y="345"/>
+  <text class="devname" x="700" y="340">SW1</text>
+  <text class="devtype" x="700" y="358">Cisco 2960（L2）</text>
+
+  <!-- fan-out links to 4 access devices, colored by VLAN -->
+  <line x1="600" y1="371" x2="170" y2="545" stroke="#2779ca" stroke-width="3"/>
+  <line x1="600" y1="371" x2="460" y2="545" stroke="#7ea800" stroke-width="3"/>
+  <line x1="600" y1="371" x2="740" y2="545" stroke="#8b5cf6" stroke-width="3"/>
+  <line x1="600" y1="371" x2="1030" y2="545" stroke="#ff9200" stroke-width="3"/>
+
+  <!-- port/VLAN/network labels along each link (white halo hides the line behind the text) -->
+  <g>
+    <rect x="197" y="491" width="150" height="42" rx="6" fill="#ffffff"/>
+    <rect x="422" y="491" width="150" height="42" rx="6" fill="#ffffff"/>
+    <rect x="628" y="491" width="150" height="42" rx="6" fill="#ffffff"/>
+    <rect x="853" y="491" width="150" height="42" rx="6" fill="#ffffff"/>
+  </g>
+  <g text-anchor="middle">
+    <text class="iface" x="272" y="508" fill="#2779ca">Fa0/1 → VLAN10</text>
+    <text class="net" x="272" y="525">192.168.10.0/24</text>
+
+    <text class="iface" x="497" y="508" fill="#7ea800">Fa0/2 → VLAN20</text>
+    <text class="net" x="497" y="525">192.168.20.0/24</text>
+
+    <text class="iface" x="703" y="508" fill="#8b5cf6">Fa0/3 → VLAN99</text>
+    <text class="net" x="703" y="525">192.168.99.0/24</text>
+
+    <text class="iface" x="928" y="508" fill="#ff9200">Fa0/10 → VLAN30</text>
+    <text class="net" x="928" y="525">192.168.30.0/24</text>
+  </g>
+
+  <!-- PC-Kei (VLAN10) -->
+  <use href="#pc" x="170" y="580"/>
+  <rect x="120" y="614" width="100" height="4" rx="2" fill="#2779ca"/>
+  <text class="devname" x="170" y="640">PC-Kei（経理）</text>
+  <text class="ip" x="170" y="660">192.168.10.10/24</text>
+  <text class="gw" x="170" y="677">GW: 192.168.10.1</text>
+
+  <!-- PC-Eig (VLAN20) -->
+  <use href="#pc" x="460" y="580"/>
+  <rect x="410" y="614" width="100" height="4" rx="2" fill="#7ea800"/>
+  <text class="devname" x="460" y="640">PC-Eig（営業）</text>
+  <text class="ip" x="460" y="660">192.168.20.10/24</text>
+  <text class="gw" x="460" y="677">GW: 192.168.20.1</text>
+
+  <!-- PC-Adm (VLAN99) -->
+  <use href="#pc" x="740" y="580"/>
+  <rect x="690" y="614" width="100" height="4" rx="2" fill="#8b5cf6"/>
+  <text class="devname" x="740" y="640">PC-Adm（管理）</text>
+  <text class="ip" x="740" y="660">192.168.99.10/24</text>
+  <text class="gw" x="740" y="677">GW: 192.168.99.1</text>
+
+  <!-- SRV (VLAN30) -->
+  <use href="#server" x="1030" y="585"/>
+  <rect x="980" y="632" width="100" height="4" rx="2" fill="#ff9200"/>
+  <text class="devname" x="1030" y="658">SRV（Server-PT）</text>
+  <text class="ip" x="1030" y="678">192.168.30.100/24</text>
+  <text class="gw" x="1030" y="695">GW: 192.168.30.1</text>
+
+  <!-- goal note -->
+  <rect x="40" y="730" width="1120" height="140" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="goal-title" x="60" y="756">🎯 ラボのゴール</text>
+  <text class="goal-body" x="60" y="780">1. VLAN10（経理）のホストは SRV へ HTTP（TCP/80）のみ到達でき、ICMP など他プロトコルは遮断される（拡張 ACL: KEI-TO-SRV を Gi0/0/0.10 in に適用）</text>
+  <text class="goal-body" x="60" y="802">2. VLAN20（営業）は SRV へ到達できない（拡張 ACL: EIG-BLOCK を Gi0/0/0.20 in に適用、他宛先への通信には影響しない）</text>
+  <text class="goal-body" x="60" y="824">3. R1 への SSH は PC-Adm（192.168.99.10）からのみ成功し、他ホストからは拒否される（標準 ACL: MGMT-VTY を line vty 0 4 に access-class in で適用）</text>
+  <text class="goal-body" x="60" y="850">配線: R1 Gi0/0/0 — SW1 Gi0/1（トランク）／ SW1 の各アクセスポートに VLAN10・20・99・30 を割り当て</text>
+</svg>

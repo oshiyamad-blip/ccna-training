@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 22px; font-weight: 700; }
+      .sub { font-size: 13.5px; fill: #6b7280; }
+      .pill { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .cardlabel { font-size: 11px; fill: #6b7280; text-anchor: middle; }
+      .cardroute { font-size: 15px; font-weight: 700; text-anchor: middle; }
+      .cardsrc { font-size: 11.5px; fill: #374151; text-anchor: middle; }
+      .cardad { font-size: 12px; font-weight: 700; text-anchor: middle; }
+      .verdict { font-size: 12.5px; font-weight: 700; text-anchor: middle; }
+      .reason { font-size: 11px; fill: #6b7280; text-anchor: middle; }
+      .mono { font-family: "DejaVu Sans Mono", monospace; text-anchor: middle; }
+      .stage3title { font-size: 15px; font-weight: 700; fill: #6d28d9; }
+      .tip { font-size: 13px; }
+      .cgray { fill: #374151; }
+      .cwarn { fill: #b45309; }
+      .cgood { fill: #1d5a94; }
+      .adgood { fill: #4d7c00; }
+      .verdictbad { fill: #b91c1c; }
+      .verdictgood { fill: #4d7c00; }
+      .monogood { fill: #7ea800; }
+      .mononote { fill: #cbd5e1; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="660" fill="#ffffff"/>
+
+  <text class="title" x="40" y="40">経路選択の3段階ロジック ― 宛先 192.168.3.10 への経路はどれが採用されるか</text>
+  <text class="sub" x="40" y="63">ルーティングテーブルに複数の候補が存在するとき、ルータは①→②→③の順で1つに絞り込む（宛先は Day11 ラボの LAN3 と同一）</text>
+
+  <!-- process strip -->
+  <g>
+    <rect x="170" y="80" width="200" height="30" rx="15" fill="#2779ca"/>
+    <text class="pill" x="270" y="100">① ロンゲストマッチ</text>
+    <path d="M 375 95 L 415 95" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <rect x="425" y="80" width="150" height="30" rx="15" fill="#2779ca" opacity="0.75"/>
+    <text class="pill" x="500" y="100">② AD（管理距離）</text>
+    <path d="M 580 95 L 620 95" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <rect x="630" y="80" width="140" height="30" rx="15" fill="#2779ca" opacity="0.5"/>
+    <text class="pill" x="700" y="100">③ メトリック</text>
+  </g>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <!-- ============ candidate cards ============ -->
+  <!-- card1: default route -->
+  <g>
+    <rect x="50" y="140" width="230" height="86" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <text class="cardlabel" x="165" y="158">候補A（デフォルトルート）</text>
+    <text class="cardroute cgray" x="165" y="180">0.0.0.0/0</text>
+    <text class="cardsrc" x="165" y="198">via 10.0.23.1（静的）</text>
+    <text class="cardad cgray" x="165" y="215">AD = 1</text>
+  </g>
+  <line x1="65" y1="150" x2="265" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+  <line x1="265" y1="150" x2="65" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+
+  <!-- card2: OSPF /16 -->
+  <g>
+    <rect x="300" y="140" width="230" height="86" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+    <text class="cardlabel" x="415" y="158">候補B（OSPF 学習経路）</text>
+    <text class="cardroute cgray" x="415" y="180">192.168.0.0/16</text>
+    <text class="cardsrc" x="415" y="198">via 10.0.23.1（OSPF）</text>
+    <text class="cardad cgray" x="415" y="215">AD = 110</text>
+  </g>
+  <line x1="315" y1="150" x2="515" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+  <line x1="515" y1="150" x2="315" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+
+  <!-- card3: floating static /24 AD5 -->
+  <g>
+    <rect x="550" y="140" width="230" height="86" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2.5"/>
+    <text class="cardlabel" x="665" y="158">候補C（フローティング静的）</text>
+    <text class="cardroute cwarn" x="665" y="180">192.168.3.0/24</text>
+    <text class="cardsrc" x="665" y="198">via 10.0.12.2（Gi0/1経由）</text>
+    <text class="cardad cwarn" x="665" y="215">AD = 5</text>
+  </g>
+  <line x1="565" y1="150" x2="765" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+  <line x1="765" y1="150" x2="565" y2="216" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+
+  <!-- card4: static /24 AD1 primary (winner) -->
+  <g>
+    <rect x="800" y="140" width="230" height="86" rx="10" fill="#f0fdf4" stroke="#7ea800" stroke-width="3"/>
+    <text class="cardlabel" x="915" y="158">候補D（主経路・静的）</text>
+    <text class="cardroute cgood" x="915" y="180">192.168.3.0/24</text>
+    <text class="cardsrc" x="915" y="198">via 10.0.13.2（Gi0/2直結）</text>
+    <text class="cardad adgood" x="915" y="215">AD = 1</text>
+  </g>
+
+  <!-- verdicts -->
+  <text class="verdict verdictbad" x="165" y="245">✕ ①で却下</text>
+  <text class="reason" x="165" y="260">/0 は最も緩い一致</text>
+
+  <text class="verdict verdictbad" x="415" y="245">✕ ①で却下</text>
+  <text class="reason" x="415" y="260">/16 ＜ /24（一致が短い）</text>
+
+  <text class="verdict verdictbad" x="665" y="245">✕ ②で却下</text>
+  <text class="reason" x="665" y="260">/24 同士だが AD=5 &gt; 1</text>
+
+  <text class="verdict verdictgood" x="915" y="245">✓ ②で採用</text>
+  <text class="reason" x="915" y="260">/24 一致・AD=1 が最小</text>
+
+  <!-- connector from winner card to result box -->
+  <path d="M 1005 226 L 1005 280 L 550 280 L 550 300" fill="none" stroke="#7ea800" stroke-width="2.5" marker-end="url(#arrowg)"/>
+  <defs>
+    <marker id="arrowg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7ea800"/>
+    </marker>
+  </defs>
+
+  <!-- winner result box (show ip route style) -->
+  <rect x="220" y="305" width="660" height="66" rx="8" fill="#111827"/>
+  <text class="mono monogood" x="550" y="335" font-size="15">S   192.168.3.0/24  [1/0] via 10.0.13.2, GigabitEthernet0/2</text>
+  <text class="mononote" x="550" y="358" font-size="12" text-anchor="middle">→ ルーティングテーブルに採用され、以後この経路でパケットが転送される</text>
+
+  <text class="reason" x="550" y="390" font-size="12">※ 候補C（フローティングスタティック AD=5）は、この主経路が生きている間はテーブルに載らず待機する（Day11 ラボ手順9〜11 参照）</text>
+
+  <!-- ============ stage 3 inset ============ -->
+  <rect x="40" y="415" width="1020" height="150" rx="10" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2"/>
+  <text class="stage3title" x="60" y="443">③ メトリック ― ①②が同点（同プレフィックス長・同 AD）のときだけ比較する</text>
+  <text class="sub" x="60" y="462">例: OSPF で同じ宛先への経路が2本存在する場合、コスト（帯域幅ベース）が小さい方を採用する</text>
+
+  <g>
+    <rect x="330" y="475" width="230" height="70" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+    <text class="cardlabel" x="445" y="493">OSPF 経路（1G回線区間あり）</text>
+    <text class="cardroute cgray" x="445" y="513">コスト = 20</text>
+    <text class="verdict verdictbad" x="445" y="532">✕ 却下（コスト大）</text>
+  </g>
+  <line x1="345" y1="483" x2="545" y2="537" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+  <line x1="545" y1="483" x2="345" y2="537" stroke="#dc2626" stroke-width="2.5" opacity="0.55"/>
+
+  <path d="M 560 510 L 610 510" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text class="reason" x="585" y="500">比較</text>
+
+  <g>
+    <rect x="620" y="475" width="230" height="70" rx="8" fill="#f0fdf4" stroke="#7ea800" stroke-width="3"/>
+    <text class="cardlabel" x="735" y="493">OSPF 経路（全区間 10G）</text>
+    <text class="cardroute cgood" x="735" y="513">コスト = 10</text>
+    <text class="verdict verdictgood" x="735" y="532">✓ 採用（コスト小）</text>
+  </g>
+
+  <!-- footer tip -->
+  <rect x="40" y="582" width="1020" height="50" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="tip" x="60" y="608">🎯 試験のポイント: 「AD はプレフィックス長を覆さない」「同一 AD の中でのみメトリックを比較する」という優先順位の逆転を狙う出題に注意</text>
+</svg>

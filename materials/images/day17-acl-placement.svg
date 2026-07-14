@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="930" viewBox="0 0 1150 930">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14.5px; fill: #6b7280; }
+      .legend { font-size: 13px; fill: #374151; }
+      .panelTitle { font-size: 15.5px; font-weight: 700; }
+      .panelSub { font-size: 12.5px; fill: #6b7280; }
+      .nodeTitle { font-size: 13px; font-weight: 700; text-anchor: middle; }
+      .nodeDetail { font-size: 11px; fill: #4b5563; text-anchor: middle; }
+      .caption { font-size: 13px; fill: #1f2937; }
+      .gate { font-size: 9.5px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .warn { font-size: 11.5px; fill: #b45309; }
+    </style>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7ea800"/>
+    </marker>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <g id="gate">
+      <polygon points="0,-17 12,-12 17,0 12,12 0,17 -12,12 -17,0 -12,-12" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
+      <text class="gate" y="3">ACL</text>
+    </g>
+    <g id="xmark">
+      <line x1="-7" y1="-7" x2="7" y2="7" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+      <line x1="7" y1="-7" x2="-7" y2="7" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <rect width="1150" height="930" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">拡張 ACL と標準 ACL の適用位置 — 配置を誤ると何が起きるか</text>
+  <text class="sub" x="40" y="66">拡張 ACL（送信元・宛先・ポートまで判定）は送信元近くに、標準 ACL（送信元のみ判定）は宛先近くに適用するのが原則</text>
+
+  <!-- legend -->
+  <g class="legend">
+    <line x1="40" y1="90" x2="70" y2="90" stroke="#7ea800" stroke-width="3.5" marker-end="url(#arrowGreen)"/>
+    <text x="80" y="94">許可され宛先に届く通信</text>
+    <line x1="270" y1="90" x2="300" y2="90" stroke="#dc2626" stroke-width="3.5"/>
+    <use href="#xmark" x="300" y="90"/>
+    <text x="315" y="94">ACL で拒否される通信</text>
+    <line x1="520" y1="90" x2="550" y2="90" stroke="#94a3b8" stroke-width="3"/>
+    <text x="560" y="94">まだ判定前／影響を受けない通信</text>
+    <g transform="translate(850,92) scale(0.75)"><use href="#gate"/></g>
+    <text x="880" y="96">ACL 適用点（ゲート）</text>
+  </g>
+
+  <!-- ===================== Panel A: 拡張ACL 正しい配置 ===================== -->
+  <g transform="translate(40,130)">
+    <rect x="0" y="0" width="520" height="370" rx="14" fill="#ffffff" stroke="#7ea800" stroke-width="2.5"/>
+    <circle cx="26" cy="26" r="14" fill="#7ea800"/>
+    <text x="26" y="31" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="700">✓</text>
+    <text class="panelTitle" x="50" y="24" fill="#4d7c0f">拡張 ACL：送信元近くに適用（正しい）</text>
+    <text class="panelSub" x="50" y="44">例）KEI-TO-SRV を R1 Gi0/0/0.10 の in に適用</text>
+
+    <!-- nodes -->
+    <rect x="20" y="155" width="110" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="75" y="177">送信元</text>
+    <text class="nodeDetail" x="75" y="193">192.168.10.0/24</text>
+    <text class="nodeDetail" x="75" y="206">（経理 VLAN）</text>
+
+    <rect x="205" y="155" width="100" height="60" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text class="nodeTitle" x="255" y="181">R1</text>
+    <text class="nodeDetail" x="255" y="197">（通過点）</text>
+
+    <rect x="390" y="155" width="110" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="445" y="177">宛先 SRV</text>
+    <text class="nodeDetail" x="445" y="193">192.168.30.100</text>
+    <text class="nodeDetail" x="445" y="206">TCP/80 のみ許可</text>
+
+    <!-- structural links -->
+    <line x1="130" y1="185" x2="205" y2="185" stroke="#94a3b8" stroke-width="3"/>
+    <line x1="305" y1="185" x2="390" y2="185" stroke="#94a3b8" stroke-width="3"/>
+
+    <!-- traffic lanes -->
+    <line x1="133" y1="172" x2="386" y2="172" stroke="#7ea800" stroke-width="3.5" marker-end="url(#arrowGreen)"/>
+    <line x1="133" y1="200" x2="163" y2="200" stroke="#dc2626" stroke-width="3.5"/>
+    <use href="#xmark" x="167" y="200"/>
+
+    <!-- gate on link1 -->
+    <use href="#gate" x="167" y="185"/>
+
+    <text class="caption" x="20" y="330">早期に破棄されるので、ping などの不要な通信は R1 から先の</text>
+    <text class="caption" x="20" y="350">リンクを一切消費しない。HTTP だけがそのまま SRV に届く。</text>
+  </g>
+
+  <!-- ===================== Panel B: 拡張ACL 誤った配置 ===================== -->
+  <g transform="translate(590,130)">
+    <rect x="0" y="0" width="520" height="370" rx="14" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
+    <circle cx="26" cy="26" r="14" fill="#dc2626"/>
+    <text x="26" y="31" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">✗</text>
+    <text class="panelTitle" x="50" y="24" fill="#b91c1c">拡張 ACL：宛先近くに適用（誤り）</text>
+    <text class="panelSub" x="50" y="44">例）同じ ACL を SRV 側 Gi0/0/0.30 の in に適用してしまう</text>
+
+    <!-- nodes -->
+    <rect x="20" y="155" width="110" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="75" y="177">送信元</text>
+    <text class="nodeDetail" x="75" y="193">192.168.10.0/24</text>
+    <text class="nodeDetail" x="75" y="206">（経理 VLAN）</text>
+
+    <rect x="205" y="155" width="100" height="60" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text class="nodeTitle" x="255" y="181">R1</text>
+    <text class="nodeDetail" x="255" y="197">（通過点）</text>
+
+    <rect x="390" y="155" width="110" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="445" y="177">宛先 SRV</text>
+    <text class="nodeDetail" x="445" y="193">192.168.30.100</text>
+    <text class="nodeDetail" x="445" y="206">TCP/80 のみ許可</text>
+
+    <!-- structural links -->
+    <line x1="130" y1="185" x2="205" y2="185" stroke="#94a3b8" stroke-width="3"/>
+    <line x1="305" y1="185" x2="390" y2="185" stroke="#94a3b8" stroke-width="3"/>
+
+    <!-- traffic lanes -->
+    <line x1="133" y1="172" x2="386" y2="172" stroke="#7ea800" stroke-width="3.5" marker-end="url(#arrowGreen)"/>
+    <line x1="133" y1="200" x2="343" y2="200" stroke="#dc2626" stroke-width="3.5"/>
+    <use href="#xmark" x="347" y="200"/>
+
+    <!-- gate on link2 -->
+    <use href="#gate" x="347" y="185"/>
+
+    <text class="caption" x="20" y="330">不要な通信がリンク1（R1—SW1—R1 間の経路）をまるごと</text>
+    <text class="caption" x="20" y="350">消費してから、SRV 直前でようやく破棄される。帯域の無駄。</text>
+  </g>
+
+  <!-- ===================== Panel C: 標準ACL 正しい配置 ===================== -->
+  <g transform="translate(40,520)">
+    <rect x="0" y="0" width="520" height="370" rx="14" fill="#ffffff" stroke="#7ea800" stroke-width="2.5"/>
+    <circle cx="26" cy="26" r="14" fill="#7ea800"/>
+    <text x="26" y="31" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="700">✓</text>
+    <text class="panelTitle" x="50" y="24" fill="#4d7c0f">標準 ACL：宛先近くに適用（正しい）</text>
+    <text class="panelSub" x="50" y="44">例）経理部門 → 人事サーバのみを拒否したい</text>
+
+    <!-- nodes -->
+    <rect x="15" y="155" width="115" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="72" y="177">送信元</text>
+    <text class="nodeDetail" x="72" y="193">経理部門</text>
+    <text class="nodeDetail" x="72" y="206">（VLAN）</text>
+
+    <rect x="195" y="155" width="95" height="60" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text class="nodeTitle" x="242" y="181">ルータ</text>
+    <text class="nodeDetail" x="242" y="197">（通過点）</text>
+
+    <rect x="365" y="52" width="135" height="60" rx="8" fill="#fff7ed" stroke="#ff9200" stroke-width="1.8"/>
+    <text class="nodeTitle" x="432" y="74">宛先 A</text>
+    <text class="nodeDetail" x="432" y="90">人事サーバ</text>
+    <text class="nodeDetail" x="432" y="103">（拒否したい）</text>
+
+    <rect x="365" y="272" width="135" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="432" y="294">宛先 B</text>
+    <text class="nodeDetail" x="432" y="310">他の宛先／サーバ</text>
+    <text class="nodeDetail" x="432" y="323">（許可したい）</text>
+
+    <!-- structural link1 -->
+    <line x1="130" y1="185" x2="195" y2="185" stroke="#94a3b8" stroke-width="3"/>
+
+    <!-- link2a: to A, blocked -->
+    <line x1="290" y1="185" x2="322" y2="141" stroke="#dc2626" stroke-width="3.5"/>
+    <line x1="330" y1="129" x2="365" y2="88" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <g transform="translate(326,135) rotate(-51)">
+      <use href="#gate"/>
+    </g>
+
+    <!-- link2b: to B, permitted -->
+    <line x1="290" y1="192" x2="360" y2="298" stroke="#7ea800" stroke-width="3.5" marker-end="url(#arrowGreen)"/>
+
+    <text class="caption" x="15" y="352">ACL を宛先Aの直前で判定するので、経理→人事サーバのみ</text>
+    <text class="caption" x="15" y="371">が遮断され、経理→他サーバ（宛先B）は影響を受けない。</text>
+  </g>
+
+  <!-- ===================== Panel D: 標準ACL 誤った配置 ===================== -->
+  <g transform="translate(590,520)">
+    <rect x="0" y="0" width="520" height="370" rx="14" fill="#ffffff" stroke="#dc2626" stroke-width="2.5"/>
+    <circle cx="26" cy="26" r="14" fill="#dc2626"/>
+    <text x="26" y="31" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">✗</text>
+    <text class="panelTitle" x="50" y="24" fill="#b91c1c">標準 ACL：送信元近くに適用（誤り）</text>
+    <text class="panelSub" x="50" y="44">例）同じ ACL を経理部門の出口インターフェースに適用</text>
+
+    <!-- nodes -->
+    <rect x="15" y="155" width="115" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="72" y="177">送信元</text>
+    <text class="nodeDetail" x="72" y="193">経理部門</text>
+    <text class="nodeDetail" x="72" y="206">（VLAN）</text>
+
+    <rect x="195" y="155" width="95" height="60" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.8"/>
+    <text class="nodeTitle" x="242" y="181">ルータ</text>
+    <text class="nodeDetail" x="242" y="197">（通過点）</text>
+
+    <rect x="365" y="52" width="135" height="60" rx="8" fill="#fff7ed" stroke="#ff9200" stroke-width="1.8"/>
+    <text class="nodeTitle" x="432" y="74">宛先 A</text>
+    <text class="nodeDetail" x="432" y="90">人事サーバ</text>
+    <text class="nodeDetail" x="432" y="103">（拒否したい）</text>
+
+    <rect x="365" y="272" width="135" height="60" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="1.8"/>
+    <text class="nodeTitle" x="432" y="294">宛先 B</text>
+    <text class="nodeDetail" x="432" y="310">他の宛先／サーバ</text>
+    <text class="nodeDetail" x="432" y="323">（許可したい）</text>
+
+    <!-- link1: blocked right at source exit -->
+    <line x1="130" y1="185" x2="160" y2="185" stroke="#dc2626" stroke-width="3.5"/>
+    <use href="#gate" x="165" y="185"/>
+
+    <!-- downstream: nothing gets through, dashed -->
+    <line x1="180" y1="185" x2="195" y2="185" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 4"/>
+    <line x1="290" y1="185" x2="365" y2="82" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 4"/>
+    <line x1="290" y1="185" x2="365" y2="298" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 4"/>
+
+    <!-- warning callout on the B branch (collateral) -->
+    <rect x="200" y="235" width="230" height="42" rx="8" fill="#fff7ed" stroke="#ff9200" stroke-width="1.8"/>
+    <text class="warn" x="212" y="252" font-weight="700">⚠ 本来は許可したい宛先Bへの</text>
+    <text class="warn" x="212" y="268">通信まで、区別できず巻き込まれる</text>
+
+    <text class="caption" x="15" y="352">送信元しか見ない標準 ACL を送信元の出口に置くと、宛先を</text>
+    <text class="caption" x="15" y="371">区別できず、経理からの通信が丸ごと遮断されてしまう。</text>
+  </g>
+</svg>

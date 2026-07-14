@@ -470,6 +470,16 @@ Router(config)# logging trap informational
 `logging trap informational` は「severity 6（Informational）以上の重大度
 （つまり 0〜6）のメッセージをすべて送信する」ことを意味します。
 
+![Syslog の severity としきい値（logging trap）](../images/day15-syslog-severity-threshold.png)
+
+上図のとおり、`logging trap` に指定するレベルは「そのレベル以上の重大度（＝数値がそれ以下）
+のメッセージだけを送信する」しきい値です。既定の `informational`（レベル6）では
+severity 0〜6 がすべて送信され、7（Debugging）だけが対象外になります。しきい値を
+`warning`（レベル4）まで下げると、severity 0〜4 だけが送信され、5〜7 は送信されなく
+なります。この境目で **Error（3）の `%LINK-3-UPDOWN` は送信されるが、Notification（5）の
+`%LINEPROTO-5-UPDOWN` は送信されない**、という違いが生まれます（Day15 ラボの観察レポート
+設問3で問われる内容そのものです）。
+
 ### メッセージの形式とタイムスタンプ
 
 Syslog メッセージの基本形式は次のとおりです。

@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="940" viewBox="0 0 1200 940">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 25px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .iface { font-size: 13px; font-weight: 700; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #374151; text-anchor: middle; }
+      .note { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .warn { font-size: 12px; fill: #c2650a; font-weight: 700; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #6d28d9; }
+      .legend { font-size: 13px; fill: #374151; }
+      .goalhead { font-size: 15px; font-weight: 700; fill: #1d4ed8; }
+      .goal { font-size: 13.5px; fill: #1f2937; }
+      .linklabel { font-size: 13px; font-weight: 700; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-58" y="-27" width="116" height="54" rx="11" fill="#0e9aa7"/>
+      <rect x="-58" y="-27" width="116" height="54" rx="11" fill="none" stroke="#0b7d88" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-40" y1="-9" x2="26" y2="-9"/>
+        <line x1="-26" y1="9" x2="40" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -40 -14 L -52 -9 L -40 -4 Z"/>
+        <path d="M 26 -14 L 38 -9 L 26 -4 Z"/>
+        <path d="M -26 4 L -38 9 L -26 14 Z"/>
+        <path d="M 40 4 L 52 9 L 40 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="server">
+      <rect x="-20" y="-40" width="40" height="80" rx="4" fill="#374151"/>
+      <rect x="-20" y="-40" width="40" height="80" rx="4" fill="none" stroke="#1f2937" stroke-width="2"/>
+      <rect x="-14" y="-31" width="28" height="4" rx="2" fill="#9ca3af"/>
+      <rect x="-14" y="-21" width="28" height="4" rx="2" fill="#9ca3af"/>
+      <rect x="-14" y="-11" width="28" height="4" rx="2" fill="#9ca3af"/>
+      <circle cx="-9" cy="22" r="3" fill="#ff9200"/>
+      <circle cx="2" cy="22" r="3" fill="#7ea800"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="940" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 18 ラボ: ポートセキュリティ &amp; DHCP スヌーピング 構成トポロジ</text>
+  <text class="sub" x="40" y="76">SW1 の Fa0/1・Fa0/2 にポートセキュリティ、Gi0/1(trusted) と Fa0/23(untrusted) に DHCP スヌーピングを設定する</text>
+
+  <!-- legend -->
+  <g>
+    <rect x="900" y="36" width="14" height="14" fill="#2779ca"/>
+    <text class="legend" x="920" y="48">trusted リンク（Gi0/1）</text>
+    <rect x="900" y="58" width="14" height="14" fill="#7ea800"/>
+    <text class="legend" x="920" y="70">ポートセキュリティ適用ポート</text>
+    <rect x="900" y="80" width="14" height="14" fill="#ff9200"/>
+    <text class="legend" x="920" y="92">untrusted / 不正（Fa0/23）</text>
+  </g>
+
+  <!-- VLAN area -->
+  <rect x="70" y="330" width="1060" height="450" rx="28" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="100" y="364">VLAN 1（単一 VLAN 構成）</text>
+
+  <!-- R1 -->
+  <use href="#router" x="600" y="170"/>
+  <text class="devname" x="600" y="122">R1 (2911)</text>
+
+  <!-- R1 - SW1 link (trusted uplink) -->
+  <line x1="600" y1="206" x2="600" y2="367" stroke="#2779ca" stroke-width="3.5"/>
+  <text class="iface" x="640" y="223" fill="#1f2937">Gi0/0</text>
+  <text class="ip" x="640" y="241">192.168.10.1/24</text>
+  <text class="note" x="640" y="258">DHCPサーバ兼GW</text>
+  <text class="iface" x="655" y="345" fill="#1d4ed8">Gi0/1</text>
+  <text class="linklabel" x="655" y="362" fill="#1d4ed8">trusted アップリンク</text>
+
+  <!-- SW1 -->
+  <use href="#switch" x="600" y="395"/>
+  <text class="devname" x="600" y="453">SW1 (2960)</text>
+
+  <!-- downlinks -->
+  <line x1="600" y1="423" x2="250" y2="626" stroke="#7ea800" stroke-width="3"/>
+  <line x1="600" y1="423" x2="600" y2="626" stroke="#7ea800" stroke-width="3"/>
+  <line x1="600" y1="423" x2="950" y2="610" stroke="#ff9200" stroke-width="3" stroke-dasharray="8 6"/>
+
+  <text class="iface" x="470" y="472" text-anchor="end" fill="#4d7c0f">Fa0/1</text>
+  <text class="iface" x="618" y="472" fill="#4d7c0f">Fa0/2</text>
+  <text class="iface" x="735" y="466" fill="#c2650a">Fa0/23</text>
+  <text class="note" x="735" y="482" fill="#c2650a">(untrusted)</text>
+
+  <!-- PC0 -->
+  <use href="#pc" x="250" y="650"/>
+  <text class="devname" x="250" y="699">PC0（正規端末）</text>
+  <text class="ip" x="250" y="719">DHCP取得 → 192.168.10.0/24</text>
+  <text class="note" x="250" y="737">Fa0/1: sticky / max1 / violation shutdown</text>
+  <text class="warn" x="250" y="754">※違反試験のみ: PC0→PC2に差替でerr-disabled化を確認</text>
+
+  <!-- PC1 -->
+  <use href="#pc" x="600" y="650"/>
+  <text class="devname" x="600" y="699">PC1（正規端末）</text>
+  <text class="ip" x="600" y="719">DHCP取得 → 192.168.10.0/24</text>
+  <text class="note" x="600" y="737">Fa0/2: sticky / max1 / violation shutdown</text>
+
+  <!-- Rogue Server -->
+  <use href="#server" x="950" y="650"/>
+  <text class="devname" x="950" y="716">Rogue Server（不正DHCPサーバ）</text>
+  <text class="ip" x="950" y="736">192.168.99.1/24（Fa0/23, untrusted）</text>
+  <text class="warn" x="950" y="754">192.168.99.0/24 を誤配布 → スヌーピングで遮断</text>
+
+  <!-- goal note -->
+  <rect x="40" y="800" width="1120" height="112" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text class="goalhead" x="60" y="826">🎯 ラボのゴール</text>
+  <text class="goal" x="60" y="850">① Fa0/1・Fa0/2 に未登録端末（sticky で学習した MAC 以外）を接続すると、ポートが err-disabled へ遷移することを確認する</text>
+  <text class="goal" x="60" y="872">② DHCP スヌーピング有効化後、PC0・PC1 は正規サーバ（R1）の 192.168.10.0/24 からのみ IP アドレスを取得できる</text>
+  <text class="goal" x="60" y="894">③ Gi0/1 の trust 設定を外すと、正規クライアントも IP アドレスを取得できなくなることを体感する</text>
+</svg>

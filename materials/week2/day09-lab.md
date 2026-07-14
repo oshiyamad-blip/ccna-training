@@ -16,25 +16,7 @@
 
 ## 完成トポロジ
 
-```
-                    Fa0/10
-                      │
-                     PC1
-               (VLAN10 access)
-                      │
-                    SW1
-             Gi0/1        Gi0/2
-               │             │
-         (トランク)       (トランク)
-               │             │
-             Gi0/1         Gi0/2
-             SW2 ──Gi0/2──Gi0/1── SW3
-                  (トランク)          │
-                                   Fa0/10
-                                     │
-                                    PC2
-                              (VLAN10 access)
-```
+![Day 9 トポロジ図](../images/day09-topology.png)
 
 SW1 ⇔ SW2 間は上記の Gi0/1-Gi0/1 トランクに加えて、Fa0/1-2 ⇔ Fa0/1-2 を
 LACP で EtherChannel 化（Port-channel 1、トランク）します（図には表現しきれ

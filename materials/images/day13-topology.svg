@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1100" viewBox="0 0 1200 1100">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; }
+      .iface { font-size: 13px; fill: #374151; }
+      .net { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #6d28d9; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .hsrp { font-size: 13.5px; }
+      .hsrpTitle { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .active { font-size: 13px; font-weight: 700; fill: #4d7c0f; }
+      .standby { font-size: 13px; font-weight: 700; fill: #64748b; }
+      .goal { font-size: 14px; fill: #1e3a8a; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="#0e9aa7"/>
+      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="none" stroke="#0b7a85" stroke-width="2.5"/>
+      <line x1="-30" y1="-11" x2="30" y2="-11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M -30 -11 L -21 -17 L -21 -5 Z" fill="#ffffff"/>
+      <path d="M 30 -11 L 21 -17 L 21 -5 Z" fill="#ffffff"/>
+      <line x1="-30" y1="11" x2="30" y2="11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M -30 11 L -21 5 L -21 17 Z" fill="#ffffff"/>
+      <path d="M 30 11 L 21 5 L 21 17 Z" fill="#ffffff"/>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="1100" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 13 ラボ: 完成トポロジ</text>
+  <text class="sub" x="40" y="78">OSPF エリア0（プロセス ID 10）で R1・R2・R3 を接続。LAN 側（192.168.10.0/24）は HSRP で冗長化し、R3 先の遠端 LAN まで疎通する</text>
+
+  <!-- OSPF Area 0 -->
+  <rect x="160" y="420" width="880" height="300" rx="28" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="185" y="440">OSPF エリア0</text>
+
+  <!-- links -->
+  <line class="link" x1="220" y1="220" x2="600" y2="330"/>
+  <line class="link" x1="980" y1="220" x2="600" y2="330"/>
+  <line class="link" x1="600" y1="330" x2="340" y2="480"/>
+  <line class="link" x1="600" y1="330" x2="860" y2="480"/>
+  <line class="link" x1="340" y1="480" x2="600" y2="660"/>
+  <line class="link" x1="860" y1="480" x2="600" y2="660"/>
+  <line class="link" x1="600" y1="660" x2="600" y2="800"/>
+  <line class="link" x1="600" y1="800" x2="600" y2="930"/>
+
+  <!-- HSRP / LAN banner -->
+  <rect x="290" y="110" width="620" height="64" rx="10" fill="#fff7ed" stroke="#f59e0b" stroke-width="2"/>
+  <text class="hsrpTitle" x="600" y="134">LAN 192.168.10.0/24 ／ HSRP 仮想IP 192.168.10.1（グループ1）</text>
+  <text class="hsrp" x="600" y="158" text-anchor="middle"><tspan fill="#4d7c0f" font-weight="700">R1: Active（優先度110・preempt有効）</tspan><tspan fill="#64748b" font-weight="700"> ／ R2: Standby（優先度100）</tspan></text>
+
+  <!-- SW1 interface labels (top: to PCs) -->
+  <text class="iface" x="555" y="290" text-anchor="end">Fa0/3</text>
+  <text class="iface" x="645" y="290" text-anchor="start">Fa0/4</text>
+  <!-- SW1 interface labels (bottom: to R1/R2) -->
+  <text class="iface" x="555" y="374" text-anchor="end">Fa0/1</text>
+  <text class="iface" x="645" y="374" text-anchor="start">Fa0/2</text>
+  <!-- SW1 devname -->
+  <text class="devname" x="525" y="335" text-anchor="end">SW1（2960）</text>
+
+  <!-- R1 side labels -->
+  <text class="devname" x="295" y="470" text-anchor="end">R1</text>
+  <text class="active" x="295" y="490" text-anchor="end">HSRP: Active</text>
+  <text class="active" x="295" y="507" text-anchor="end">優先度110・preempt</text>
+  <text class="iface" x="375" y="468" text-anchor="start">Gi0/0（.2）</text>
+  <text class="iface" x="380" y="520" text-anchor="start">Gi0/1</text>
+
+  <!-- R2 side labels -->
+  <text class="devname" x="905" y="470" text-anchor="start">R2</text>
+  <text class="standby" x="905" y="490" text-anchor="start">HSRP: Standby</text>
+  <text class="standby" x="905" y="507" text-anchor="start">優先度100</text>
+  <text class="iface" x="825" y="468" text-anchor="end">Gi0/0（.3）</text>
+  <text class="iface" x="820" y="520" text-anchor="end">Gi0/1</text>
+
+  <!-- core link labels -->
+  <text class="net" x="460" y="555">10.0.13.0/30</text>
+  <text class="ip"  x="460" y="575">R1: .1 ／ R3: .2</text>
+  <text class="net" x="740" y="555">10.0.23.0/30</text>
+  <text class="ip"  x="740" y="575">R2: .1 ／ R3: .2</text>
+
+  <!-- R3 labels -->
+  <text class="devname" x="600" y="608" text-anchor="middle">R3</text>
+  <text class="iface" x="565" y="630" text-anchor="end">Gi0/0</text>
+  <text class="iface" x="635" y="630" text-anchor="start">Gi0/1</text>
+  <text class="iface" x="618" y="716" text-anchor="start">Gi0/2（.1）</text>
+
+  <!-- R3-SW2 network -->
+  <text x="660" y="738" font-size="14" font-weight="700" fill="#b45309" text-anchor="start">192.168.30.0/24</text>
+  <text class="iface" x="622" y="756" text-anchor="start">Fa0/1</text>
+  <text class="devname" x="525" y="805" text-anchor="end">SW2（2960）</text>
+  <text class="iface" x="622" y="846" text-anchor="start">Fa0/2</text>
+
+  <!-- routers -->
+  <use href="#router" x="340" y="480"/>
+  <use href="#router" x="860" y="480"/>
+  <use href="#router" x="600" y="660"/>
+
+  <!-- switches -->
+  <use href="#switch" x="600" y="330"/>
+  <use href="#switch" x="600" y="800"/>
+
+  <!-- PCs -->
+  <use href="#pc" x="220" y="220"/>
+  <text class="devname" x="220" y="180" text-anchor="middle">PC1</text>
+  <text class="ip" x="220" y="262">192.168.10.10/24</text>
+
+  <use href="#pc" x="980" y="220"/>
+  <text class="devname" x="980" y="180" text-anchor="middle">PC2</text>
+  <text class="ip" x="980" y="262">192.168.10.11/24</text>
+
+  <use href="#pc" x="600" y="930"/>
+  <text class="devname" x="600" y="890" text-anchor="middle">PC3</text>
+  <text class="ip" x="600" y="965">192.168.30.10/24（GW: .1）</text>
+
+  <!-- goal note -->
+  <rect x="60" y="990" width="1080" height="95" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="goal" x="80" y="1017">🎯 ①下位層→上位層の順で OSPF 障害（Hello/Dead タイマー不一致・network 文漏れ・passive-interface 誤設定・MTU 不一致）を切り分けて修正し、全区間の疎通を回復する</text>
+  <text class="goal" x="80" y="1043">②R3 の default-information originate でデフォルトルートを配布し、R1・R2 で O*E2 として学習されることを確認する</text>
+  <text class="goal" x="80" y="1069">③HSRP（仮想IP 192.168.10.1）で LAN のデフォルトゲートウェイを冗長化し、R1 障害時に R2 へ自動フェイルオーバーすることを確認する</text>
+</svg>

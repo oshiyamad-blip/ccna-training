@@ -13,27 +13,7 @@
 
 ## 完成トポロジ
 
-### Part1: Router-on-a-Stick
-
-```
-                  Gi0/0 (トランクの1本の物理リンク)
-        Router(2911) ─────────────── Fa0/24 SW1(2960)
-        R1                              |  トランク
-        Gi0/0.10 = 192.168.10.1          |
-        Gi0/0.20 = 192.168.20.1          |
-                          Fa0/1 ─ PC1   Fa0/2 ─ PC2   Fa0/3 ─ PC3   Fa0/4 ─ PC4
-                        (VLAN10)      (VLAN10)      (VLAN20)      (VLAN20)
-```
-
-### Part2: L3 スイッチ + SVI
-
-```
-        MLS(3560)
-        interface vlan10 = 192.168.10.1 (SVI)
-        interface vlan20 = 192.168.20.1 (SVI)
-                          Fa0/1 ─ PC1   Fa0/2 ─ PC2   Fa0/3 ─ PC3   Fa0/4 ─ PC4
-                        (VLAN10)      (VLAN10)      (VLAN20)      (VLAN20)
-```
+![Day 8 トポロジ図](../images/day08-topology.png)
 
 ### IP アドレス表
 

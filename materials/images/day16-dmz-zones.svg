@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="680" viewBox="0 0 1100 680">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .zone-title { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .zone-desc { font-size: 12.5px; text-anchor: middle; fill: #4b5563; }
+      .devname { font-size: 13px; font-weight: 700; text-anchor: middle; }
+      .fw-label { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #334155; }
+      .flow-ok { font-size: 12.5px; font-weight: 700; text-anchor: middle; fill: #15803d; }
+      .flow-ng { font-size: 12.5px; font-weight: 700; text-anchor: middle; fill: #b91c1c; }
+      .note-title { font-size: 14.5px; font-weight: 700; fill: #1d4ed8; }
+      .note-body { font-size: 13.5px; fill: #1f2937; }
+    </style>
+    <g id="cloud">
+      <ellipse cx="-18" cy="4" rx="20" ry="15" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+      <ellipse cx="10" cy="-6" rx="24" ry="19" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+      <ellipse cx="30" cy="6" rx="18" ry="14" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+      <rect x="-24" y="4" width="72" height="16" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+      <rect x="-24" y="8" width="72" height="12" fill="#e2e8f0"/>
+    </g>
+    <g id="server">
+      <rect x="-15" y="-30" width="30" height="60" rx="3" fill="#334155"/>
+      <line x1="-9" y1="-18" x2="9" y2="-18" stroke="#94a3b8" stroke-width="2"/>
+      <line x1="-9" y1="-6" x2="9" y2="-6" stroke="#94a3b8" stroke-width="2"/>
+      <line x1="-9" y1="6" x2="9" y2="6" stroke="#94a3b8" stroke-width="2"/>
+      <line x1="-9" y1="18" x2="9" y2="18" stroke="#94a3b8" stroke-width="2"/>
+      <circle cx="7" cy="24" r="2" fill="#4ade80"/>
+    </g>
+    <g id="pc">
+      <rect x="-20" y="-18" width="40" height="28" rx="3" fill="#475569"/>
+      <rect x="-16" y="-14" width="32" height="20" rx="2" fill="#bfdbfe"/>
+      <rect x="-6" y="10" width="12" height="4" fill="#475569"/>
+      <rect x="-13" y="14" width="26" height="4" rx="2" fill="#475569"/>
+    </g>
+    <g id="firewall">
+      <rect x="-20" y="-28" width="40" height="56" rx="4" fill="#475569"/>
+      <g fill="#94a3b8">
+        <rect x="-16" y="-22" width="14" height="9"/>
+        <rect x="2" y="-22" width="14" height="9"/>
+        <rect x="-7" y="-11" width="14" height="9"/>
+        <rect x="-16" y="0" width="14" height="9"/>
+        <rect x="2" y="0" width="14" height="9"/>
+        <rect x="-7" y="11" width="14" height="9"/>
+      </g>
+    </g>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="680" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">信頼ゾーンと DMZ — ネットワークを信頼度でゾーン分けする</text>
+  <text class="sub" x="40" y="66">外部公開サーバは DMZ に置き、ファイアウォールで社内 LAN（信頼ゾーン）への直接到達を防ぐ</text>
+
+  <!-- Zones -->
+  <rect x="40" y="96" width="230" height="440" rx="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2.5"/>
+  <text class="zone-title" x="155" y="124" fill="#475569">非信頼ゾーン</text>
+  <text class="zone-desc" x="155" y="142">インターネット（管理が及ばない領域）</text>
+
+  <rect x="330" y="96" width="270" height="440" rx="14" fill="#fff7ed" stroke="#ff9200" stroke-width="2.5"/>
+  <text class="zone-title" x="465" y="124" fill="#c2650a">DMZ（緩衝地帯）</text>
+  <text class="zone-desc" x="465" y="142">外部公開用サーバのみを配置</text>
+
+  <rect x="660" y="96" width="400" height="440" rx="14" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5"/>
+  <text class="zone-title" x="860" y="124" fill="#1d4ed8">信頼ゾーン（社内 LAN）</text>
+  <text class="zone-desc" x="860" y="142">管理が行き届いた領域</text>
+
+  <!-- Devices -->
+  <use href="#cloud" x="155" y="230"/>
+  <text class="devname" x="155" y="286">インターネット</text>
+  <text class="zone-desc" x="155" y="420">外部の利用者・攻撃者</text>
+
+  <use href="#server" x="420" y="250"/>
+  <text class="devname" x="420" y="304">Web サーバ</text>
+
+  <use href="#server" x="530" y="250"/>
+  <text class="devname" x="530" y="304">メールサーバ</text>
+
+  <use href="#server" x="740" y="250"/>
+  <text class="devname" x="740" y="304">社内サーバ</text>
+
+  <use href="#pc" x="870" y="250"/>
+  <text class="devname" x="870" y="290">社員 PC</text>
+
+  <use href="#pc" x="970" y="250"/>
+  <text class="devname" x="970" y="290">社員 PC</text>
+
+  <!-- Firewalls -->
+  <use href="#firewall" x="300" y="316"/>
+  <text class="fw-label" x="300" y="366">FW</text>
+
+  <use href="#firewall" x="630" y="316"/>
+  <text class="fw-label" x="630" y="366">FW</text>
+
+  <!-- Flow arrows -->
+  <line x1="270" y1="440" x2="322" y2="440" stroke="#16a34a" stroke-width="3.5" marker-end="url(#arrowGreen)"/>
+  <text class="flow-ok" x="300" y="424">許可</text>
+  <text class="zone-desc" x="300" y="460">外部公開通信（例: HTTPS）</text>
+
+  <line x1="600" y1="440" x2="652" y2="440" stroke="#dc2626" stroke-width="3.5" marker-end="url(#arrowRed)"/>
+  <line x1="614" y1="430" x2="638" y2="450" stroke="#dc2626" stroke-width="3"/>
+  <line x1="638" y1="430" x2="614" y2="450" stroke="#dc2626" stroke-width="3"/>
+  <text class="flow-ng" x="626" y="424">遮断</text>
+  <text class="zone-desc" x="626" y="460">DMZ→社内は直接到達不可</text>
+
+  <!-- footer -->
+  <rect x="40" y="562" width="1020" height="98" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="note-title" x="60" y="588">🎯 ポイント</text>
+  <text class="note-body" x="60" y="610">・DMZ には外部公開用サーバ（Web／メールなど）だけを置き、社内サーバや社員 PC は信頼ゾーンに置く</text>
+  <text class="note-body" x="60" y="629">・万一 DMZ が侵害されても、ファイアウォールにより社内 LAN（信頼ゾーン）へ直接到達できないようにする</text>
+  <text class="note-body" x="60" y="648">・内部（信頼ゾーン）から DMZ・インターネットへ向かう通信（アウトバウンド）は許可されるのが一般的</text>
+</svg>

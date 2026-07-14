@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="660" viewBox="0 0 1060 660">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .domainP { font-size: 15px; font-weight: 700; fill: #1f2937; text-anchor: end; }
+      .domainN { font-size: 15px; fill: #4b5563; text-anchor: end; }
+      .valP { font-size: 17px; font-weight: 700; fill: #2779ca; }
+      .valN { font-size: 17px; font-weight: 700; fill: #64748b; }
+      .tick { font-size: 12px; fill: #9ca3af; text-anchor: middle; }
+      .axiscap { font-size: 12px; fill: #9ca3af; }
+      .bracket { stroke: #ff9200; stroke-width: 3; fill: none; }
+      .brtext { font-size: 15px; font-weight: 700; fill: #c2410c; }
+      .grid { stroke: #e5e7eb; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <rect width="1060" height="660" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">CCNA 200-301 ドメイン別配点比率</text>
+  <text class="sub" x="40" y="66">配点の高い上位 3 ドメインで全体の 65% を占める（Cisco 公表の試験概要にもとづく）— 復習時間の配分に迷ったらここから</text>
+
+  <!-- gridlines + axis ticks -->
+  <g>
+    <line class="grid" x1="300" y1="120" x2="300" y2="524"/>
+    <line class="grid" x1="400" y1="120" x2="400" y2="524"/>
+    <line class="grid" x1="500" y1="120" x2="500" y2="524"/>
+    <line class="grid" x1="600" y1="120" x2="600" y2="524"/>
+    <line class="grid" x1="700" y1="120" x2="700" y2="524"/>
+    <line class="grid" x1="800" y1="120" x2="800" y2="524"/>
+    <line x1="300" y1="524" x2="800" y2="524" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text class="tick" x="300" y="544">0%</text>
+    <text class="tick" x="400" y="544">5%</text>
+    <text class="tick" x="500" y="544">10%</text>
+    <text class="tick" x="600" y="544">15%</text>
+    <text class="tick" x="700" y="544">20%</text>
+    <text class="tick" x="800" y="544">25%</text>
+  </g>
+
+  <!-- bars: top3 = blue(priority), rest = gray -->
+  <!-- row0: 3.0 IPコネクティビティ 25% -->
+  <rect x="300" y="140" width="500" height="44" rx="4" fill="#2779ca"/>
+  <text class="domainP" x="290" y="167">3.0 IP コネクティビティ</text>
+  <text class="valP" x="812" y="167">25%</text>
+
+  <!-- row1: 1.0 ネットワーク基礎 20% -->
+  <rect x="300" y="204" width="400" height="44" rx="4" fill="#2779ca"/>
+  <text class="domainP" x="290" y="231">1.0 ネットワーク基礎</text>
+  <text class="valP" x="712" y="231">20%</text>
+
+  <!-- row2: 2.0 ネットワークアクセス 20% -->
+  <rect x="300" y="268" width="400" height="44" rx="4" fill="#2779ca"/>
+  <text class="domainP" x="290" y="295">2.0 ネットワークアクセス</text>
+  <text class="valP" x="712" y="295">20%</text>
+
+  <!-- row3: 5.0 セキュリティ基礎 15% -->
+  <rect x="300" y="332" width="300" height="44" rx="4" fill="#64748b"/>
+  <text class="domainN" x="290" y="359">5.0 セキュリティ基礎</text>
+  <text class="valN" x="612" y="359">15%</text>
+
+  <!-- row4: 4.0 IPサービス 10% -->
+  <rect x="300" y="396" width="200" height="44" rx="4" fill="#64748b"/>
+  <text class="domainN" x="290" y="423">4.0 IP サービス</text>
+  <text class="valN" x="512" y="423">10%</text>
+
+  <!-- row5: 6.0 自動化とプログラマビリティ 10% -->
+  <rect x="300" y="460" width="200" height="44" rx="4" fill="#64748b"/>
+  <text class="domainN" x="290" y="487">6.0 自動化とプログラマビリティ</text>
+  <text class="valN" x="512" y="487">10%</text>
+
+  <!-- bracket grouping top3 -->
+  <path class="bracket" d="M 872 140 L 884 140 L 884 312 L 872 312"/>
+  <text class="brtext" x="894" y="210">この 3 ドメインで</text>
+  <text class="brtext" x="894" y="230">全体の 65%</text>
+
+  <!-- footer note -->
+  <rect x="40" y="570" width="980" height="52" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="60" y="602" font-size="14">🎯 試験のポイント: 復習の時間配分に迷ったら「IP コネクティビティ ＞ ネットワーク基礎 ＝ ネットワークアクセス」の順で優先する</text>
+</svg>

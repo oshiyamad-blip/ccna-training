@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="550" viewBox="0 0 1500 550">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .nodeName { font-size: 17px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .nodeMeaning { font-size: 11.5px; fill: #ffffff; text-anchor: middle; opacity: 0.92; }
+      .calloutTitleWarn { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .calloutTitleOk { font-size: 14px; font-weight: 700; fill: #4d7c0f; text-anchor: middle; }
+      .calloutLine { font-size: 13px; font-weight: 700; fill: #374151; text-anchor: middle; }
+      .calloutEffect { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .footerTitle { font-size: 15px; font-weight: 700; fill: #1e3a8a; }
+      .footerLine { font-size: 13.5px; fill: #1e3a8a; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="550" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">OSPF ネイバー状態遷移とトラブルシューティング</text>
+  <text class="sub" x="40" y="78">Down から Full までの各遷移点で、そこに停滞したときに疑うべき典型原因を整理する（Day13 ラボの4つの障害に対応）</text>
+
+  <!-- state chain arrows -->
+  <line x1="185" y1="190" x2="262" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="395" y1="190" x2="472" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="605" y1="190" x2="682" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="815" y1="190" x2="892" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1025" y1="190" x2="1102" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1235" y1="190" x2="1312" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <!-- leader lines to callouts -->
+  <line x1="225" y1="228" x2="225" y2="288" stroke="#ff9200" stroke-width="2"/>
+  <line x1="435" y1="228" x2="435" y2="288" stroke="#ff9200" stroke-width="2"/>
+  <line x1="645" y1="228" x2="645" y2="288" stroke="#7ea800" stroke-width="2"/>
+  <line x1="855" y1="228" x2="855" y2="288" stroke="#ff9200" stroke-width="2"/>
+  <line x1="1380" y1="228" x2="1380" y2="288" stroke="#7ea800" stroke-width="2"/>
+
+  <!-- state nodes -->
+  <g>
+    <rect x="55" y="153" width="130" height="74" rx="12" fill="#64748b"/>
+    <text class="nodeName" x="120" y="187">Down</text>
+    <text class="nodeMeaning" x="120" y="208">未確立</text>
+  </g>
+  <g>
+    <rect x="265" y="153" width="130" height="74" rx="12" fill="#2779ca"/>
+    <text class="nodeName" x="330" y="187">Init</text>
+    <text class="nodeMeaning" x="330" y="208">Hello受信（片方向）</text>
+  </g>
+  <g>
+    <rect x="475" y="153" width="130" height="74" rx="12" fill="#2779ca"/>
+    <text class="nodeName" x="540" y="187">2-Way</text>
+    <text class="nodeMeaning" x="540" y="208">双方向疎通を確認</text>
+  </g>
+  <g>
+    <rect x="685" y="153" width="130" height="74" rx="12" fill="#2779ca"/>
+    <text class="nodeName" x="750" y="187">Exstart</text>
+    <text class="nodeMeaning" x="750" y="208">マスタ/スレーブ決定</text>
+  </g>
+  <g>
+    <rect x="895" y="153" width="130" height="74" rx="12" fill="#2779ca"/>
+    <text class="nodeName" x="960" y="187">Exchange</text>
+    <text class="nodeMeaning" x="960" y="208">DBD 交換</text>
+  </g>
+  <g>
+    <rect x="1105" y="153" width="130" height="74" rx="12" fill="#2779ca"/>
+    <text class="nodeName" x="1170" y="187">Loading</text>
+    <text class="nodeMeaning" x="1170" y="208">LSA 取得中</text>
+  </g>
+  <g>
+    <rect x="1315" y="153" width="130" height="74" rx="12" fill="#7ea800"/>
+    <text class="nodeName" x="1380" y="187">Full</text>
+    <text class="nodeMeaning" x="1380" y="208">LSDB 同期完了</text>
+  </g>
+
+  <!-- callout 1: Down -> Init -->
+  <rect x="128" y="288" width="194" height="100" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="calloutTitleWarn" x="225" y="312">⚠ 詰まる原因</text>
+  <text class="calloutLine" x="225" y="332">network 文漏れ／</text>
+  <text class="calloutLine" x="225" y="350">passive-interface 誤設定</text>
+  <text class="calloutEffect" x="225" y="372">→ ネイバーが現れない</text>
+
+  <!-- callout 2: Init -> 2-Way -->
+  <rect x="338" y="288" width="194" height="100" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="calloutTitleWarn" x="435" y="312">⚠ 詰まる原因</text>
+  <text class="calloutLine" x="435" y="332">Hello / Dead</text>
+  <text class="calloutLine" x="435" y="350">タイマー不一致</text>
+  <text class="calloutEffect" x="435" y="372">→ Init で停滞</text>
+
+  <!-- callout 3: 2-Way -> Exstart (informational) -->
+  <rect x="548" y="288" width="194" height="100" rx="10" fill="#f4f8e8" stroke="#7ea800" stroke-width="2"/>
+  <text class="calloutTitleOk" x="645" y="312">✅ 正常な仕様</text>
+  <text class="calloutLine" x="645" y="332">DROTHER 同士は</text>
+  <text class="calloutLine" x="645" y="350">ここで正常停止</text>
+  <text class="calloutEffect" x="645" y="372">（DR/BDR とは Full まで進む）</text>
+
+  <!-- callout 4: Exstart -> Exchange -->
+  <rect x="758" y="288" width="194" height="100" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="calloutTitleWarn" x="855" y="312">⚠ 詰まる原因</text>
+  <text class="calloutLine" x="855" y="332">MTU 不一致</text>
+  <text class="calloutLine" x="855" y="350">（DBD 交換が未完了）</text>
+  <text class="calloutEffect" x="855" y="372">→ Exstart/Exchange で停滞</text>
+
+  <!-- Full goal note -->
+  <rect x="1290" y="288" width="180" height="72" rx="10" fill="#f4f8e8" stroke="#7ea800" stroke-width="2"/>
+  <text class="calloutTitleOk" x="1380" y="316">✅ ゴール</text>
+  <text class="calloutLine" x="1380" y="338">＝ 隣接完了（Full）</text>
+
+  <!-- footer: link to lab -->
+  <rect x="40" y="420" width="1420" height="90" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="footerTitle" x="60" y="446">🔗 Day13 ラボの4つの障害との対応</text>
+  <text class="footerLine" x="60" y="470">障害1（Hello/Dead タイマー不一致）→ Init で停滞 ／ 障害2（network 文漏れ）・障害3（passive-interface 誤設定）→ Down のまま現れない</text>
+  <text class="footerLine" x="60" y="492">障害4（MTU 不一致）→ Exstart/Exchange で停滞 ― 4 つすべてを解消して初めて Full（隣接完了）に到達する</text>
+</svg>

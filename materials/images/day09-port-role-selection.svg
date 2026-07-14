@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="720" viewBox="0 0 1000 720">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .legend { font-size: 13px; fill: #374151; }
+      .devname { font-size: 19px; font-weight: 700; }
+      .devsub { font-size: 12px; fill: #6b7280; }
+      .costlabel { font-size: 14px; font-weight: 700; fill: #374151; text-anchor: middle; }
+      .pill { font-size: 12px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .boxtitle { font-size: 14.5px; font-weight: 700; }
+      .boxline { font-size: 13px; fill: #374151; }
+      .boxresult { font-size: 13.5px; font-weight: 700; }
+    </style>
+    <g id="switch">
+      <rect x="-48" y="-32" width="96" height="64" rx="9" fill="#0e9aa7"/>
+      <rect x="-48" y="-32" width="96" height="64" rx="9" fill="none" stroke="#0b7a85" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-29" y1="-10" x2="29" y2="-10"/>
+        <line x1="-29" y1="10" x2="29" y2="10"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -29 -10 L -20 -15.5 L -20 -4.5 Z"/>
+        <path d="M 29 -10 L 20 -15.5 L 20 -4.5 Z"/>
+        <path d="M 29 10 L 20 4.5 L 20 15.5 Z"/>
+        <path d="M -29 10 L -20 4.5 L -20 15.5 Z"/>
+      </g>
+    </g>
+    <g id="blockicon">
+      <circle r="12" fill="#ef4444"/>
+      <line x1="-7" y1="-7" x2="7" y2="7" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <rect width="1000" height="720" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">ポートロール選出の数値例 ― ルートパスコストの比較</text>
+  <text class="sub" x="40" y="66">SWroot は選出済みのルートブリッジ。非ルートスイッチは複数経路のコスト合計を比較し、最小の経路をルートポート（RP）にする</text>
+
+  <!-- legend -->
+  <g>
+    <line x1="40" y1="92" x2="72" y2="92" stroke="#8b5cf6" stroke-width="5"/>
+    <text class="legend" x="80" y="97">転送中のリンク</text>
+    <line x1="230" y1="92" x2="262" y2="92" stroke="#94a3b8" stroke-width="5" stroke-dasharray="10 6"/>
+    <text class="legend" x="270" y="97">ブロッキング（非転送）のリンク</text>
+    <rect x="500" y="84" width="46" height="20" rx="5" fill="#2779ca"/>
+    <text class="pill" x="523" y="98">DP</text>
+    <text class="legend" x="556" y="97">指定ポート</text>
+    <rect x="640" y="84" width="46" height="20" rx="5" fill="#7ea800"/>
+    <text class="pill" x="663" y="98">RP</text>
+    <text class="legend" x="696" y="97">ルートポート</text>
+    <rect x="790" y="84" width="70" height="20" rx="5" fill="#64748b"/>
+    <text class="pill" x="825" y="98">Block</text>
+    <text class="legend" x="870" y="97">非指定</text>
+  </g>
+
+  <!-- ================= links ================= -->
+  <line x1="500" y1="190" x2="230" y2="440" stroke="#8b5cf6" stroke-width="5"/>
+  <line x1="230" y1="440" x2="770" y2="440" stroke="#8b5cf6" stroke-width="5"/>
+  <line x1="500" y1="190" x2="770" y2="440" stroke="#94a3b8" stroke-width="5" stroke-dasharray="10 6"/>
+
+  <!-- cost labels -->
+  <text class="costlabel" x="325" y="290">1 Gbps ／ コスト 4</text>
+  <text class="costlabel" x="500" y="418">1 Gbps ／ コスト 4</text>
+  <text class="costlabel" x="675" y="290">100 Mbps ／ コスト 19</text>
+
+  <!-- port role pills -->
+  <rect x="425" y="222" width="46" height="22" rx="6" fill="#2779ca"/>
+  <text class="pill" x="448" y="237">DP</text>
+
+  <rect x="255" y="378" width="46" height="22" rx="6" fill="#7ea800"/>
+  <text class="pill" x="278" y="393">RP</text>
+
+  <rect x="292" y="412" width="46" height="22" rx="6" fill="#2779ca"/>
+  <text class="pill" x="315" y="427">DP</text>
+
+  <rect x="650" y="412" width="46" height="22" rx="6" fill="#7ea800"/>
+  <text class="pill" x="673" y="427">RP</text>
+
+  <rect x="527" y="222" width="46" height="22" rx="6" fill="#2779ca"/>
+  <text class="pill" x="550" y="237">DP</text>
+
+  <rect x="690" y="378" width="70" height="22" rx="6" fill="#64748b"/>
+  <text class="pill" x="725" y="393">Block</text>
+  <use href="#blockicon" x="770" y="389"/>
+
+  <!-- ================= devices ================= -->
+  <use href="#switch" x="500" y="190"/>
+  <text class="devname" x="500" y="140" text-anchor="middle">SWroot</text>
+  <text class="devsub" x="500" y="158" text-anchor="middle">（選出済みのルートブリッジ／全ポート DP）</text>
+
+  <use href="#switch" x="230" y="440"/>
+  <text class="devname" x="150" y="432" text-anchor="end">SW2</text>
+  <text class="devsub" x="150" y="450" text-anchor="end">（非ルートブリッジ）</text>
+
+  <use href="#switch" x="770" y="440"/>
+  <text class="devname" x="850" y="432">SW3</text>
+  <text class="devsub" x="850" y="450">（非ルートブリッジ）</text>
+
+  <!-- ================= callout: SW2 ================= -->
+  <rect x="40" y="500" width="430" height="120" rx="10" fill="#f0fdf4" stroke="#7ea800" stroke-width="2"/>
+  <text class="boxtitle" x="60" y="526" fill="#5a7d00">SW2 → SWroot の経路コスト比較</text>
+  <text class="boxline" x="60" y="550">直接リンク（SWroot 側）　　　： コスト 4</text>
+  <text class="boxline" x="60" y="572">SW3 経由（SW3→SWroot 19+4）： コスト 23</text>
+  <text class="boxresult" x="60" y="600" fill="#2f5c00">→ 直接リンク（コスト 4）が最小 ⇒ その側が RP</text>
+
+  <!-- ================= callout: SW3 ================= -->
+  <rect x="530" y="500" width="430" height="120" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="boxtitle" x="550" y="526" fill="#b45309">SW3 → SWroot の経路コスト比較</text>
+  <text class="boxline" x="550" y="550">直接リンク（SWroot 側）　　　　　： コスト 19</text>
+  <text class="boxline" x="550" y="572">SW2 経由（SW2→SWroot 4 ＋ SW2-SW3 4）： コスト 8</text>
+  <text class="boxresult" x="550" y="600" fill="#9a3412">→ SW2 経由（コスト 8）が最小 ⇒ SW2 側が RP／直接リンクは Block</text>
+
+  <!-- footer note -->
+  <rect x="40" y="644" width="920" height="56" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text x="60" y="668" font-size="13.5">試験のポイント: ルートブリッジの全ポートは必ず DP。非ルートスイッチは最小ルートパスコストの側を RP に、</text>
+  <text x="60" y="688" font-size="13.5">それ以外は各セグメントで DP／非指定（Blocking）に決まる。同コスト時は送信元 BID → ポート ID の順でタイブレークする。</text>
+</svg>

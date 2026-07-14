@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="700" viewBox="0 0 1150 700">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .region-label { font-size: 15px; font-weight: 700; text-anchor: middle; }
+      .devname { font-size: 15px; font-weight: 700; text-anchor: middle; }
+      .devip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .pktline { font-size: 13px; text-anchor: middle; }
+      .pktsrc-old { font-size: 13px; text-anchor: middle; fill: #374151; }
+      .pktsrc-new { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #2779ca; }
+      .rewrite { font-size: 12px; fill: #b45309; text-anchor: middle; }
+      .term-title { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .term-val { font-size: 14px; font-weight: 700; text-anchor: middle; fill: #1f2937; }
+      .term-note { font-size: 11px; fill: #6b7280; text-anchor: middle; }
+      .footer { font-size: 13.5px; fill: #1f2937; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .leader { stroke: #9ca3af; stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+    </style>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="server">
+      <rect x="-22" y="-37" width="44" height="74" rx="4" fill="#374151"/>
+      <rect x="-22" y="-37" width="44" height="74" rx="4" fill="none" stroke="#1f2937" stroke-width="2"/>
+      <g stroke="#9ca3af" stroke-width="3" stroke-linecap="round">
+        <line x1="-14" y1="-21" x2="14" y2="-21"/>
+        <line x1="-14" y1="-5" x2="14" y2="-5"/>
+        <line x1="-14" y1="11" x2="14" y2="11"/>
+      </g>
+      <circle cx="10" cy="27" r="3" fill="#4ade80"/>
+    </g>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <rect width="1150" height="700" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">NAT の 4 用語 ― 「どちらの機器か」×「どちら側から見た住所か」</text>
+  <text class="sub" x="40" y="66">PC1 が Srv1（8.8.8.8）へアクセスするとき、R1 で送信元アドレスが 192.168.1.10 → 203.0.113.10 に変換される例</text>
+
+  <!-- regions -->
+  <rect x="40" y="150" width="380" height="310" rx="14" fill="#f0fdf4" stroke="#7ea800" stroke-width="2" stroke-dasharray="9 6"/>
+  <text class="region-label" x="230" y="180" fill="#5b7a00">内側（inside）ネットワーク</text>
+
+  <rect x="700" y="150" width="380" height="310" rx="14" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="9 6"/>
+  <text class="region-label" x="890" y="180" fill="#475569">外側（outside）ネットワーク</text>
+
+  <!-- packet boxes (before / after translation) -->
+  <rect x="240" y="200" width="220" height="52" rx="8" fill="#ffffff" stroke="#7ea800" stroke-width="2"/>
+  <text class="pktsrc-old" x="350" y="222">送信元: 192.168.1.10</text>
+  <text class="pktline" x="350" y="242" fill="#374151">宛先: 8.8.8.8</text>
+
+  <rect x="620" y="200" width="220" height="52" rx="8" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <text class="pktsrc-new" x="730" y="222">送信元: 203.0.113.10</text>
+  <text class="pktline" x="730" y="242" fill="#374151">宛先: 8.8.8.8</text>
+
+  <line x1="460" y1="226" x2="616" y2="226" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow-gray)"/>
+
+  <line class="leader" x1="550" y1="252" x2="550" y2="300" marker-end="url(#arrow-amber)"/>
+  <text class="rewrite" x="550" y="270">R1 が送信元</text>
+  <text class="rewrite" x="550" y="286">アドレスだけを書き換え</text>
+
+  <!-- links -->
+  <line class="link" x1="150" y1="340" x2="550" y2="340"/>
+  <line class="link" x1="550" y1="340" x2="910" y2="340"/>
+
+  <!-- devices -->
+  <use href="#pc" x="150" y="340"/>
+  <text class="devname" x="150" y="392">PC1</text>
+  <text class="devip" x="150" y="410">192.168.1.10/24</text>
+
+  <use href="#router" x="550" y="340"/>
+  <text class="devname" x="550" y="400">R1（NAT）</text>
+
+  <use href="#server" x="910" y="340"/>
+  <text class="devname" x="910" y="399">Srv1</text>
+  <text class="devip" x="910" y="417">8.8.8.8/24</text>
+
+  <!-- term callouts -->
+  <line class="leader" x1="150" y1="460" x2="150" y2="486"/>
+  <rect x="70" y="486" width="160" height="72" rx="8" fill="#f0fdf4" stroke="#7ea800" stroke-width="2"/>
+  <text class="term-title" x="150" y="510" fill="#5b7a00">inside local</text>
+  <text class="term-val" x="150" y="530">192.168.1.10</text>
+  <text class="term-note" x="150" y="548">PC1 の私設アドレス</text>
+
+  <line class="leader" x1="730" y1="252" x2="730" y2="486"/>
+  <rect x="655" y="486" width="150" height="72" rx="8" fill="#eff6ff" stroke="#2779ca" stroke-width="2"/>
+  <text class="term-title" x="730" y="510" fill="#1e5f9e">inside global</text>
+  <text class="term-val" x="730" y="530">203.0.113.10</text>
+  <text class="term-note" x="730" y="548">外部から見える変換後</text>
+
+  <line class="leader" x1="910" y1="460" x2="910" y2="486"/>
+  <rect x="810" y="486" width="200" height="72" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+  <text class="term-title" x="910" y="506" fill="#475569">outside local＝outside global</text>
+  <text class="term-val" x="910" y="528">8.8.8.8</text>
+  <text class="term-note" x="910" y="546">Srv1 の実アドレス（通常は変換なし）</text>
+
+  <!-- footer note -->
+  <rect x="40" y="592" width="1070" height="90" rx="10" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="footer" x="60" y="618">位置の軸: inside＝内側（社内）の機器か outside＝外側（インターネット側）の機器か</text>
+  <text class="footer" x="60" y="640">視点の軸: local＝その場所から見た生のアドレス、global＝変換後に相手側から見えるアドレス</text>
+  <text class="footer" x="60" y="662">🎯 試験のポイント: 実際に変換されるのは inside local ↔ inside global のみ。outside 側は通常 local＝global で同じ値。</text>
+</svg>

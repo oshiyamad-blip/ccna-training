@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1000" viewBox="0 0 1200 1000">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 25px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .iface { font-size: 12.5px; font-weight: 700; fill: #374151; }
+      .ip { font-size: 12.5px; fill: #374151; }
+      .ipc { font-size: 12.5px; fill: #374151; text-anchor: middle; }
+      .net { font-size: 13px; font-weight: 700; }
+      .netv100 { fill: #b45309; }
+      .netv10 { fill: #1d5a94; }
+      .linklabel { font-size: 12.5px; font-weight: 700; text-anchor: middle; fill: #6d28d9; }
+      .linksub { font-size: 12px; fill: #6b7280; }
+      .capwaplabel { font-size: 12.5px; font-weight: 700; text-anchor: middle; fill: #0b7a85; }
+      .wifilabel { font-size: 12.5px; font-weight: 700; text-anchor: middle; fill: #1d5a94; }
+      .legend { font-size: 13px; fill: #374151; }
+      .linktrunk { stroke: #8b5cf6; stroke-width: 5; }
+      .linkaccess { stroke: #ff9200; stroke-width: 3.5; }
+      .linkcapwap { stroke: #0e9aa7; stroke-width: 3; stroke-dasharray: 3 6; fill: none; }
+      .linkwifi { stroke: #2779ca; stroke-width: 2.5; stroke-dasharray: 2 7; stroke-linecap: round; fill: none; }
+    </style>
+    <g id="router">
+      <circle r="34" fill="#2779ca"/>
+      <circle r="34" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-15" y1="-7" x2="7" y2="-7"/>
+        <line x1="15" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -13 L 19 -7 L 7 -1 Z"/>
+        <path d="M -7 1 L -19 7 L -7 13 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-52" y="-33" width="104" height="66" rx="10" fill="#0e9aa7"/>
+      <rect x="-52" y="-33" width="104" height="66" rx="10" fill="none" stroke="#0b7a85" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-32" y1="-10" x2="32" y2="-10"/>
+        <line x1="-32" y1="10" x2="32" y2="10"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -32 -10 L -22 -16 L -22 -4 Z"/>
+        <path d="M 32 -10 L 22 -16 L 22 -4 Z"/>
+        <path d="M 32 10 L 22 4 L 22 16 Z"/>
+        <path d="M -32 10 L -22 4 L -22 16 Z"/>
+      </g>
+    </g>
+    <g id="wlc">
+      <rect x="-58" y="-24" width="116" height="48" rx="6" fill="#374151"/>
+      <rect x="-58" y="-24" width="116" height="48" rx="6" fill="none" stroke="#1f2937" stroke-width="2"/>
+      <rect x="-44" y="-12" width="88" height="6" rx="2" fill="#8b5cf6"/>
+      <rect x="-44" y="0" width="88" height="6" rx="2" fill="#8b5cf6"/>
+      <circle cx="40" cy="-16" r="3.4" fill="#4ade80"/>
+    </g>
+    <g id="ap">
+      <ellipse cx="0" cy="0" rx="34" ry="13" fill="#ff9200" stroke="#c9660a" stroke-width="2"/>
+      <circle cx="0" cy="0" r="5.5" fill="#ffffff"/>
+      <path d="M -13 13 A 18 18 0 0 0 13 13" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      <path d="M -22 20 A 29 29 0 0 0 22 20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.75"/>
+    </g>
+    <g id="pc">
+      <rect x="-25" y="-23" width="50" height="35" rx="4" fill="#475569"/>
+      <rect x="-20" y="-18" width="40" height="25" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-17" y="18" width="34" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="laptop">
+      <rect x="-29" y="-21" width="58" height="37" rx="3" fill="#475569"/>
+      <rect x="-24" y="-16" width="48" height="27" rx="2" fill="#bfdbfe"/>
+      <path d="M -35 18 L 35 18 L 41 25 L -41 25 Z" fill="#64748b"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="1000" fill="#ffffff"/>
+
+  <text class="title" x="40" y="46">Day 10 ラボ: WLC と Lightweight AP による WLAN 構築</text>
+  <text class="sub" x="40" y="72">完成トポロジ ― R1-SW1 間トランクの先に WLC・LAP・管理用PC を接続し、CAPWAP で LAP を WLC に join させ無線クライアントを収容する</text>
+
+  <!-- legend -->
+  <g>
+    <line x1="40" y1="98" x2="72" y2="98" stroke="#8b5cf6" stroke-width="5"/>
+    <text class="legend" x="80" y="103">トランク(802.1Q)</text>
+    <line x1="230" y1="98" x2="262" y2="98" stroke="#ff9200" stroke-width="4"/>
+    <text class="legend" x="270" y="103">アクセスポート</text>
+    <line x1="420" y1="98" x2="452" y2="98" stroke="#0e9aa7" stroke-width="3" stroke-dasharray="3 6"/>
+    <text class="legend" x="460" y="103">CAPWAP トンネル(UDP 5246/5247)</text>
+    <line x1="770" y1="98" x2="802" y2="98" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="2 7"/>
+    <text class="legend" x="810" y="103">無線(SSID: MC-STAFF・VLAN10)</text>
+  </g>
+
+  <!-- VLAN callouts (top, clear of devices) -->
+  <rect x="40" y="122" width="230" height="44" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="net netv100" x="58" y="144">VLAN100（MGMT）</text>
+  <text class="linksub" x="58" y="160">192.168.100.0/24</text>
+
+  <rect x="930" y="122" width="230" height="44" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text class="net netv10" x="948" y="144">VLAN10（CLIENT）</text>
+  <text class="linksub" x="948" y="160">192.168.10.0/24</text>
+
+  <!-- ============ links (drawn first, icons on top) ============ -->
+  <line class="linktrunk" x1="600" y1="200" x2="600" y2="415"/>
+  <line class="linktrunk" x1="600" y1="415" x2="250" y2="595"/>
+  <line class="linkaccess" x1="600" y1="415" x2="655" y2="595"/>
+  <line class="linkaccess" x1="600" y1="415" x2="1000" y2="595"/>
+  <path class="linkcapwap" d="M 250 595 Q 452 685 655 595"/>
+  <path class="linkwifi" d="M 655 595 Q 520 720 458 850"/>
+  <path class="linkwifi" d="M 655 595 Q 790 720 872 850"/>
+
+  <!-- ============ link / interface labels ============ -->
+  <text class="linklabel" x="600" y="300">トランク（VLAN10,100）</text>
+  <text class="linksub" x="530" y="230">Gi0/0</text>
+  <text class="linksub" x="530" y="345">Gi0/1</text>
+
+  <text class="linksub" x="380" y="472">Gi0/2　トランク</text>
+  <text class="linksub" x="380" y="488">Native VLAN100・許可VLAN10,100</text>
+  <text class="linksub" x="600" y="505" text-anchor="middle">Fa0/1　アクセスVLAN100（PoE）</text>
+  <text class="linksub" x="840" y="472">Fa0/24　アクセスVLAN100</text>
+
+  <text class="capwaplabel" x="452" y="712">CAPWAP（制御 UDP5246・DTLS暗号化／データ UDP5247）</text>
+  <text class="wifilabel" x="665" y="760">SSID: MC-STAFF（VLAN10 収容）</text>
+
+  <!-- ============ R1 ============ -->
+  <text class="devname" x="600" y="152">R1（2911）</text>
+  <use href="#router" x="600" y="200"/>
+  <text class="ip" x="646" y="182">Gi0/0.100: 192.168.100.1/24</text>
+  <text class="ip" x="646" y="198">（VLAN100 GW・DHCP）</text>
+  <text class="ip" x="646" y="218">Gi0/0.10: 192.168.10.1/24</text>
+  <text class="ip" x="646" y="234">（VLAN10 GW・DHCP）</text>
+
+  <!-- ============ SW1 ============ -->
+  <text class="devname" x="600" y="378">SW1（2960）</text>
+  <use href="#switch" x="600" y="415"/>
+
+  <!-- ============ WLC ============ -->
+  <text class="devname" x="250" y="558">WLC-3504</text>
+  <use href="#wlc" x="250" y="595"/>
+  <text class="ipc" x="250" y="648">management: 192.168.100.2/24（VLAN100）</text>
+  <text class="ipc" x="250" y="666">dynamic client-vlan10: 192.168.10.2/24（VLAN10）</text>
+
+  <!-- ============ LAP ============ -->
+  <text class="devname" x="655" y="555">LAP（Lightweight AP）</text>
+  <use href="#ap" x="655" y="595"/>
+  <text class="ipc" x="655" y="666">Gi0: DHCP割当（VLAN100）例 192.168.100.101/24</text>
+
+  <!-- ============ 管理用PC ============ -->
+  <text class="devname" x="1000" y="555">管理用PC</text>
+  <use href="#pc" x="1000" y="595"/>
+  <text class="ipc" x="1000" y="648">Fa0: 192.168.100.10/24（静的）</text>
+  <text class="ipc" x="1000" y="666">GW: 192.168.100.1</text>
+
+  <!-- ============ ノートPC1/2 ============ -->
+  <text class="devname" x="420" y="796">ノートPC1</text>
+  <use href="#laptop" x="470" y="850"/>
+  <text class="ipc" x="470" y="918">無線NIC: DHCP割当（VLAN10）</text>
+  <text class="ipc" x="470" y="936">例 192.168.10.101/24</text>
+
+  <text class="devname" x="910" y="796">ノートPC2</text>
+  <use href="#laptop" x="860" y="850"/>
+  <text class="ipc" x="860" y="918">無線NIC: DHCP割当（VLAN10）</text>
+  <text class="ipc" x="860" y="936">例 192.168.10.102/24</text>
+
+  <!-- goal note -->
+  <rect x="40" y="954" width="1120" height="40" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="60" y="979" font-size="13.5">ゴール: LAP が CAPWAP で WLC に Registered になり、WPA2-PSK の SSID「MC-STAFF」にノートPC 2 台が接続して相互・R1 への疎通が確認でき、CDP/LLDP で隣接機器情報を読み取れること。</text>
+</svg>

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .devmodel { font-size: 12.5px; fill: #6b7280; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; }
+      .net { font-size: 14px; font-weight: 700; fill: #b45309; }
+      .ip { font-size: 13px; fill: #4b5563; }
+      .area { font-size: 17px; font-weight: 700; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .role { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #b45309; }
+      .swlabel { font-size: 13px; fill: #374151; }
+      .swtitle { font-size: 14px; font-weight: 700; fill: #0b7c87; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-55" y="-28" width="110" height="56" rx="10" fill="#0e9aa7"/>
+      <rect x="-55" y="-28" width="110" height="56" rx="10" fill="none" stroke="#0b7c87" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-34" y1="-9" x2="20" y2="-9"/>
+        <line x1="-20" y1="9" x2="34" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 20 -15 L 32 -9 L 20 -3 Z"/>
+        <path d="M -20 3 L -32 9 L -20 15 Z"/>
+      </g>
+    </g>
+    <g id="server">
+      <rect x="-20" y="-45" width="40" height="90" rx="5" fill="#334155"/>
+      <rect x="-20" y="-45" width="40" height="90" rx="5" fill="none" stroke="#1e293b" stroke-width="2"/>
+      <rect x="-13" y="-33" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <rect x="-13" y="-15" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <rect x="-13" y="3" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <circle cx="9" cy="24" r="3" fill="#4ade80"/>
+      <rect x="-13" y="30" width="20" height="4" rx="1" fill="#64748b"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="1200" fill="#ffffff"/>
+
+  <text class="title" x="40" y="52">Day 15 ラボ: DHCP リレー・NTP 同期・Syslog 収集の統合構成</text>
+  <text class="sub" x="40" y="80">R1 = DHCP サーバ／NTP マスタ（stratum 3）　／　R2 = DHCP リレー（ip helper-address）／NTP クライアント</text>
+
+  <!-- ============ Local LAN area ============ -->
+  <rect x="60" y="110" width="700" height="320" rx="24" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="90" y="144" fill="#1e5f9e">ローカル LAN　192.168.1.0/24</text>
+
+  <!-- ============ Remote LAN area ============ -->
+  <rect x="560" y="660" width="520" height="400" rx="24" fill="#f0fdf4" stroke="#7ea800" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="590" y="696" fill="#4d7c0f">リモート LAN　192.168.2.0/24</text>
+
+  <!-- ============ links (drawn first, icons cover the ends) ============ -->
+  <line class="link" x1="210" y1="245" x2="410" y2="390"/>
+  <line class="link" x1="410" y1="245" x2="410" y2="390"/>
+  <line class="link" x1="610" y1="245" x2="410" y2="390"/>
+  <line class="link" x1="410" y1="390" x2="410" y2="560"/>
+  <line class="link" x1="410" y1="560" x2="800" y2="560"/>
+  <line class="link" x1="800" y1="560" x2="800" y2="780"/>
+  <line class="link" x1="800" y1="780" x2="660" y2="940"/>
+  <line class="link" x1="800" y1="780" x2="940" y2="940"/>
+
+  <!-- ============ endpoints: local LAN ============ -->
+  <use href="#pc" x="210" y="245"/>
+  <text class="devname" x="210" y="310">PC1</text>
+  <text class="devmodel" x="210" y="328">DHCP 取得（LAN1）</text>
+
+  <use href="#pc" x="410" y="245"/>
+  <text class="devname" x="410" y="310">PC2</text>
+  <text class="devmodel" x="410" y="328">DHCP 取得（LAN1）</text>
+
+  <use href="#server" x="610" y="245"/>
+  <text class="devname" x="610" y="310">Syslog サーバ</text>
+  <text class="devmodel" x="610" y="328">192.168.1.10/24（固定）</text>
+  <text class="devmodel" x="610" y="344">GW 192.168.1.1／SYSLOG 有効化</text>
+
+  <!-- SW1 -->
+  <use href="#switch" x="410" y="390"/>
+  <text class="swtitle" x="485" y="378">SW1（2960）</text>
+  <text class="swlabel" x="485" y="396">Fa0/1=R1へ／Fa0/2=PC1</text>
+  <text class="swlabel" x="485" y="412">Fa0/3=PC2／Fa0/4=Syslog</text>
+
+  <!-- SW1-R1 link labels -->
+  <text class="iface" x="422" y="455">Fa0/1</text>
+  <text class="net" x="422" y="478">192.168.1.1/24</text>
+
+  <!-- R1 -->
+  <use href="#router" x="410" y="560"/>
+  <text class="devname" x="410" y="623">R1（2911）</text>
+  <text class="role" x="410" y="641">★ DHCP サーバ／NTP マスタ</text>
+
+  <!-- WAN link labels -->
+  <text class="iface" x="460" y="540">Gi0/1</text>
+  <text class="iface" x="750" y="540" text-anchor="end">Gi0/1</text>
+  <text class="net" x="605" y="540" text-anchor="middle">10.0.0.0/30</text>
+  <text class="ip" x="605" y="582" text-anchor="middle">R1: .1 ／ R2: .2</text>
+
+  <!-- R2 -->
+  <use href="#router" x="800" y="560"/>
+  <text class="devname" x="800" y="623">R2（2911）</text>
+  <text class="role" x="800" y="641">★ DHCP リレー／NTP クライアント</text>
+
+  <!-- SW2 -->
+  <use href="#switch" x="800" y="780"/>
+  <text class="swtitle" x="875" y="768">SW2（2960）</text>
+  <text class="swlabel" x="875" y="786">Fa0/1=R2 Gi0/0（GW 192.168.2.1/24）</text>
+  <text class="swlabel" x="875" y="802">Fa0/2=PC3／Fa0/3=PC4</text>
+
+  <!-- PC3 / PC4 -->
+  <use href="#pc" x="660" y="940"/>
+  <text class="devname" x="660" y="1005">PC3</text>
+  <text class="devmodel" x="660" y="1023">DHCP 取得（LAN2）</text>
+  <text class="devmodel" x="660" y="1039">ip helper-address 経由</text>
+
+  <use href="#pc" x="940" y="940"/>
+  <text class="devname" x="940" y="1005">PC4</text>
+  <text class="devmodel" x="940" y="1023">DHCP 取得（LAN2）</text>
+  <text class="devmodel" x="940" y="1039">ip helper-address 経由</text>
+
+  <!-- ============ goal note ============ -->
+  <rect x="40" y="1090" width="1120" height="95" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text x="60" y="1116" font-size="14.5" font-weight="700" fill="#b45309">🎯 ラボのゴール</text>
+  <text x="60" y="1138" font-size="13.5">① PC1・PC2 が LAN1 から、PC3・PC4 が ip helper-address 経由のリレーで LAN2 から DHCP アドレスを取得できる（binding に4台分登録）</text>
+  <text x="60" y="1158" font-size="13.5">② R2 が R1（stratum 3）に NTP 同期し stratum 4 になる　③ R1・R2 のログが Syslog サーバ（192.168.1.10）に記録される</text>
+</svg>

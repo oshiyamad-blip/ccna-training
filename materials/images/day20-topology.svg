@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1360" viewBox="0 0 1360 1360">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .equip { font-size: 12px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; }
+      .devsub { font-size: 13px; fill: #4b5563; }
+      .iface { font-size: 13px; fill: #374151; font-weight: 700; }
+      .net { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .nat { font-size: 13px; font-weight: 700; fill: #c2410c; text-anchor: middle; }
+      .ip { font-size: 12px; fill: #4b5563; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #6d28d9; text-anchor: middle; }
+      .link { stroke: #94a3b8; stroke-width: 3; fill: none; }
+      .linkdash { stroke: #93c5fd; stroke-width: 1.5; fill: none; stroke-dasharray: 5 5; }
+      .boxtitle { font-size: 14px; font-weight: 700; fill: #1d4ed8; }
+      .boxline { font-size: 13px; fill: #1f2937; }
+      .boxnote { font-size: 12px; fill: #6b7280; }
+      .badgetitleA { font-size: 15px; font-weight: 700; fill: #3f6212; }
+      .badgetitleB { font-size: 15px; font-weight: 700; fill: #475569; }
+      .badgeline { font-size: 13px; fill: #374151; }
+      .legendtitle { font-size: 14px; font-weight: 700; fill: #334155; }
+      .legendline { font-size: 13px; }
+      .conn { font-size: 13px; fill: #374151; }
+      .connsub { font-size: 12px; fill: #6b7280; }
+      .pcvlan10 { font-size: 13px; font-weight: 700; fill: #2779ca; text-anchor: middle; }
+      .pcvlan20 { font-size: 13px; font-weight: 700; fill: #7ea800; text-anchor: middle; }
+      .pcname { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .pcgw { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .goaltitle { font-size: 17px; font-weight: 700; fill: #1d4ed8; }
+      .goalline { font-size: 14px; fill: #1f2937; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-42" y="-27" width="84" height="54" rx="8" fill="#0e9aa7"/>
+      <rect x="-42" y="-27" width="84" height="54" rx="8" fill="none" stroke="#0b7d88" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" marker-end="url(#swArrow)" marker-start="url(#swArrow)">
+        <line x1="-26" y1="-8" x2="26" y2="-8"/>
+        <line x1="-26" y1="8" x2="26" y2="8"/>
+      </g>
+    </g>
+    <g id="server">
+      <rect x="-23" y="-37" width="46" height="74" rx="5" fill="#374151"/>
+      <rect x="-23" y="-37" width="46" height="74" rx="5" fill="none" stroke="#1f2937" stroke-width="2"/>
+      <g stroke="#9ca3af" stroke-width="2.5">
+        <line x1="-15" y1="-24" x2="15" y2="-24"/>
+        <line x1="-15" y1="-14" x2="15" y2="-14"/>
+        <line x1="-15" y1="-4" x2="15" y2="-4"/>
+      </g>
+      <circle cx="-13" cy="22" r="3.5" fill="#4ade80"/>
+      <line x1="-2" y1="22" x2="16" y2="22" stroke="#9ca3af" stroke-width="2.5"/>
+    </g>
+    <marker id="swArrow" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#ffffff"/>
+    </marker>
+  </defs>
+
+  <rect width="1360" height="1360" fill="#ffffff"/>
+
+  <text class="title" x="40" y="48">Day 20 ラボ: 総合演習トポロジ — 小規模企業ネットワークの構築</text>
+  <text class="sub" x="40" y="76">VLAN・トランク・OSPF・HSRP・DHCP・NAT(PAT)・拡張ACL・SSH・ポートセキュリティを 1 つのネットワークへ統合</text>
+  <text class="equip" x="40" y="100">使用機器: Router 2911 ×3（R1・R2・R-ISP）／ Switch 2960 ×2（SW1・SW2）／ PC ×4／ Server-PT ×1</text>
+
+  <!-- VLAN legend box -->
+  <rect x="940" y="36" width="380" height="104" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text class="legendtitle" x="958" y="58">VLAN ／ ネットワークアドレス</text>
+  <text class="legendline" x="958" y="78" fill="#2779ca">VLAN10（営業）: 192.168.10.0/24</text>
+  <text class="legendline" x="958" y="97" fill="#7ea800">VLAN20（経理）: 192.168.20.0/24</text>
+  <text class="legendline" x="958" y="116" fill="#64748b">VLAN99（管理・native）: 192.168.99.0/24</text>
+
+  <!-- ===== links (drawn first so nodes/labels sit above) ===== -->
+  <!-- Server - R-ISP -->
+  <line class="link" x1="430" y1="205" x2="430" y2="294"/>
+  <!-- R-ISP - R1 (WAN) -->
+  <line class="link" x1="430" y1="366" x2="430" y2="524"/>
+  <!-- R1 - R2 -->
+  <line class="link" x1="466" y1="560" x2="924" y2="560"/>
+  <!-- R1 - SW1 -->
+  <line class="link" x1="430" y1="596" x2="430" y2="803"/>
+  <!-- R2 - SW2 -->
+  <line class="link" x1="990" y1="596" x2="990" y2="803"/>
+  <!-- SW1 - SW2 -->
+  <line class="link" x1="472" y1="830" x2="948" y2="830"/>
+  <!-- SW1 - PC1 / PC2 (offset from switch corners) -->
+  <line class="link" x1="405" y1="857" x2="280" y2="1036"/>
+  <line class="link" x1="455" y1="857" x2="580" y2="1036"/>
+  <!-- SW2 - PC3 / PC4 -->
+  <line class="link" x1="965" y1="857" x2="840" y2="1036"/>
+  <line class="link" x1="1015" y1="857" x2="1140" y2="1036"/>
+
+  <!-- HSRP dashed leaders -->
+  <path class="linkdash" d="M 610 470 L 462 545"/>
+  <path class="linkdash" d="M 850 470 L 958 545"/>
+
+  <!-- ===== Server segment labels ===== -->
+  <text class="net" x="430" y="250">8.8.8.0/24</text>
+  <text class="iface" x="430" y="284" text-anchor="middle">Gi0/1</text>
+
+  <!-- ===== WAN segment labels ===== -->
+  <text class="iface" x="430" y="384" text-anchor="middle">Gi0/0</text>
+  <text class="net" x="430" y="434">203.0.113.0/30</text>
+  <text class="nat" x="430" y="454">（WAN・NAT境界）</text>
+  <text class="iface" x="430" y="506" text-anchor="middle">Gi0/2</text>
+
+  <!-- ===== R1-R2 link labels ===== -->
+  <text class="area" x="695" y="530">OSPF エリア0</text>
+  <text class="net" x="695" y="550">10.0.0.0/30</text>
+  <text class="ip" x="695" y="580">R1: 10.0.0.1 ／ R2: 10.0.0.2</text>
+  <text class="iface" x="500" y="580" text-anchor="middle">Gi0/1</text>
+  <text class="iface" x="890" y="580" text-anchor="middle">Gi0/1</text>
+
+  <!-- ===== HSRP virtual gateway callout ===== -->
+  <rect x="575" y="425" width="270" height="76" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text class="boxtitle" x="595" y="448">HSRP 仮想ゲートウェイ</text>
+  <text class="boxline" x="595" y="468">VLAN10: 192.168.10.1</text>
+  <text class="boxline" x="595" y="487">VLAN20: 192.168.20.1</text>
+
+  <!-- ===== HSRP badges ===== -->
+  <rect x="90" y="520" width="280" height="84" rx="8" fill="#f0fdf4" stroke="#7ea800" stroke-width="1.5"/>
+  <text class="badgetitleA" x="108" y="544">● HSRP Active（R1）</text>
+  <text class="badgeline" x="108" y="564">group10/20 ／ priority 110</text>
+  <text class="badgeline" x="108" y="582">preempt 設定あり</text>
+
+  <rect x="1060" y="520" width="280" height="84" rx="8" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+  <text class="badgetitleB" x="1078" y="544">● HSRP Standby（R2）</text>
+  <text class="badgeline" x="1078" y="564">group10/20 ／ priority 100（既定）</text>
+  <text class="badgeline" x="1078" y="582">preempt 未設定</text>
+
+  <!-- ===== R1 subinterface box ===== -->
+  <rect x="90" y="650" width="280" height="130" rx="8" fill="#ffffff" stroke="#2779ca" stroke-width="1.5"/>
+  <text class="boxtitle" x="108" y="674">R1 Gi0/0（トランク）サブIF</text>
+  <text class="boxline" x="108" y="696">.10 VLAN10: 192.168.10.2/24</text>
+  <text class="boxline" x="108" y="716">.20 VLAN20: 192.168.20.2/24</text>
+  <text class="boxline" x="108" y="736">.99 VLAN99(native): 192.168.99.2/24</text>
+  <text class="boxnote" x="108" y="760">ip nat inside ／ DHCP（スプリットスコープ）</text>
+
+  <!-- ===== R2 subinterface box ===== -->
+  <rect x="1060" y="650" width="280" height="130" rx="8" fill="#ffffff" stroke="#2779ca" stroke-width="1.5"/>
+  <text class="boxtitle" x="1078" y="674">R2 Gi0/0（トランク）サブIF</text>
+  <text class="boxline" x="1078" y="696">.10 VLAN10: 192.168.10.3/24</text>
+  <text class="boxline" x="1078" y="716">.20 VLAN20: 192.168.20.3/24</text>
+  <text class="boxline" x="1078" y="736">.99 VLAN99(native): 192.168.99.3/24</text>
+  <text class="boxnote" x="1078" y="760">ip nat inside ／ DHCP（スプリットスコープ）</text>
+
+  <!-- ===== R1-SW1 / R2-SW2 connector labels ===== -->
+  <text class="conn" x="445" y="692">R1 Gi0/0 ↔ SW1 Gi0/1</text>
+  <text class="connsub" x="445" y="710">トランク（許可 VLAN 10,20,99）</text>
+  <text class="connsub" x="445" y="728">ネイティブ VLAN 99</text>
+
+  <text class="conn" x="975" y="692" text-anchor="end">R2 Gi0/0 ↔ SW2 Gi0/1</text>
+  <text class="connsub" x="975" y="710" text-anchor="end">トランク（許可 VLAN 10,20,99）</text>
+  <text class="connsub" x="975" y="728" text-anchor="end">ネイティブ VLAN 99</text>
+
+  <!-- ===== SW1-SW2 connector labels ===== -->
+  <text class="conn" x="710" y="805" text-anchor="middle">SW1 Gi0/2 ↔ SW2 Gi0/2</text>
+  <text class="connsub" x="710" y="850" text-anchor="middle">トランク（許可 VLAN 10,20,99）</text>
+
+  <!-- ===== access port labels ===== -->
+  <text class="iface" x="325" y="935">Fa0/1</text>
+  <text class="iface" x="535" y="935">Fa0/2</text>
+  <text class="iface" x="900" y="935">Fa0/1</text>
+  <text class="iface" x="1075" y="935">Fa0/2</text>
+
+  <!-- ===== device icons ===== -->
+  <use href="#server" x="430" y="170"/>
+  <text class="devname" x="478" y="163">Server (SRV)</text>
+  <text class="devsub" x="478" y="183">8.8.8.8 ／ HTTP サービス有効</text>
+
+  <use href="#router" x="430" y="330"/>
+  <text class="devname" x="478" y="323">R-ISP</text>
+  <text class="devsub" x="478" y="343">インターネット模擬セグメント</text>
+
+  <use href="#router" x="430" y="560"/>
+  <text class="devname" x="345" y="505" text-anchor="end">R1</text>
+
+  <use href="#router" x="990" y="560"/>
+  <text class="devname" x="990" y="505" text-anchor="middle">R2</text>
+
+  <use href="#switch" x="430" y="830"/>
+  <text class="pcname" x="430" y="884">SW1</text>
+
+  <use href="#switch" x="990" y="830"/>
+  <text class="pcname" x="990" y="884">SW2</text>
+
+  <use href="#pc" x="280" y="1060"/>
+  <text class="pcname" x="280" y="1116">PC1</text>
+  <text class="pcvlan10" x="280" y="1135">VLAN10 営業</text>
+  <text class="pcgw" x="280" y="1152">DHCP取得 ／ GW 192.168.10.1</text>
+
+  <use href="#pc" x="580" y="1060"/>
+  <text class="pcname" x="580" y="1116">PC2</text>
+  <text class="pcvlan20" x="580" y="1135">VLAN20 経理</text>
+  <text class="pcgw" x="580" y="1152">DHCP取得 ／ GW 192.168.20.1</text>
+
+  <use href="#pc" x="840" y="1060"/>
+  <text class="pcname" x="840" y="1116">PC3</text>
+  <text class="pcvlan10" x="840" y="1135">VLAN10 営業</text>
+  <text class="pcgw" x="840" y="1152">DHCP取得 ／ GW 192.168.10.1</text>
+
+  <use href="#pc" x="1140" y="1060"/>
+  <text class="pcname" x="1140" y="1116">PC4</text>
+  <text class="pcvlan20" x="1140" y="1135">VLAN20 経理</text>
+  <text class="pcgw" x="1140" y="1152">DHCP取得 ／ GW 192.168.20.1</text>
+
+  <!-- ===== goal note box ===== -->
+  <rect x="40" y="1200" width="1280" height="140" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text class="goaltitle" x="60" y="1228">🎯 ラボのゴール（6 要件すべてを満たすこと）</text>
+  <text class="goalline" x="60" y="1256">① VLAN10/20 が HSRP 冗長ゲートウェイ経由で NAT(PAT) によりインターネット（模擬）へ到達できる</text>
+  <text class="goalline" x="60" y="1280">② OSPF により社内の全区間で経路到達可能である</text>
+  <text class="goalline" x="60" y="1304">③ DHCP により PC が自動的に IP アドレスを取得できる</text>
+  <text class="goalline" x="720" y="1256">④ 拡張 ACL により経理 VLAN → サーバは HTTP のみ許可される</text>
+  <text class="goalline" x="720" y="1280">⑤ スイッチのアクセスポートがポートセキュリティで保護されている</text>
+  <text class="goalline" x="720" y="1304">⑥ ルータの管理アクセスが SSH のみに制限されている</text>
+</svg>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="530" viewBox="0 0 1150 530">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .sevnum { font-size: 26px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .sevname { font-size: 12px; fill: #ffffff; text-anchor: middle; }
+      .sevjp { font-size: 12px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .axis { font-size: 13px; fill: #6b7280; }
+      .header { font-size: 15px; font-weight: 700; fill: #1f2937; }
+      .barlabel { font-size: 14px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .notetitle { font-size: 14.5px; font-weight: 700; fill: #b45309; }
+      .noteline { font-size: 13.5px; fill: #374151; }
+    </style>
+  </defs>
+
+  <rect width="1150" height="530" fill="#ffffff"/>
+
+  <text class="title" x="40" y="44">Syslog の Severity としきい値（logging trap）</text>
+  <text class="sub" x="40" y="68">数値が小さいほど重大。「logging trap &lt;レベル&gt;」は指定した数値以下（＝そのレベルより重大なものすべて）を送信するしきい値になる</text>
+
+  <!-- ============ severity ladder (0-7) ============ -->
+  <!-- box0 -->
+  <rect x="60" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="117.5" y="148">0</text>
+  <text class="sevname" x="117.5" y="166">Emergency</text>
+  <text class="sevjp" x="117.5" y="184">緊急</text>
+
+  <!-- box1 -->
+  <rect x="189" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="246.5" y="148">1</text>
+  <text class="sevname" x="246.5" y="166">Alert</text>
+  <text class="sevjp" x="246.5" y="184">警報</text>
+
+  <!-- box2 -->
+  <rect x="318" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="375.5" y="148">2</text>
+  <text class="sevname" x="375.5" y="166">Critical</text>
+  <text class="sevjp" x="375.5" y="184">重大</text>
+
+  <!-- box3 -->
+  <rect x="447" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="504.5" y="148">3</text>
+  <text class="sevname" x="504.5" y="166">Error</text>
+  <text class="sevjp" x="504.5" y="184">エラー</text>
+
+  <!-- box4 -->
+  <rect x="576" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="633.5" y="148">4</text>
+  <text class="sevname" x="633.5" y="166">Warning</text>
+  <text class="sevjp" x="633.5" y="184">警告</text>
+
+  <!-- box5 -->
+  <rect x="705" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="762.5" y="148">5</text>
+  <text class="sevname" x="762.5" y="166">Notification</text>
+  <text class="sevjp" x="762.5" y="184">通知</text>
+
+  <!-- box6 -->
+  <rect x="834" y="110" width="115" height="90" rx="10" fill="#2779ca"/>
+  <text class="sevnum" x="891.5" y="148">6</text>
+  <text class="sevname" x="891.5" y="166">Informational</text>
+  <text class="sevjp" x="891.5" y="184">情報</text>
+
+  <!-- box7 -->
+  <rect x="963" y="110" width="115" height="90" rx="10" fill="#64748b"/>
+  <text class="sevnum" x="1020.5" y="148">7</text>
+  <text class="sevname" x="1020.5" y="166">Debugging</text>
+  <text class="sevjp" x="1020.5" y="184">デバッグ</text>
+
+  <text class="axis" x="60" y="222">◀ 数値が小さい＝重大（即対応が必要）</text>
+  <text class="axis" x="1078" y="222" text-anchor="end">数値が大きい＝軽微（参考情報）▶</text>
+
+  <!-- ============ scenario A: informational (default) ============ -->
+  <text class="header" x="60" y="255">① logging trap informational（既定値）— severity 0〜6（Informational 以上）を送信</text>
+  <rect x="60" y="265" width="896" height="46" fill="#7ea800"/>
+  <rect x="956" y="265" width="122" height="46" fill="#64748b"/>
+  <line x1="956" y1="265" x2="956" y2="311" stroke="#ffffff" stroke-width="3"/>
+  <text class="barlabel" x="508" y="293">送信される（0〜6）</text>
+  <text class="barlabel" x="1017" y="293" font-size="12.5">対象外（7）</text>
+
+  <!-- ============ scenario B: warning ============ -->
+  <text class="header" x="60" y="345">② logging trap warning — severity 0〜4（Warning 以上）のみ送信　※ラボ観察レポート 設問3</text>
+  <rect x="60" y="355" width="638" height="46" fill="#7ea800"/>
+  <rect x="698" y="355" width="380" height="46" fill="#64748b"/>
+  <line x1="698" y1="355" x2="698" y2="401" stroke="#ffffff" stroke-width="3"/>
+  <text class="barlabel" x="379" y="383">送信される（0〜4）</text>
+  <text class="barlabel" x="888" y="383">送信されない（5〜7）</text>
+
+  <!-- ============ example note ============ -->
+  <rect x="40" y="420" width="1070" height="92" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="notetitle" x="60" y="444">💡 具体例（インターフェース down/up 時の2つのメッセージ）</text>
+  <text class="noteline" x="60" y="466">%LINK-3-UPDOWN（severity 3 = Error）→ ①informational・②warning の<tspan font-weight="700">どちらでも送信される</tspan>（3 は 4 以下なので②の対象内）</text>
+  <text class="noteline" x="60" y="488">%LINEPROTO-5-UPDOWN（severity 5 = Notification）→ ①informational では送信されるが、②warning では<tspan font-weight="700">送信されない</tspan>（5 は 4 より軽微）</text>
+</svg>

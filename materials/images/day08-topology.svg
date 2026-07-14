@@ -72,35 +72,38 @@
   <line class="link" x1="266" y1="250" x2="555" y2="250"/>
   <text class="linklabel" x="411" y="233">トランク(802.1Q): Gi0/0 ⟷ Fa0/24</text>
 
+  <!-- trunk from switch down to the VLAN split point -->
+  <line class="link" x1="600" y1="280" x2="600" y2="345"/>
+
   <!-- VLAN10 group -->
   <rect x="140" y="345" width="420" height="200" rx="14" fill="#eff6ff" stroke="#2779ca" stroke-width="2" stroke-dasharray="8 6"/>
   <text class="netlabel" x="160" y="371" fill="#2779ca">VLAN10（SALES）192.168.10.0/24</text>
 
-  <line class="link" x1="600" y1="280" x2="270" y2="421"/>
-  <line class="link" x1="600" y1="280" x2="460" y2="421"/>
+  <line class="link" x1="600" y1="345" x2="270" y2="421"/>
+  <line class="link" x1="600" y1="345" x2="460" y2="421"/>
   <use href="#pc" x="270" y="445"/>
   <text class="devname" x="270" y="505">PC1</text>
   <text class="ip" x="270" y="525">192.168.10.11/24</text>
   <use href="#pc" x="460" y="445"/>
   <text class="devname" x="460" y="505">PC2</text>
   <text class="ip" x="460" y="525">192.168.10.12/24</text>
-  <text class="port" x="319" y="395">Fa0/1</text>
-  <text class="port" x="481" y="395">Fa0/2</text>
+  <text class="port" x="319" y="405">Fa0/1</text>
+  <text class="port" x="481" y="405">Fa0/2</text>
 
   <!-- VLAN20 group -->
   <rect x="620" y="345" width="420" height="200" rx="14" fill="#fff7ed" stroke="#ff9200" stroke-width="2" stroke-dasharray="8 6"/>
-  <text class="netlabel" x="640" y="371" fill="#c2570c">VLAN20（DEV）192.168.20.0/24</text>
+  <text class="netlabel" x="1020" y="371" style="text-anchor:end" fill="#c2570c">VLAN20（DEV）192.168.20.0/24</text>
 
-  <line class="link" x1="600" y1="280" x2="760" y2="421"/>
-  <line class="link" x1="600" y1="280" x2="940" y2="421"/>
+  <line class="link" x1="600" y1="345" x2="760" y2="421"/>
+  <line class="link" x1="600" y1="345" x2="940" y2="421"/>
   <use href="#pc" x="760" y="445"/>
   <text class="devname" x="760" y="505">PC3</text>
   <text class="ip" x="760" y="525">192.168.20.11/24</text>
   <use href="#pc" x="940" y="445"/>
   <text class="devname" x="940" y="505">PC4</text>
   <text class="ip" x="940" y="525">192.168.20.12/24</text>
-  <text class="port" x="736" y="395">Fa0/3</text>
-  <text class="port" x="889" y="395">Fa0/4</text>
+  <text class="port" x="736" y="405">Fa0/3</text>
+  <text class="port" x="889" y="405">Fa0/4</text>
 
   <!-- ============ Part2 ============ -->
   <rect x="40" y="585" width="1120" height="465" rx="16" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
@@ -114,35 +117,38 @@
   <circle cx="640" cy="710" r="15" fill="#8b5cf6"/>
   <text x="640" y="715" font-size="12" font-weight="700" text-anchor="middle" fill="#ffffff">L3</text>
 
+  <!-- trunk from MLS down to the VLAN split point -->
+  <line class="link" x1="600" y1="765" x2="600" y2="830"/>
+
   <!-- VLAN10 group -->
   <rect x="140" y="830" width="420" height="200" rx="14" fill="#eff6ff" stroke="#2779ca" stroke-width="2" stroke-dasharray="8 6"/>
   <text class="netlabel" x="160" y="856" fill="#2779ca">VLAN10（SALES）192.168.10.0/24</text>
 
-  <line class="link" x1="600" y1="765" x2="270" y2="906"/>
-  <line class="link" x1="600" y1="765" x2="460" y2="906"/>
+  <line class="link" x1="600" y1="830" x2="270" y2="906"/>
+  <line class="link" x1="600" y1="830" x2="460" y2="906"/>
   <use href="#pc" x="270" y="930"/>
   <text class="devname" x="270" y="990">PC1</text>
   <text class="ip" x="270" y="1010">192.168.10.11/24</text>
   <use href="#pc" x="460" y="930"/>
   <text class="devname" x="460" y="990">PC2</text>
   <text class="ip" x="460" y="1010">192.168.10.12/24</text>
-  <text class="port" x="319" y="880">Fa0/1</text>
-  <text class="port" x="481" y="880">Fa0/2</text>
+  <text class="port" x="319" y="890">Fa0/1</text>
+  <text class="port" x="481" y="890">Fa0/2</text>
 
   <!-- VLAN20 group -->
   <rect x="620" y="830" width="420" height="200" rx="14" fill="#fff7ed" stroke="#ff9200" stroke-width="2" stroke-dasharray="8 6"/>
-  <text class="netlabel" x="640" y="856" fill="#c2570c">VLAN20（DEV）192.168.20.0/24</text>
+  <text class="netlabel" x="1020" y="856" style="text-anchor:end" fill="#c2570c">VLAN20（DEV）192.168.20.0/24</text>
 
-  <line class="link" x1="600" y1="765" x2="760" y2="906"/>
-  <line class="link" x1="600" y1="765" x2="940" y2="906"/>
+  <line class="link" x1="600" y1="830" x2="760" y2="906"/>
+  <line class="link" x1="600" y1="830" x2="940" y2="906"/>
   <use href="#pc" x="760" y="930"/>
   <text class="devname" x="760" y="990">PC3</text>
   <text class="ip" x="760" y="1010">192.168.20.11/24</text>
   <use href="#pc" x="940" y="930"/>
   <text class="devname" x="940" y="990">PC4</text>
   <text class="ip" x="940" y="1010">192.168.20.12/24</text>
-  <text class="port" x="736" y="880">Fa0/3</text>
-  <text class="port" x="889" y="880">Fa0/4</text>
+  <text class="port" x="736" y="890">Fa0/3</text>
+  <text class="port" x="889" y="890">Fa0/4</text>
 
   <!-- Goal note -->
   <rect x="40" y="1070" width="1120" height="80" rx="8" fill="#eff6ff" stroke="#93c5fd"/>

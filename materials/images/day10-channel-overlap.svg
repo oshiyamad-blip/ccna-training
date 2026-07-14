@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 23px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .axislabel { font-size: 13px; fill: #6b7280; }
+      .chnum { font-size: 13px; text-anchor: middle; fill: #9ca3af; }
+      .chnumhi { font-size: 15px; font-weight: 700; text-anchor: middle; fill: #1d5a94; }
+      .bumplabel { font-size: 15px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .caption { font-size: 14px; font-weight: 700; }
+      .capgood { fill: #1d5a94; }
+      .note { font-size: 13px; fill: #374151; }
+      .aplabel { font-size: 13px; font-weight: 700; text-anchor: middle; fill: #ffffff; }
+      .apsub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" fill="#ffffff"/>
+
+  <text class="title" x="40" y="42">2.4GHz 帯のチャネル重なり ― なぜ「1・6・11」を使うのか</text>
+  <text class="sub" x="40" y="66">各チャネルは 22MHz 幅の電波を占有するため、5MHz おきに並ぶ隣接チャネル同士は重なり合う（同一チャネル干渉の原因）</text>
+
+  <!-- ================= overlap chart ================= -->
+  <text class="caption" x="40" y="108">実際の占有幅 ― チャネル 1〜11 をすべて並べると大きく重なり合う</text>
+
+  <!-- axis -->
+  <line x1="90" y1="330" x2="1110" y2="330" stroke="#cbd5e1" stroke-width="2"/>
+  <text class="axislabel" x="1110" y="356" text-anchor="end">周波数 →</text>
+
+  <!-- non-highlight channel bumps (2,3,4,5,7,8,9,10), drawn first -->
+  <g fill="#94a3b8" opacity="0.28">
+    <path d="M 130 330 A 150 190 0 0 1 430 330 Z"/> <!-- ch2 x=280 -->
+    <path d="M 210 330 A 150 190 0 0 1 510 330 Z"/> <!-- ch3 x=360 -->
+    <path d="M 290 330 A 150 190 0 0 1 590 330 Z"/> <!-- ch4 x=440 -->
+    <path d="M 370 330 A 150 190 0 0 1 670 330 Z"/> <!-- ch5 x=520 -->
+    <path d="M 530 330 A 150 190 0 0 1 830 330 Z"/> <!-- ch7 x=680 -->
+    <path d="M 610 330 A 150 190 0 0 1 910 330 Z"/> <!-- ch8 x=760 -->
+    <path d="M 690 330 A 150 190 0 0 1 990 330 Z"/> <!-- ch9 x=840 -->
+    <path d="M 770 330 A 150 190 0 0 1 1070 330 Z"/> <!-- ch10 x=920 -->
+  </g>
+
+  <!-- highlighted non-overlapping channels 1, 6, 11 -->
+  <g fill="#2779ca" opacity="0.85" stroke="#1d5a94" stroke-width="2">
+    <path d="M 50 330 A 150 190 0 0 1 350 330 Z"/>   <!-- ch1 x=200 -->
+    <path d="M 450 330 A 150 190 0 0 1 750 330 Z"/>  <!-- ch6 x=600 -->
+    <path d="M 850 330 A 150 190 0 0 1 1150 330 Z"/> <!-- ch11 x=1000 -->
+  </g>
+  <text class="bumplabel" x="200" y="230">CH1</text>
+  <text class="bumplabel" x="600" y="230">CH6</text>
+  <text class="bumplabel" x="1000" y="230">CH11</text>
+
+  <!-- channel number ticks 1-11 -->
+  <g>
+    <text class="chnumhi" x="200" y="352">1</text>
+    <text class="chnum" x="280" y="352">2</text>
+    <text class="chnum" x="360" y="352">3</text>
+    <text class="chnum" x="440" y="352">4</text>
+    <text class="chnum" x="520" y="352">5</text>
+    <text class="chnumhi" x="600" y="352">6</text>
+    <text class="chnum" x="680" y="352">7</text>
+    <text class="chnum" x="760" y="352">8</text>
+    <text class="chnum" x="840" y="352">9</text>
+    <text class="chnum" x="920" y="352">10</text>
+    <text class="chnumhi" x="1000" y="352">11</text>
+  </g>
+  <g stroke="#94a3b8" stroke-width="1.5">
+    <line x1="280" y1="330" x2="280" y2="337"/>
+    <line x1="360" y1="330" x2="360" y2="337"/>
+    <line x1="440" y1="330" x2="440" y2="337"/>
+    <line x1="520" y1="330" x2="520" y2="337"/>
+    <line x1="680" y1="330" x2="680" y2="337"/>
+    <line x1="760" y1="330" x2="760" y2="337"/>
+    <line x1="840" y1="330" x2="840" y2="337"/>
+    <line x1="920" y1="330" x2="920" y2="337"/>
+  </g>
+  <g stroke="#1d5a94" stroke-width="2.5">
+    <line x1="200" y1="330" x2="200" y2="340"/>
+    <line x1="600" y1="330" x2="600" y2="340"/>
+    <line x1="1000" y1="330" x2="1000" y2="340"/>
+  </g>
+
+  <text class="note" x="90" y="386">グレー = チャネル 2〜5・7〜10（隣接チャネルと重なり、同一チャネル干渉の原因になる）</text>
+  <text class="note capgood" x="90" y="406" font-weight="700">青 = チャネル 1・6・11（互いに 25MHz 離れており、まったく重ならない唯一の組み合わせ）</text>
+
+  <!-- ================= AP deployment pattern ================= -->
+  <text class="caption" x="40" y="460">セル設計 ― 隣接 AP には 1 → 6 → 11 → 1 → 6 … と交互にチャネルを割り当てる</text>
+
+  <g>
+    <!-- AP row -->
+    <line x1="140" y1="560" x2="1060" y2="560" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 6"/>
+
+    <circle cx="180" cy="560" r="40" fill="#2779ca"/>
+    <text class="aplabel" x="180" y="556">AP-A</text>
+    <text class="aplabel" x="180" y="574">CH1</text>
+
+    <circle cx="400" cy="560" r="40" fill="#7ea800"/>
+    <text class="aplabel" x="400" y="556">AP-B</text>
+    <text class="aplabel" x="400" y="574">CH6</text>
+
+    <circle cx="620" cy="560" r="40" fill="#ff9200"/>
+    <text class="aplabel" x="620" y="556">AP-C</text>
+    <text class="aplabel" x="620" y="574">CH11</text>
+
+    <circle cx="840" cy="560" r="40" fill="#2779ca"/>
+    <text class="aplabel" x="840" y="556">AP-D</text>
+    <text class="aplabel" x="840" y="574">CH1</text>
+
+    <circle cx="1000" cy="560" r="30" fill="#7ea800"/>
+    <text class="aplabel" x="1000" y="556" font-size="11">AP-E</text>
+    <text class="aplabel" x="1000" y="571" font-size="11">CH6</text>
+
+    <text class="apsub" x="290" y="620">隣接セルが重ならないチャネルなら干渉しない</text>
+    <text class="apsub" x="730" y="620">同じパターンを繰り返して広いエリアをカバー</text>
+  </g>
+
+  <!-- exam tip -->
+  <rect x="40" y="656" width="1120" height="46" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text x="60" y="685" font-size="14">🎯 試験のポイント: 2.4GHz 帯で互いに重ならない 3 つのチャネルは「1・6・11」。数値そのものが頻出の暗記ポイント。</text>
+</svg>

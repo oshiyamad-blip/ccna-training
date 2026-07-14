@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1350" height="1050" viewBox="0 0 1350 1050">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .lo { font-size: 13px; font-weight: 700; fill: #2779ca; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; text-anchor: middle; }
+      .net { font-size: 14px; font-weight: 700; fill: #b45309; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #6d28d9; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .goal { font-size: 15px; }
+      .goalsub { font-size: 14px; fill: #6b7280; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+  </defs>
+
+  <rect width="1350" height="1050" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 12 ラボ: OSPFv2 シングルエリアの構成と経路制御</text>
+  <text class="sub" x="40" y="78">R1・R2・R3 が三角形を作り、そこから R4・PC1・PC2 がぶら下がる構成。全ルータがエリア 0 に参加する</text>
+
+  <!-- OSPF Area 0 -->
+  <rect x="340" y="120" width="750" height="736" rx="28" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="368" y="152">OSPF エリア 0（バックボーン）</text>
+
+  <!-- links (behind routers) -->
+  <line class="link" x1="480" y1="300" x2="950" y2="300"/>
+  <line class="link" x1="480" y1="300" x2="715" y2="580"/>
+  <line class="link" x1="950" y1="300" x2="715" y2="580"/>
+  <line class="link" x1="480" y1="300" x2="480" y2="740"/>
+  <line class="link" x1="950" y1="300" x2="1180" y2="300"/>
+  <line class="link" x1="480" y1="740" x2="150" y2="740"/>
+
+  <!-- R1-R2 link labels (10.0.12.0/24) -->
+  <text class="net" x="715" y="260">10.0.12.0/24</text>
+  <text class="ip"  x="715" y="278">R1: .1 ／ R2: .2</text>
+  <text class="iface" x="575" y="316">Gi0/0</text>
+  <text class="iface" x="855" y="316">Gi0/0</text>
+
+  <!-- R1-R3 link labels (10.0.13.0/24) -->
+  <text class="net" x="533" y="456">10.0.13.0/24</text>
+  <text class="ip"  x="533" y="474">R1: .1 ／ R3: .3</text>
+  <text class="iface" x="553" y="362">Gi0/1</text>
+  <text class="iface" x="666" y="497">Gi0/0</text>
+
+  <!-- R2-R3 link labels (10.0.23.0/24) -->
+  <text class="net" x="897" y="456">10.0.23.0/24</text>
+  <text class="ip"  x="897" y="474">R2: .2 ／ R3: .3</text>
+  <text class="iface" x="877" y="362">Gi0/1</text>
+  <text class="iface" x="764" y="497">Gi0/1</text>
+
+  <!-- R1-R4 link labels (10.0.14.0/24) -->
+  <text class="net" x="425" y="520">10.0.14.0/24</text>
+  <text class="ip"  x="425" y="538">R1: .1 ／ R4: .4</text>
+  <text class="iface" x="498" y="395">Gi0/2</text>
+  <text class="iface" x="498" y="645">Gi0/0</text>
+
+  <!-- R2-PC2 link labels (192.168.2.0/24) -->
+  <text class="net" x="1065" y="260">192.168.2.0/24</text>
+  <text class="ip"  x="1065" y="278">R2 Gi0/2: .1</text>
+  <text class="iface" x="1030" y="316">Gi0/2</text>
+
+  <!-- R4-PC1 link labels (192.168.4.0/24) -->
+  <text class="net" x="315" y="700">192.168.4.0/24</text>
+  <text class="ip"  x="315" y="718">R4 Gi0/1: .1</text>
+  <text class="iface" x="400" y="756">Gi0/1</text>
+
+  <!-- R1 -->
+  <use href="#router" x="480" y="300"/>
+  <text class="lo" x="480" y="232">Lo0: 1.1.1.1/32</text>
+  <text class="devname" x="480" y="252">R1</text>
+
+  <!-- R2 -->
+  <use href="#router" x="950" y="300"/>
+  <text class="lo" x="950" y="232">Lo0: 2.2.2.2/32</text>
+  <text class="devname" x="950" y="252">R2</text>
+
+  <!-- R3 -->
+  <use href="#router" x="715" y="580"/>
+  <text class="devname" x="715" y="651">R3</text>
+  <text class="lo" x="715" y="671">Lo0: 3.3.3.3/32</text>
+
+  <!-- R4 -->
+  <use href="#router" x="480" y="740"/>
+  <text class="devname" x="480" y="811">R4</text>
+  <text class="lo" x="480" y="831">Lo0: 4.4.4.4/32</text>
+
+  <!-- PC2 -->
+  <use href="#pc" x="1180" y="300"/>
+  <text class="devname" x="1180" y="360">PC2</text>
+  <text class="ip" x="1180" y="380">192.168.2.10/24（GW: .1）</text>
+
+  <!-- PC1 -->
+  <use href="#pc" x="150" y="740"/>
+  <text class="devname" x="150" y="800">PC1</text>
+  <text class="ip" x="150" y="820">192.168.4.10/24（GW: .1）</text>
+
+  <!-- goal note -->
+  <rect x="40" y="900" width="1270" height="110" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text class="goal" x="60" y="928">ゴール: R1〜R4 全ルータがエリア 0 の OSPFv2 で FULL ネイバーとなり、全ネットワーク間で疎通できること。</text>
+  <text class="goal" x="60" y="952">インターフェースコストの変更で R4→R2 LAN 宛の経路を R1→R3→R2 へ誘導し、priority 変更で R1-R2 間の DR を R1 に変更できること。</text>
+  <text class="goalsub" x="60" y="980">Router ID は router-id コマンドで明示設定（Lo0 の IP と一致させている）。ワイルドカードマスクはすべて /24 → 0.0.0.255。</text>
+</svg>

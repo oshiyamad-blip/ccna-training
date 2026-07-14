@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="890" viewBox="0 0 1200 890">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .devtype { font-size: 12px; fill: #6b7280; text-anchor: middle; }
+      .iface { font-size: 13px; fill: #374151; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .svi { font-size: 13px; font-weight: 700; fill: #0e7a85; text-anchor: middle; }
+      .area { font-size: 16px; font-weight: 700; fill: #1d4ed8; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .note-title { font-size: 15px; font-weight: 700; fill: #b45309; }
+      .note-body { font-size: 13.5px; fill: #374151; }
+      .goal-title { font-size: 15px; font-weight: 700; fill: #1d4ed8; }
+      .goal-body { font-size: 13.5px; fill: #1f2937; }
+    </style>
+    <g id="router">
+      <circle r="34" fill="#2779ca"/>
+      <circle r="34" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-15" y1="-8" x2="7" y2="-8"/>
+        <line x1="15" y1="8" x2="-7" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -14 L 19 -8 L 7 -2 Z"/>
+        <path d="M -7 2 L -19 8 L -7 14 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="#0e9aa7" stroke="#0b7a85" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-26" y1="-9" x2="20" y2="-9"/>
+        <line x1="-20" y1="9" x2="26" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 20 -14 L 32 -9 L 20 -4 Z"/>
+        <path d="M -26 -14 L -38 -9 L -26 -4 Z"/>
+        <path d="M 26 4 L 38 9 L 26 14 Z"/>
+        <path d="M -20 4 L -32 9 L -20 14 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-24" y="-22" width="48" height="34" rx="4" fill="#475569"/>
+      <rect x="-19" y="-17" width="38" height="24" rx="2" fill="#bfdbfe"/>
+      <rect x="-7" y="12" width="14" height="5" fill="#475569"/>
+      <rect x="-16" y="17" width="32" height="5" rx="2" fill="#475569"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="890" fill="#ffffff"/>
+
+  <text class="title" x="40" y="50">Day 16 ラボ: デバイス堅牢化の完成トポロジ</text>
+  <text class="sub" x="40" y="78">SSH 管理・ローカル AAA・ログイン保護をルータ／スイッチに設定する（同一管理セグメント、ルーティングなし）</text>
+
+  <!-- 管理セグメント -->
+  <rect x="50" y="100" width="1100" height="640" rx="24" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="76" y="132">管理セグメント: 192.168.10.0/24（R1 Gi0/0=.1 ／ SW1 SVI=.2 ／ SW2 SVI=.3）</text>
+
+  <!-- links (drawn first so icons sit on top) -->
+  <line class="link" x1="600" y1="350" x2="280" y2="230"/>
+  <line class="link" x1="600" y1="350" x2="920" y2="230"/>
+  <line class="link" x1="600" y1="350" x2="280" y2="530"/>
+  <line class="link" x1="600" y1="350" x2="920" y2="530"/>
+  <line class="link" x1="920" y1="530" x2="920" y2="650"/>
+
+  <!-- interface labels -->
+  <text class="iface" x="452" y="292">Fa0/1</text>
+  <text class="iface" x="708" y="292">Fa0/2</text>
+  <text class="iface" x="484" y="404">Fa0/24</text>
+  <text class="iface" x="340" y="484">Gi0/0</text>
+  <text class="iface" x="676" y="404">Fa0/23</text>
+  <text class="iface" x="820" y="484">Fa0/24</text>
+  <text class="iface" x="940" y="574">Fa0/1</text>
+
+  <!-- R1 -->
+  <use href="#router" x="280" y="530"/>
+  <text class="devname" x="280" y="460">R1</text>
+  <text class="devtype" x="280" y="478">Cisco 2911</text>
+  <text class="ip" x="280" y="592">Gi0/0: 192.168.10.1/24</text>
+
+  <!-- SW1 -->
+  <use href="#switch" x="600" y="350"/>
+  <text class="devname" x="600" y="290">SW1</text>
+  <text class="devtype" x="600" y="308">Cisco 2960</text>
+  <text class="svi" x="600" y="418">SVI(VLAN1): 192.168.10.2/24</text>
+
+  <!-- SW2 -->
+  <use href="#switch" x="920" y="530"/>
+  <text class="svi" x="920" y="440">SVI(VLAN1): 192.168.10.3/24</text>
+  <text class="devname" x="920" y="468">SW2</text>
+  <text class="devtype" x="920" y="486">Cisco 2960</text>
+
+  <!-- PC-Admin -->
+  <use href="#pc" x="280" y="230"/>
+  <text class="devname" x="280" y="184">PC-Admin</text>
+  <text class="ip" x="280" y="288">192.168.10.10/24</text>
+
+  <!-- PC1 -->
+  <use href="#pc" x="920" y="230"/>
+  <text class="devname" x="920" y="184">PC1</text>
+  <text class="ip" x="920" y="288">192.168.10.11/24</text>
+
+  <!-- PC2 -->
+  <use href="#pc" x="920" y="650"/>
+  <text class="devname" x="920" y="604">PC2</text>
+  <text class="ip" x="920" y="708">192.168.10.12/24</text>
+
+  <!-- 未使用ポートの注記（SW1から引き出し） -->
+  <line x1="642" y1="350" x2="760" y2="368" stroke="#ff9200" stroke-width="2" stroke-dasharray="4 4"/>
+  <rect x="760" y="320" width="170" height="96" rx="10" fill="#fff7ed" stroke="#ff9200" stroke-width="2"/>
+  <text class="note-title" x="776" y="344">未使用ポート</text>
+  <text class="note-body" x="776" y="365">SW1 の Fa0/3〜Fa0/22</text>
+  <text class="note-body" x="776" y="383">は本ラボでは未使用</text>
+  <text class="note-body" x="776" y="401">→ 手順10で shutdown</text>
+
+  <!-- goal note -->
+  <rect x="50" y="760" width="1100" height="106" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="goal-title" x="70" y="786">🎯 ラボのゴール</text>
+  <text class="goal-body" x="70" y="808">・Telnet を無効化し、SSH（バージョン 2）でのみリモート管理できる状態にする（transport input ssh）</text>
+  <text class="goal-body" x="70" y="827">・ローカル AAA（username ... secret + login local）でログイン認証を行い、login block-for でブルートフォースを緩和する</text>
+  <text class="goal-body" x="70" y="846">・SW1 の未使用ポート（Fa0/3〜Fa0/22）を閉塞し、show コマンドで堅牢化設定が意図どおり機能していることを検証する</text>
+</svg>

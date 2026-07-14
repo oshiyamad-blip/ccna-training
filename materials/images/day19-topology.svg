@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="904" viewBox="0 0 1200 904">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 26px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .devrole { font-size: 12.5px; fill: #6b7280; text-anchor: middle; }
+      .ip { font-size: 13.5px; font-weight: 700; fill: #1d4ed8; text-anchor: middle; }
+      .net { font-size: 16px; font-weight: 700; fill: #1e5f9e; text-anchor: start; }
+      .gw { font-size: 13px; fill: #4b5563; text-anchor: start; }
+      .link { stroke: #94a3b8; stroke-width: 3; }
+      .swtitle { font-size: 15px; font-weight: 700; fill: #0b7c87; text-anchor: start; }
+      .swlabel { font-size: 13px; fill: #374151; text-anchor: start; }
+      .rtip { font-size: 13.5px; font-weight: 700; fill: #1d4ed8; text-anchor: middle; }
+      .rtnote { font-size: 12.5px; fill: #6b7280; text-anchor: middle; }
+      .goalhead { font-size: 16px; font-weight: 700; fill: #b45309; }
+      .goalitem { font-size: 13.5px; fill: #1f2937; }
+    </style>
+    <g id="router">
+      <circle r="36" fill="#2779ca"/>
+      <circle r="36" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-16" y1="-8" x2="8" y2="-8"/>
+        <line x1="16" y1="8" x2="-8" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 8 -14 L 20 -8 L 8 -2 Z"/>
+        <path d="M -8 2 L -20 8 L -8 14 Z"/>
+      </g>
+    </g>
+    <g id="switch">
+      <rect x="-55" y="-28" width="110" height="56" rx="10" fill="#0e9aa7"/>
+      <rect x="-55" y="-28" width="110" height="56" rx="10" fill="none" stroke="#0b7c87" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-34" y1="-9" x2="20" y2="-9"/>
+        <line x1="-20" y1="9" x2="34" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 20 -15 L 32 -9 L 20 -3 Z"/>
+        <path d="M -20 3 L -32 9 L -20 15 Z"/>
+      </g>
+    </g>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="server">
+      <rect x="-20" y="-45" width="40" height="90" rx="5" fill="#334155"/>
+      <rect x="-20" y="-45" width="40" height="90" rx="5" fill="none" stroke="#1e293b" stroke-width="2"/>
+      <rect x="-13" y="-33" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <rect x="-13" y="-15" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <rect x="-13" y="3" width="26" height="7" rx="1.5" fill="#94a3b8"/>
+      <circle cx="9" cy="24" r="3" fill="#4ade80"/>
+      <rect x="-13" y="30" width="20" height="4" rx="1" fill="#64748b"/>
+    </g>
+  </defs>
+
+  <rect width="1200" height="904" fill="#ffffff"/>
+
+  <text class="title" x="40" y="52">Day 19 ラボ: 完成トポロジ</text>
+  <text class="sub" x="40" y="80">JSON データの読解と REST 的な GET/POST リクエストの観察 — 全ノード同一 VLAN1・同一サブネットで L2 疎通</text>
+
+  <!-- network area -->
+  <rect x="50" y="108" width="1100" height="652" rx="28" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="net" x="80" y="142">VLAN 1 ／ ネットワークアドレス 192.168.10.0/24（サブネットマスク 255.255.255.0）</text>
+  <text class="gw" x="80" y="166">全 PC・Server の既定ゲートウェイ = 192.168.10.1（Router RT1 の Gi0/0）</text>
+
+  <!-- router -->
+  <use href="#router" x="600" y="250"/>
+  <text class="devname" x="600" y="200">Router RT1（2911）</text>
+  <text class="rtip" x="600" y="310">Gi0/0: 192.168.10.1/24</text>
+  <text class="rtnote" x="600" y="328">（デフォルトゲートウェイ）</text>
+
+  <!-- link: router to switch -->
+  <line class="link" x1="600" y1="286" x2="600" y2="392"/>
+
+  <!-- switch -->
+  <use href="#switch" x="600" y="420"/>
+  <text class="swtitle" x="685" y="405">SW1（2960）</text>
+  <text class="swlabel" x="685" y="423">Fa0/1=Server-PT／Fa0/2=PC1</text>
+  <text class="swlabel" x="685" y="439">Fa0/3=PC2／Fa0/4=PC3</text>
+  <text class="swlabel" x="685" y="455">Fa0/24=Router Gi0/0</text>
+
+  <!-- links: switch to devices (drawn first so icons cover the joints) -->
+  <line class="link" x1="600" y1="420" x2="230" y2="615"/>
+  <line class="link" x1="600" y1="420" x2="480" y2="615"/>
+  <line class="link" x1="600" y1="420" x2="730" y2="615"/>
+  <line class="link" x1="600" y1="420" x2="980" y2="615"/>
+
+  <!-- Server-PT -->
+  <use href="#server" x="230" y="615"/>
+  <text class="devname" x="230" y="693">Server-PT</text>
+  <text class="devrole" x="230" y="709">サーバ役／FastEthernet0</text>
+  <text class="ip" x="230" y="727">192.168.10.10/24</text>
+
+  <!-- PC1 -->
+  <use href="#pc" x="480" y="615"/>
+  <text class="devname" x="480" y="693">PC1</text>
+  <text class="devrole" x="480" y="709">クライアント／FastEthernet0</text>
+  <text class="ip" x="480" y="727">192.168.10.11/24</text>
+
+  <!-- PC2 -->
+  <use href="#pc" x="730" y="615"/>
+  <text class="devname" x="730" y="693">PC2</text>
+  <text class="devrole" x="730" y="709">クライアント／FastEthernet0</text>
+  <text class="ip" x="730" y="727">192.168.10.12/24</text>
+
+  <!-- PC3 -->
+  <use href="#pc" x="980" y="615"/>
+  <text class="devname" x="980" y="693">PC3（管理端末）</text>
+  <text class="devrole" x="980" y="709">SSH で RT1 に接続／FastEthernet0</text>
+  <text class="ip" x="980" y="727">192.168.10.13/24</text>
+
+  <!-- goal note box -->
+  <rect x="40" y="780" width="1120" height="104" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="goalhead" x="60" y="806">🎯 ラボのゴール</text>
+  <text class="goalitem" x="60" y="830">① 全 PC から Server へ ping が通り、L2/L3 の疎通が確保されている</text>
+  <text class="goalitem" x="60" y="852">② ブラウザから Server の HTTP サービスへ GET し、200 OK と 404 Not Found の両方を体験している</text>
+  <text class="goalitem" x="60" y="874">③ 配布された JSON ファイルの構造（オブジェクト・配列・キー:値）を正しく読み取り、ワークシートに記入できている</text>
+</svg>

@@ -53,7 +53,7 @@
   <!-- ================= links (drawn first, icons on top) ================= -->
 
   <!-- PC1 - SW1 (access, VLAN10) -->
-  <line x1="600" y1="176" x2="600" y2="245" stroke="#64748b" stroke-width="3"/>
+  <line x1="600" y1="221" x2="600" y2="245" stroke="#64748b" stroke-width="3"/>
 
   <!-- SW3 - PC2 (access, VLAN10) -->
   <line x1="900" y1="595" x2="900" y2="664" stroke="#64748b" stroke-width="3"/>
@@ -71,7 +71,7 @@
   <line x1="580" y1="292" x2="280" y2="532" stroke="#ff9200" stroke-width="5" stroke-dasharray="14 6"/>
 
   <!-- ================= interface tags ================= -->
-  <text class="iface" x="600" y="212" text-anchor="middle">Fa0/10</text>
+  <text class="iface" x="600" y="234" text-anchor="middle">Fa0/10</text>
   <text class="iface" x="912" y="612">Fa0/10</text>
 
   <text class="iface" x="648" y="318">Gi0/2</text>
@@ -87,8 +87,8 @@
   <text class="iface" x="368" y="558">Fa0/1-2</text>
 
   <!-- link mid-labels -->
-  <text class="trunklabel" x="770" y="405" text-anchor="middle">トランク</text>
-  <text class="sub2" x="770" y="422" text-anchor="middle">許可VLAN 10（Native VLAN 既定）</text>
+  <text class="trunklabel" x="880" y="395" text-anchor="middle">トランク</text>
+  <text class="sub2" x="880" y="413" text-anchor="middle">許可VLAN 10（Native VLAN 既定）</text>
 
   <text class="trunklabel" x="600" y="590" text-anchor="middle">トランク（SW2 - SW3）</text>
 
@@ -99,10 +99,10 @@
   <text class="sub2" x="465" y="398" text-anchor="middle" fill="#b45309">Fa0/1-2 ×2本を束ねてトランク化</text>
 
   <!-- ================= PC1 ================= -->
-  <use href="#pc" x="600" y="150"/>
-  <text class="devname" x="600" y="112" text-anchor="middle">PC1</text>
-  <text class="ip" x="645" y="145">192.168.10.11/24</text>
-  <text class="vlan" x="645" y="163">VLAN10（access）</text>
+  <use href="#pc" x="600" y="195"/>
+  <text class="devname" x="600" y="157" text-anchor="middle">PC1</text>
+  <text class="ip" x="645" y="190">192.168.10.11/24</text>
+  <text class="vlan" x="645" y="208">VLAN10（access）</text>
 
   <!-- ================= SW1 ================= -->
   <use href="#switch" x="600" y="280"/>

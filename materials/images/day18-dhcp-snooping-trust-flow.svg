@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="860" viewBox="0 0 1100 860">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .devname { font-size: 16px; font-weight: 700; text-anchor: middle; }
+      .tag { font-size: 12.5px; font-weight: 700; text-anchor: middle; }
+      .arrowlabel { font-size: 13px; font-weight: 700; }
+      .arrowsub { font-size: 11.5px; fill: #6b7280; }
+      .note { font-size: 14px; }
+      .notehead { font-size: 15px; font-weight: 700; fill: #1d4ed8; }
+    </style>
+    <marker id="arrGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4d7c0f"/>
+    </marker>
+    <marker id="arrOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c2650a"/>
+    </marker>
+    <g id="pc">
+      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
+      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    </g>
+    <g id="switch">
+      <rect x="-58" y="-27" width="116" height="54" rx="11" fill="#0e9aa7"/>
+      <rect x="-58" y="-27" width="116" height="54" rx="11" fill="none" stroke="#0b7d88" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-40" y1="-9" x2="26" y2="-9"/>
+        <line x1="-26" y1="9" x2="40" y2="9"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M -40 -14 L -52 -9 L -40 -4 Z"/>
+        <path d="M 26 -14 L 38 -9 L 26 -4 Z"/>
+        <path d="M -26 4 L -38 9 L -26 14 Z"/>
+        <path d="M 40 4 L 52 9 L 40 14 Z"/>
+      </g>
+    </g>
+    <g id="router">
+      <circle r="34" fill="#2779ca"/>
+      <circle r="34" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-15" y1="-7" x2="7" y2="-7"/>
+        <line x1="15" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -13 L 18 -7 L 7 -1 Z"/>
+        <path d="M -7 1 L -18 7 L -7 13 Z"/>
+      </g>
+    </g>
+    <g id="server">
+      <rect x="-19" y="-38" width="38" height="76" rx="4" fill="#374151"/>
+      <rect x="-19" y="-38" width="38" height="76" rx="4" fill="none" stroke="#1f2937" stroke-width="2"/>
+      <rect x="-13" y="-29" width="26" height="4" rx="2" fill="#9ca3af"/>
+      <rect x="-13" y="-19" width="26" height="4" rx="2" fill="#9ca3af"/>
+      <rect x="-13" y="-9" width="26" height="4" rx="2" fill="#9ca3af"/>
+      <circle cx="-8" cy="20" r="3" fill="#ff9200"/>
+      <circle cx="2" cy="20" r="3" fill="#7ea800"/>
+    </g>
+  </defs>
+
+  <rect width="1100" height="860" fill="#ffffff"/>
+
+  <text class="title" x="40" y="46">DHCP スヌーピング: trusted / untrusted によるメッセージ制御</text>
+  <text class="sub" x="40" y="70">untrusted ポートから届く「サーバ発」メッセージ（OFFER / ACK / NAK）だけが破棄される</text>
+
+  <!-- links first (behind icons) -->
+  <!-- client <-> switch -->
+  <line x1="182" y1="418" x2="500" y2="418" stroke="#64748b" stroke-width="3" marker-end="url(#arrGray)"/>
+  <text class="arrowlabel" x="340" y="404" text-anchor="middle" fill="#374151">① DHCPDISCOVER</text>
+  <text class="arrowsub" x="340" y="443" text-anchor="middle">untrusted ポートでも許可（クライアント発）</text>
+  <line x1="500" y1="460" x2="182" y2="460" stroke="#4d7c0f" stroke-width="3" marker-end="url(#arrGreen)"/>
+  <text class="arrowlabel" x="340" y="486" text-anchor="middle" fill="#4d7c0f">④ 正規オファーのみ転送</text>
+
+  <!-- switch <-> legit server -->
+  <line x1="608" y1="410" x2="900" y2="255" stroke="#64748b" stroke-width="3" marker-end="url(#arrGray)"/>
+  <text class="arrowlabel" x="790" y="300" text-anchor="middle" fill="#374151">② 転送（trusted宛）</text>
+  <line x1="918" y1="278" x2="626" y2="433" stroke="#4d7c0f" stroke-width="3.5" marker-end="url(#arrGreen)"/>
+  <text class="arrowlabel" x="905" y="380" text-anchor="middle" fill="#4d7c0f">③ DHCPOFFER/ACK</text>
+  <text class="arrowsub" x="905" y="398" text-anchor="middle">trusted発 → 許可</text>
+
+  <!-- rogue -> switch (blocked) -->
+  <line x1="900" y1="600" x2="628" y2="453" stroke="#ff9200" stroke-width="3.5" stroke-dasharray="9 7" marker-end="url(#arrOrange)"/>
+  <text class="arrowlabel" x="820" y="565" text-anchor="middle" fill="#c2650a">DHCPOFFER（untrusted発）</text>
+  <g transform="translate(660,475)">
+    <circle r="20" fill="#fff7ed" stroke="#ff9200" stroke-width="3"/>
+    <line x1="-9" y1="-9" x2="9" y2="9" stroke="#c2650a" stroke-width="4" stroke-linecap="round"/>
+    <line x1="9" y1="-9" x2="-9" y2="9" stroke="#c2650a" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text class="tag" x="712" y="480" fill="#c2650a">破棄</text>
+
+  <!-- trust tags -->
+  <rect x="740" y="330" width="108" height="26" rx="13" fill="#dcfce7" stroke="#4d7c0f"/>
+  <text class="tag" x="794" y="348" fill="#166534">Gi0/1: trust</text>
+  <rect x="700" y="565" width="140" height="26" rx="13" fill="#fff7ed" stroke="#ff9200"/>
+  <text class="tag" x="770" y="583" fill="#c2650a">Fa0/23: untrusted</text>
+
+  <!-- devices -->
+  <use href="#pc" x="150" y="430"/>
+  <text class="devname" x="150" y="480">クライアント PC</text>
+  <text class="arrowsub" x="150" y="498" text-anchor="middle">（untrusted ポート）</text>
+
+  <use href="#switch" x="560" y="430"/>
+  <text class="devname" x="560" y="520">SW1（DHCP スヌーピング有効）</text>
+
+  <use href="#router" x="950" y="230"/>
+  <text class="devname" x="950" y="180">R1（正規 DHCP サーバ）</text>
+  <text class="arrowsub" x="950" y="280" text-anchor="middle" fill="#166534">（trusted ポート）</text>
+
+  <use href="#server" x="950" y="650"/>
+  <text class="devname" x="950" y="708">Rogue Server（不正）</text>
+  <text class="arrowsub" x="950" y="726" text-anchor="middle" fill="#c2650a">（untrusted ポート）</text>
+
+  <!-- note -->
+  <rect x="40" y="758" width="1020" height="78" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text class="notehead" x="60" y="784">🎯 試験のポイント</text>
+  <text class="note" x="60" y="806">untrusted ポートで破棄されるのは「サーバ発」メッセージ（DHCPOFFER / DHCPACK / DHCPNAK）だけ。</text>
+  <text class="note" x="60" y="826">クライアント発（DHCPDISCOVER / DHCPREQUEST）は untrusted でも許可される。</text>
+</svg>

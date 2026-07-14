@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 15px; fill: #6b7280; }
+      .paneltitle { font-size: 17px; font-weight: 700; text-anchor: middle; fill: #374151; }
+      .node { font-size: 16px; font-weight: 700; text-anchor: middle; fill: #1f2937; }
+      .nodeDR { font-size: 16px; font-weight: 700; text-anchor: middle; fill: #b45309; }
+      .nodeBDR { font-size: 16px; font-weight: 700; text-anchor: middle; fill: #6d28d9; }
+      .count { font-size: 18px; font-weight: 700; text-anchor: middle; }
+      .countsub { font-size: 13px; fill: #4b5563; text-anchor: middle; }
+      .legend { font-size: 14px; fill: #374151; }
+      .foot { font-size: 15px; }
+    </style>
+    <g id="r-blue">
+      <circle r="32" fill="#2779ca"/>
+      <circle r="32" fill="none" stroke="#1e5f9e" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-14" y1="-7" x2="7" y2="-7"/>
+        <line x1="14" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -12 L 18 -7 L 7 -2 Z"/>
+        <path d="M -7 2 L -18 7 L -7 12 Z"/>
+      </g>
+    </g>
+    <g id="r-orange">
+      <circle r="32" fill="#ff9200"/>
+      <circle r="32" fill="none" stroke="#c2760a" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-14" y1="-7" x2="7" y2="-7"/>
+        <line x1="14" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -12 L 18 -7 L 7 -2 Z"/>
+        <path d="M -7 2 L -18 7 L -7 12 Z"/>
+      </g>
+    </g>
+    <g id="r-purple">
+      <circle r="32" fill="#8b5cf6"/>
+      <circle r="32" fill="none" stroke="#6a3fc4" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-14" y1="-7" x2="7" y2="-7"/>
+        <line x1="14" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -12 L 18 -7 L 7 -2 Z"/>
+        <path d="M -7 2 L -18 7 L -7 12 Z"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1200" height="780" fill="#ffffff"/>
+
+  <text class="title" x="40" y="45">DR/BDR による LSA フラッディングの削減</text>
+  <text class="sub" x="40" y="72">マルチアクセス網にルータが 5 台いる場合の「Full 隣接関係」の数を比較する</text>
+
+  <line x1="600" y1="100" x2="600" y2="600" stroke="#e5e7eb" stroke-width="2"/>
+
+  <!-- ============ LEFT PANEL: no DR/BDR (hypothetical) ============ -->
+  <text class="paneltitle" x="290" y="112">DR/BDR が無いと仮定した場合</text>
+
+  <!-- all 10 edges (full mesh) -->
+  <g stroke="#94a3b8" stroke-width="2.2">
+    <line x1="290" y1="200" x2="423.1" y2="296.7"/>
+    <line x1="290" y1="200" x2="372.3" y2="453.3"/>
+    <line x1="290" y1="200" x2="207.7" y2="453.3"/>
+    <line x1="290" y1="200" x2="156.9" y2="296.7"/>
+    <line x1="423.1" y1="296.7" x2="372.3" y2="453.3"/>
+    <line x1="423.1" y1="296.7" x2="207.7" y2="453.3"/>
+    <line x1="423.1" y1="296.7" x2="156.9" y2="296.7"/>
+    <line x1="372.3" y1="453.3" x2="207.7" y2="453.3"/>
+    <line x1="372.3" y1="453.3" x2="156.9" y2="296.7"/>
+    <line x1="207.7" y1="453.3" x2="156.9" y2="296.7"/>
+  </g>
+
+  <use href="#r-blue" x="290" y="200"/>
+  <use href="#r-blue" x="423.1" y="296.7"/>
+  <use href="#r-blue" x="372.3" y="453.3"/>
+  <use href="#r-blue" x="207.7" y="453.3"/>
+  <use href="#r-blue" x="156.9" y="296.7"/>
+
+  <text class="node" x="290" y="135">R1</text>
+  <text class="node" x="485" y="281.7">R2</text>
+  <text class="node" x="410.5" y="505.8">R3</text>
+  <text class="node" x="169.5" y="505.8">R4</text>
+  <text class="node" x="95" y="281.7">R5</text>
+
+  <text class="count" x="290" y="548" fill="#b45309">Full 隣接: 10 組</text>
+  <text class="countsub" x="290" y="568">n(n-1)/2 = 5×4÷2 = 10（全ルータが総当たりで LSA をフラッディング）</text>
+
+  <!-- ============ RIGHT PANEL: with DR/BDR ============ -->
+  <text class="paneltitle" x="880" y="112">実際の OSPF（DR/BDR あり）</text>
+
+  <!-- 3 dashed 2-Way edges among DROTHERs (behind solid edges) -->
+  <g stroke="#9ca3af" stroke-width="1.6" stroke-dasharray="6 5">
+    <line x1="1013.1" y1="296.7" x2="797.7" y2="453.3"/>
+    <line x1="1013.1" y1="296.7" x2="746.9" y2="296.7"/>
+    <line x1="797.7" y1="453.3" x2="746.9" y2="296.7"/>
+  </g>
+
+  <!-- 7 solid Full edges: DR-BDR, DR-others, BDR-others -->
+  <g stroke="#2779ca" stroke-width="2.6">
+    <line x1="880" y1="200" x2="962.3" y2="453.3"/>
+    <line x1="880" y1="200" x2="1013.1" y2="296.7"/>
+    <line x1="880" y1="200" x2="797.7" y2="453.3"/>
+    <line x1="880" y1="200" x2="746.9" y2="296.7"/>
+    <line x1="962.3" y1="453.3" x2="1013.1" y2="296.7"/>
+    <line x1="962.3" y1="453.3" x2="797.7" y2="453.3"/>
+    <line x1="962.3" y1="453.3" x2="746.9" y2="296.7"/>
+  </g>
+
+  <use href="#r-orange" x="880" y="200"/>
+  <use href="#r-blue" x="1013.1" y="296.7"/>
+  <use href="#r-purple" x="962.3" y="453.3"/>
+  <use href="#r-blue" x="797.7" y="453.3"/>
+  <use href="#r-blue" x="746.9" y="296.7"/>
+
+  <text class="nodeDR" x="880" y="135">R1（DR）</text>
+  <text class="node" x="1075" y="281.7">R2</text>
+  <text class="nodeBDR" x="1000.5" y="505.8">R3（BDR）</text>
+  <text class="node" x="759.5" y="505.8">R4</text>
+  <text class="node" x="685" y="281.7">R5</text>
+
+  <text class="count" x="880" y="548" fill="#2779ca">Full 隣接: 7 組（2-Way: 3 組）</text>
+  <text class="countsub" x="880" y="568">DR・BDR とだけ Full 関係を結ぶ。DROTHER（R2・R4・R5）同士は 2-Way のまま</text>
+
+  <!-- legend -->
+  <line x1="410" y1="614" x2="450" y2="614" stroke="#2779ca" stroke-width="2.6"/>
+  <text class="legend" x="460" y="619">Full（LSDB を同期）</text>
+  <line x1="660" y1="614" x2="700" y2="614" stroke="#9ca3af" stroke-width="1.6" stroke-dasharray="6 5"/>
+  <text class="legend" x="710" y="619">2-Way（Hello のみ、LSDB は未同期）</text>
+
+  <!-- footer takeaway -->
+  <rect x="60" y="650" width="1080" height="94" rx="8" fill="#fff7ed" stroke="#fdba74"/>
+  <text class="foot" x="80" y="678">ポイント: マルチアクセス網でルータが n 台の場合、DR/BDR が無いと n(n-1)/2 組の Full 隣接が必要になり非効率。</text>
+  <text class="foot" x="80" y="702">DR/BDR に情報を集約することで、他ルータは DR・BDR とだけ Full 関係を結べばよくなり、LSA フラッディングの</text>
+  <text class="foot" x="80" y="726">組み合わせ数が大幅に削減される（DROTHER 同士が 2-Way で止まるのは、この設計に基づく正常な動作）。</text>
+</svg>

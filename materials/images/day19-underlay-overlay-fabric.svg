@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="870" viewBox="0 0 1100 870">
+  <defs>
+    <style>
+      text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
+      .title { font-size: 24px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .fabriclabel { font-size: 17px; font-weight: 700; fill: #6d28d9; }
+      .ctrltext { font-size: 14px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .steplabel { font-size: 15px; font-weight: 700; }
+      .devlabel { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .caption { font-size: 15px; font-weight: 700; fill: #6d28d9; text-anchor: middle; }
+      .link { stroke: #94a3b8; stroke-width: 2; }
+      .flowtitle { font-size: 15px; font-weight: 700; }
+      .flowbox { font-size: 13px; text-anchor: middle; fill: #1f2937; }
+      .goalhead { font-size: 16px; font-weight: 700; fill: #b45309; }
+      .goalitem { font-size: 13.5px; fill: #1f2937; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+    </marker>
+    <g id="switch">
+      <rect x="-42" y="-26" width="84" height="52" rx="9" fill="#0e9aa7"/>
+      <rect x="-42" y="-26" width="84" height="52" rx="9" fill="none" stroke="#0b7c87" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="3.5" stroke-linecap="round">
+        <line x1="-26" y1="-8" x2="15" y2="-8"/>
+        <line x1="-15" y1="8" x2="26" y2="8"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 15 -13 L 25 -8 L 15 -3 Z"/>
+        <path d="M -15 3 L -25 8 L -15 13 Z"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1100" height="870" fill="#ffffff"/>
+
+  <text class="title" x="40" y="48">アンダーレイ／オーバーレイ／ファブリックと VXLAN カプセル化</text>
+  <text class="sub" x="40" y="74">Spine-Leaf の物理網（アンダーレイ）の上に VXLAN トンネル（オーバーレイ）を重ね、全体を「ファブリック」と呼ぶ</text>
+
+  <!-- fabric envelope -->
+  <rect x="40" y="100" width="1020" height="550" rx="28" fill="#faf5ff" stroke="#8b5cf6" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="fabriclabel" x="65" y="132">ファブリック（アンダーレイ ＋ オーバーレイ ＋ コントローラ）</text>
+
+  <!-- controller -->
+  <rect x="450" y="150" width="200" height="46" rx="10" fill="#8b5cf6"/>
+  <text class="ctrltext" x="550" y="178">コントローラ（集中管理）</text>
+
+  <!-- underlay label -->
+  <text class="steplabel" x="65" y="228" fill="#1e5f9e">① アンダーレイ — 物理網（IGP による IP 到達性）</text>
+
+  <!-- mesh links (spine-leaf), drawn before icons -->
+  <g class="link">
+    <line x1="400" y1="300" x2="230" y2="450"/>
+    <line x1="400" y1="300" x2="410" y2="450"/>
+    <line x1="400" y1="300" x2="690" y2="450"/>
+    <line x1="400" y1="300" x2="870" y2="450"/>
+    <line x1="700" y1="300" x2="230" y2="450"/>
+    <line x1="700" y1="300" x2="410" y2="450"/>
+    <line x1="700" y1="300" x2="690" y2="450"/>
+    <line x1="700" y1="300" x2="870" y2="450"/>
+  </g>
+
+  <!-- spine -->
+  <text class="devlabel" x="400" y="255">Spine1</text>
+  <use href="#switch" x="400" y="300"/>
+  <text class="devlabel" x="700" y="255">Spine2</text>
+  <use href="#switch" x="700" y="300"/>
+
+  <!-- leaf -->
+  <text class="devlabel" x="230" y="400">Leaf1</text>
+  <use href="#switch" x="230" y="450"/>
+  <text class="devlabel" x="410" y="400">Leaf2</text>
+  <use href="#switch" x="410" y="450"/>
+  <text class="devlabel" x="690" y="400">Leaf3</text>
+  <use href="#switch" x="690" y="450"/>
+  <text class="devlabel" x="870" y="400">Leaf4</text>
+  <use href="#switch" x="870" y="450"/>
+
+  <!-- overlay tunnel -->
+  <path d="M 230 478 Q 550 585 870 478" fill="none" stroke="#ff9200" stroke-width="4" stroke-dasharray="10 6"/>
+  <text class="steplabel" x="550" y="605" fill="#c2620a" text-anchor="middle">② オーバーレイ — VXLAN トンネル（論理、UDP/4789 でカプセル化）</text>
+
+  <text class="caption" x="550" y="632">③ ファブリック ＝ アンダーレイ ＋ オーバーレイ ＋ コントローラ</text>
+
+  <!-- encapsulation flow -->
+  <text class="flowtitle" x="40" y="690">VXLAN のカプセル化イメージ（MAC-in-UDP）— Leaf1 → Leaf4 へフレームを送る場合</text>
+
+  <rect x="60" y="705" width="280" height="50" rx="8" fill="#e5e7eb" stroke="#9ca3af" stroke-width="1.5"/>
+  <text class="flowbox" x="200" y="735">元のイーサネットフレーム（L2）</text>
+
+  <line x1="345" y1="730" x2="393" y2="730" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="400" y="705" width="340" height="50" rx="8" fill="#fff7ed" stroke="#ff9200" stroke-width="1.5"/>
+  <text class="flowbox" x="570" y="735">+ UDP ヘッダ（宛先ポート 4789）＋ IP ヘッダ</text>
+
+  <line x1="745" y1="730" x2="793" y2="730" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="800" y="705" width="260" height="50" rx="8" fill="#f0fdf4" stroke="#7ea800" stroke-width="1.5"/>
+  <text class="flowbox" x="930" y="735">VXLAN パケットとして IP 網を伝送</text>
+
+  <!-- exam point note -->
+  <rect x="40" y="782" width="1020" height="70" rx="10" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="goalhead" x="60" y="808">🎯 試験のポイント</text>
+  <text class="goalitem" x="60" y="832">「物理＝アンダーレイ／論理トンネル＝オーバーレイ」の区別と、VXLAN は UDP でカプセル化するオーバーレイ技術であることを即答できるようにする</text>
+</svg>
