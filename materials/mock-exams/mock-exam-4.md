@@ -1016,3 +1016,99 @@ Security Violation Count                   : 8
 | D5 セキュリティ基礎 | Q76-90 | 15 | ___ / 15 | ___ % |
 | D6 自動化とプログラマビリティ | Q91-100 | 10 | ___ / 10 | ___ % |
 | **合計** | Q1-100 | 100 | ___ / 100 | ___ % |
+
+## シムレット演習（実技代替・本編 100 問とは別枠）
+
+> この演習は本試験の**シミュレーション/シムレット問題**（実機を模した環境で show 出力や
+> 構成を読み解き、複数の設問に連続して答える形式）に慣れるための実技代替演習です。
+> **本編 100 問の採点には含めません**（別枠）。目安 10〜15 分。show 出力・構成を丁寧に
+> 読み、「原因の切り分け → 対処 → 結果予測」の流れを練習してください。
+
+### シナリオ: 内部 PC が外部サーバへ到達できない PAT（NAT Overload）の切り分け
+
+**要件**: 本社 LAN の PC 群を、ルータ R1 の外部インタフェース（Gi0/1）のアドレスに
+集約する PAT（NAT Overload）で外部サーバへ接続させたい。設定投入後、PC-A から外部サーバ
+（198.51.100.50）への ping がすべてタイムアウトし、外部へ到達できない。
+
+**トポロジ（抜粋）**
+
+```
+[PC-A 192.168.10.20]           +----[R1]----+           [Srv 198.51.100.50]
+[PC-B 192.168.10.21] --- SW1 --| Gi0/0  Gi0/1|--- R2 ---  (外部 Web サーバ)
+   192.168.10.0/24    (inside) 192.168.10.1  203.0.113.1/30
+                                            (WAN: 203.0.113.0/30, 対向 R2=203.0.113.2)
+```
+
+- 内部 LAN: `192.168.10.0/24`（GW = R1 Gi0/0 = `192.168.10.1`、inside 側）
+- WAN リンク: `203.0.113.0/30`（R1 Gi0/1 = `203.0.113.1`、対向 R2 = `203.0.113.2`）
+- 外部サーバ Srv: `198.51.100.50`（R2 配下、双方向 NAT は行っていない）
+- R2 は `203.0.113.0/30` と `198.51.100.0/24` の両方に直接接続しており、戻り経路は揃っている
+
+**R1 の `show run` 断片**
+
+```
+interface GigabitEthernet0/0
+ ip address 192.168.10.1 255.255.255.0
+ ip nat inside
+!
+interface GigabitEthernet0/1
+ ip address 203.0.113.1 255.255.255.252
+!
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
+ip route 0.0.0.0 0.0.0.0 203.0.113.2
+!
+access-list 1 permit 192.168.10.0 0.0.0.255
+```
+
+**PC-A から `ping 198.51.100.50` を数回実行した直後の R1 の出力**
+
+```
+R1# show ip nat translations
+R1#
+```
+
+```
+R1# show ip nat statistics
+Total translations: 0 (0 static, 0 dynamic, 0 extended)
+Outside Interfaces:
+Inside Interfaces:
+   GigabitEthernet0/0
+Hits: 0  Misses: 0
+Expired translations: 0
+Dynamic mappings:
+-- Inside Source
+access-list 1 interface GigabitEthernet0/1 refcount 0
+```
+
+**S1.**（2つ選べ）上記 2 つの出力から読み取れる内容として正しいものはどれか。
+- A. `Outside Interfaces:` の下にインタフェースが 1 つも列挙されておらず、outside 側の割り当てが存在しない
+- B. 変換対象を指定する ACL 1 と PAT（overload）のマッピング自体は running-config に設定されている
+- C. `inside global` が `203.0.113.1` の icmp 変換エントリが 1 件作成されている
+- D. プールのアドレスが枯渇しており、`Misses` が増加している
+
+**S2.** この障害の直接の原因として最も適切なものはどれか。
+- A. Gi0/1 に `ip nat outside` が設定されておらず、inside→outside の変換境界が成立していないため
+- B. ACL 1 が内部セグメント（`192.168.10.0/24`）にマッチしていないため
+- C. `ip nat inside source` 行に `overload` キーワードが付いていないため
+- D. R1 にデフォルトルートが設定されていないため
+
+**S3.** この障害を解消するための正しいコマンドはどれか。
+- A. `R1(config)# interface GigabitEthernet0/0` に続けて `R1(config-if)# ip nat outside`
+- B. `R1(config)# interface GigabitEthernet0/1` に続けて `R1(config-if)# ip nat outside`
+- C. `R1(config)# ip nat inside source list 1 interface GigabitEthernet0/1`（`overload` を外す）
+- D. `R1(config)# access-list 1 permit 192.168.10.0 0.0.0.255`
+
+**S4.** S3 の修正を行った後、PC-A から再度 `ping 198.51.100.50` を実行したときに予測される結果として正しいものはどれか。
+- A. `show ip nat translations` に `Pro` 列が `icmp`、`Inside global` が `203.0.113.1` のエントリが作成され、`show ip nat statistics` の `Hits` が増加する
+- B. 経過時間欄が `---` の静的 NAT エントリが常時表示されるようになる
+- C. `Outside global` が `192.168.10.20` に書き換わったエントリが作成される
+- D. プールが枯渇し、PC-B 以降の 2 台目からは変換されずドロップする
+
+### シムレット演習 解答・解説（講師用・実施後に公開）
+
+| 問 | 解答 | 解説（→ Day） |
+|---|---|---|
+| S1 | A,B | `show ip nat statistics` の `Outside Interfaces:` の直下にインタフェース名が 1 つも表示されていないのは、どのインタフェースにも `ip nat outside` が割り当てられていないことを示す（A）。一方で `Dynamic mappings` に `access-list 1 interface GigabitEthernet0/1` が表示され、running-config にも ACL 1 と `overload` 付きのマッピングが存在するため、ACL と PAT の設定自体は投入済みである（B）。変換エントリは 0 件で icmp エントリは作成されていない（C は誤り）。`Misses: 0` でありプール枯渇も起きていない（D は誤り）。（→ Day14） |
+| S2 | A | inside（Gi0/0）は割り当て済みだが outside（Gi0/1）が未割り当てのため、内部→外部へ抜けるパケットが inside→outside の境界をまたがず、いずれの NAT 方式でも変換が行われない。`ip nat inside` / `ip nat outside` の両方の指定は静的・動的・PAT すべての前提であり、`show ip nat statistics` の `Outside Interfaces:` が空であることがその直接の証拠になる。ACL は内部セグメントに正しく一致しており（B は誤り）、`overload` も付いており（C は誤り）、デフォルトルートも設定済み（D は誤り）である。（→ Day14） |
+| S3 | B | 不足しているのは外部インタフェース Gi0/1 への `ip nat outside` である。Gi0/1 のインタフェースコンフィギュレーションモードで `ip nat outside` を追加すると outside 境界が成立する。Gi0/0 は inside 側であり `ip nat outside` を付けるのは誤り（A）。`overload` を外す（C）と PAT が通常の動的 NAT 相当に変わり本来の意図に反する。ACL 1 は既に同一行が設定済みで追加不要（D）。（→ Day14） |
+| S4 | A | `ip nat outside` を補って inside/outside 境界が成立すると、PC-A の ping（ICMP）が Gi0/1 のアドレス `203.0.113.1` に PAT され、`Pro` 列が `icmp` のエントリが作成される。以後の一致パケットは `Hits` としてカウントされる。ping＝ICMP のため番号欄にはポート番号ではなくクエリ識別子が入る。静的エントリ（B）は設定していないため表示されず、双方向 NAT を行っていないため `Outside global` は外部サーバのアドレスのまま（C は誤り）。PAT はポート番号で多重化するためプール枯渇によるドロップ（D）は起きない。（→ Day14） |

@@ -803,3 +803,118 @@ Security Violation Count                   : 0
 | D5 セキュリティ基礎 | Q76-90 | 15 | | |
 | D6 自動化とプログラマビリティ | Q91-100 | 10 | | |
 | **合計** | Q1-100 | **100** | | |
+
+## シムレット演習（実技代替・本編 100 問とは別枠）
+
+> この演習は本試験の**シミュレーション/シムレット問題**（実機を模した環境で show 出力や
+> 構成を読み解き、複数の設問に連続して答える形式）に慣れるための実技代替演習です。
+> **本編 100 問の採点には含めません**（別枠）。目安 10〜15 分。show 出力・構成を丁寧に
+> 読み、「原因の切り分け → 対処 → 結果予測」の流れを練習してください。
+
+### シナリオ: 同一 VLAN なのにスイッチをまたぐと ping が通らない
+
+SW1 と SW2 を Fa0/24 同士の 802.1Q トランクで接続した構成です。両スイッチに
+VLAN10（営業, SALES）と VLAN20（経理, KEIRI）を作成し、各 PC を次のように収容して
+います。VLAN10 は `192.168.10.0/24`、VLAN20 は `192.168.20.0/24` を割り当て、
+VLAN 間ルーティングを行う機器（ルータ／L3 スイッチ）は設置していません。
+
+| 機器 | 接続先 | VLAN | IP アドレス |
+|---|---|---|---|
+| PC1 | SW1 Fa0/1 | 10（営業） | 192.168.10.11/24 |
+| PC2 | SW1 Fa0/2 | 20（経理） | 192.168.20.21/24 |
+| PC3 | SW2 Fa0/1 | 10（営業） | 192.168.10.13/24 |
+| PC4 | SW2 Fa0/2 | 20（経理） | 192.168.20.23/24 |
+
+**症状**: 同一 VLAN10 に属する PC1 から PC3 への `ping 192.168.10.13` が
+`Request timed out` で失敗します。一方、VLAN20 同士の PC2 → PC4 の ping は成功して
+います。両スイッチで採取した show 出力は次のとおりです。
+
+```
+SW1# show vlan brief
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+10   SALES                            active    Fa0/1
+20   KEIRI                            active    Fa0/2
+1002 fddi-default                     act/unsup
+```
+
+```
+SW2# show vlan brief
+
+VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/3, Fa0/4, Fa0/5, Fa0/6
+10   SALES                            active    Fa0/1
+20   KEIRI                            active    Fa0/2
+1002 fddi-default                     act/unsup
+```
+
+```
+SW1# show interfaces trunk
+
+Port      Mode         Encapsulation  Status        Native vlan
+Fa0/24    on           802.1q         trunking      1
+
+Port      Vlans allowed on trunk
+Fa0/24    20
+
+Port      Vlans allowed and active in management domain
+Fa0/24    20
+
+Port      Vlans in spanning tree forwarding state and not pruned
+Fa0/24    20
+```
+
+```
+SW2# show interfaces trunk
+
+Port      Mode         Encapsulation  Status        Native vlan
+Fa0/24    on           802.1q         trunking      1
+
+Port      Vlans allowed on trunk
+Fa0/24    1-4094
+
+Port      Vlans allowed and active in management domain
+Fa0/24    1,10,20
+
+Port      Vlans in spanning tree forwarding state and not pruned
+Fa0/24    1,10,20
+```
+
+**S1.** 上記の show 出力から、PC1（VLAN10）から同一 VLAN10 の PC3 への ping が
+失敗する原因として最も可能性が高いものはどれか。
+- A. SW1 と SW2 でネイティブ VLAN が不一致になっており、VLAN10 のフレームが破棄されている
+- B. SW1 のトランクの許可 VLAN リストに VLAN10 が含まれておらず、VLAN10 のフレームがトランクを越えられない
+- C. SW1-SW2 間のトランクが成立しておらず、片側がアクセスモードのままになっている
+- D. PC1 と PC3 が異なる VLAN に所属しており、そもそも同一 VLAN ではない
+
+**S2.** S1 で特定した原因を、既存の許可 VLAN 設定（VLAN20）を消さずに修正したい。
+SW1 の Fa0/24 に対して実行すべきコマンドはどれか。
+- A. `switchport trunk allowed vlan 10`
+- B. `switchport trunk allowed vlan add 10`
+- C. `switchport trunk native vlan 10`
+- D. `switchport mode trunk`
+
+**S3.** 今回の障害に関連するトランクの知識として、正しいものはどれか。（2つ選べ）
+- A. `switchport trunk allowed vlan <list>` を `add` なしで実行すると、既存の許可リストは指定した VLAN のみに上書きされる
+- B. トランクポートは `show vlan brief` の各 VLAN 行に所属ポートとして表示されるため、そこで VLAN10 の許可状況を確認できる
+- C. ネイティブ VLAN はトランクの両端で一致させる必要があり、不一致の場合は CDP により検出されることがある
+- D. 許可 VLAN リストから外された VLAN のフレームは、自動的にネイティブ VLAN 扱いとなりタグなしで転送される
+
+**S4.** SW1 の Fa0/24 で `switchport trunk allowed vlan add 10` を実行した直後の
+結果予測として、正しいものはどれか。
+- A. VLAN10・VLAN20 ともトランクを通れるようになり、PC1 → PC3、PC2 → PC4 の ping がいずれも成功する
+- B. VLAN10 は通るようになるが、この操作で許可リストが上書きされ、VLAN20 が新たに不通になる
+- C. VLAN 間ルーティングが自動的に有効化され、PC1 → PC4（VLAN10 → VLAN20）の ping も成功する
+- D. トランクがいったんダウンし、再度 `switchport mode trunk` を実行するまで全 VLAN が不通になる
+
+### シムレット演習 解答・解説（講師用・実施後に公開）
+
+| 問 | 解答 | 解説（→ Day） |
+|---|---|---|
+| S1 | B | SW1 の `show interfaces trunk` の『Vlans allowed on trunk』が `20` のみで、VLAN10 が許可リストから外れている。両スイッチとも Status は trunking・Native vlan は 1 で一致しており、`show vlan brief` では PC1/PC3 とも VLAN10 に正しく所属しているため、原因はトランクの許可 VLAN からの VLAN10 除外に絞り込める。（→ Day7） |
+| S2 | B | 既存リスト（VLAN20）を残したまま VLAN10 を追加するには `add` が必須。`add` を付けずに `switchport trunk allowed vlan 10` とすると、今度は VLAN20 が消えて逆の障害を招く。（→ Day7） |
+| S3 | A,C | A は `add` 忘れによる許可リスト上書きの挙動そのもので、今回の障害の発生原因。C はネイティブ VLAN 一致の必要性と CDP による不一致検出で、トランク切り分けの基本知識。B はトランクポートが `show vlan brief` に表示されない（アクセスポートのみ表示）ため誤り。D は許可外 VLAN のフレームはトランクを通れず破棄されるだけで、ネイティブ VLAN 扱いにはならないため誤り。（→ Day6・Day7） |
+| S4 | A | `add 10` は既存の VLAN20 を残したまま VLAN10 を許可に加えるため、両 VLAN がトランクを通れるようになり同一 VLAN 同士の PC1→PC3・PC2→PC4 はいずれも疎通する。B は `add` があるため上書きは起きず誤り。VLAN 間（PC1→PC4）はルータ／L3 スイッチが無いため依然不通で C は誤り。許可 VLAN の変更でトランク自体はダウンしないため D も誤り。（→ Day7・Day8） |

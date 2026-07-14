@@ -848,3 +848,110 @@ vlan:
 | D5 セキュリティ基礎 | Q76-90 | 15問 | ___ / 15 | ___ % |
 | D6 自動化とプログラマビリティ | Q91-100 | 10問 | ___ / 10 | ___ % |
 | **合計** | Q1-100 | **100問** | ___ / 100 | ___ % |
+
+## シムレット演習（実技代替・本編 100 問とは別枠）
+
+> この演習は本試験の**シミュレーション/シムレット問題**（実機を模した環境で show 出力や
+> 構成を読み解き、複数の設問に連続して答える形式）に慣れるための実技代替演習です。
+> **本編 100 問の採点には含めません**（別枠）。目安 10〜15 分。show 出力・構成を丁寧に
+> 読み、「原因の切り分け → 対処 → 結果予測」の流れを練習してください。
+
+### シナリオ: 席替え後、特定ポートだけ通信が止まった
+
+保守担当のあなたに「島Aの一席だけネットワークにつながらない」という一次対応の依頼が
+入りました。対象は SW1（アクセス層スイッチ）の Fa0/5 で、ユーザー収容ポートです。
+当該セグメントは VLAN 1・`192.168.10.0/24`（正規 DHCP は上流ルータ R1）で運用されて
+います。前日に部署の席替えがあり、この席では PC が別の個体へ入れ替えられていました。
+
+SW1 の Fa0/5 には次の設定が投入されています（アクセス固定・sticky・違反モード shutdown）。
+
+```
+interface FastEthernet0/5
+ switchport mode access
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security mac-address sticky 0011.2233.4455
+ switchport port-security violation shutdown
+```
+
+SW1 のログ（`show logging` 抜粋）:
+
+```
+%PORT_SECURITY-2-PSECURE_VIOLATION: Security violation occurred, caused by
+  MAC address 00aa.bbcc.ddee on port FastEthernet0/5.
+%PM-4-ERR_DISABLE: psecure-violation error detected on Fa0/5, putting Fa0/5
+  in err-disable state
+%LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/5, changed
+  state to down
+```
+
+`show interfaces fa0/5 status`:
+
+```
+Port    Name    Status         Vlan   Duplex  Speed Type
+Fa0/5           err-disabled   1      auto    auto  10/100BaseTX
+```
+
+`show port-security interface fa0/5`:
+
+```
+Port Security              : Enabled
+Port Status                : Secure-shutdown
+Violation Mode             : Shutdown
+Maximum MAC Addresses      : 1
+Total MAC Addresses        : 1
+Configured MAC Addresses   : 0
+Sticky MAC Addresses       : 1
+Last Source Address:Vlan   : 00AA.BBCC.DDEE:1
+Security Violation Count   : 1
+```
+
+`show port-security address`:
+
+```
+          Secure Mac Address Table
+------------------------------------------------------------
+Vlan   Mac Address       Type           Ports
+----   -----------       ----           -----
+   1   0011.2233.4455    SecureSticky   FastEthernet0/5
+------------------------------------------------------------
+```
+
+**S1.** これらの出力・ログから読み取れる、Fa0/5 の現在の状態と発生している事象として
+最も適切なものはどれか。
+- A. ケーブル未接続（リンクダウン）のため Secure-down になっており、物理層の接続不良が原因である
+- B. ポートセキュリティ違反が検出され、ポートが err-disabled（Port Status: Secure-shutdown）へ遷移して通信が停止している
+- C. MAC 上限に達したが違反モードが protect のため、ポートは稼働を継続したままフレームのみ破棄している
+- D. sticky 学習が正常に完了し、Port Status: Secure-up で正常稼働している
+
+**S2.** この違反が発生した直接の原因として正しいものを**2つ選べ**。
+- A. sticky で登録済みの MAC（`0011.2233.4455`）とは異なる未登録の MAC（`00aa.bbcc.ddee`）を持つ端末が接続され、フレームを送信した
+- B. `maximum` が 1 に設定されているため、登録済み 1 個を超える 2 個目の MAC が出現した時点で上限超過（違反）となった
+- C. DHCP スヌーピングのアップリンク trust 設定が漏れており、正規サーバの DHCPOFFER が破棄されたことが違反の引き金である
+- D. トランクのネイティブ VLAN 不一致が検出され、STP が当該ポートをブロッキングへ落としたことが原因である
+
+**S3.** 席替えは正規の入れ替えであり、新しい PC（`00aa.bbcc.ddee`）を今後この席で使い
+続ける方針である。err-disabled を解消し、新しい PC で正常に通信させるための操作として
+最も適切なものはどれか。
+- A. `shutdown` → `no shutdown` を実行するだけでよく、それだけで新しい PC は問題なく通信できる
+- B. 古い sticky 登録を削除（`no switchport port-security mac-address sticky 0011.2233.4455`）したうえで `shutdown` → `no shutdown` で復旧させ、新しい PC の MAC を再学習させる
+- C. `switchport port-security violation protect` に変更すれば err-disabled は自動的に解除され、そのまま通信が回復する
+- D. `no switchport port-security` でポートセキュリティを完全に無効化することだけが唯一の復旧方法である
+
+**S4.** 仮に S3 の古い sticky エントリ（`0011.2233.4455`）の削除を行わず、`shutdown` →
+`no shutdown` のみを実行して新しい PC（`00aa.bbcc.ddee`）を接続したままにした場合に
+予測される結果として最も適切なものはどれか。
+- A. 新しい PC の MAC が自動的に上書き学習され、そのまま正常に通信できるようになる
+- B. ポートは一旦 up するが、新しい PC がフレームを送信した時点で再び上限超過の違反が発火し、再度 err-disabled に落ちる
+- C. 2 つの MAC が共存を許可され、`maximum` が自動的に 2 へ引き上げられる
+- D. err-disabled は `no shutdown` では一切解除されず、スイッチをリロードするまでポートは復旧しない
+
+### シムレット演習 解答・解説（講師用・実施後に公開）
+
+| 問 | 解答 | 解説（→ Day） |
+|---|---|---|
+| S1 | B | `show interfaces status` の Status が `err-disabled`、`show port-security interface` の Port Status が `Secure-shutdown` で、`%PM-4-ERR_DISABLE`（psecure-violation）と Security Violation Count: 1 が整合している。これは違反モード shutdown の既定挙動でポートが強制無効化された状態。Secure-down はリンクダウン、protect はカウンタ増加なしで稼働継続、Secure-up は正常稼働を指し、いずれも出力と一致しない。（→ Day18） |
+| S2 | A,B | Last Source Address が `00AA.BBCC.DDEE` で、`show port-security address` に登録された sticky MAC `0011.2233.4455` とは別個体。`maximum 1` のため、登録済み 1 個を超える 2 個目の MAC がフレームを送信した時点で上限超過の違反となり shutdown が発火した。C は DHCP スヌーピング（別機能）の話で本事象とは無関係、D はトランク/STP の話でアクセスポートの本事象とは無関係。（→ Day18） |
+| S3 | B | 単に `shutdown`→`no shutdown` するだけでは、running-config に残った古い sticky MAC（`0011.2233.4455`）が許可 MAC として維持されるため、新 PC（`00aa.bbcc.ddee`）が通信した瞬間に再び違反する（A は不適）。恒久対処は、古い sticky エントリを削除してから err-disabled を復旧し、新 PC の MAC を再学習させること。violation モードの変更では既存の err-disabled は自動解除されない（C は不適）。ポートセキュリティ全体の無効化は「唯一の方法」ではなく防御機能を落とすため一次対応として不適切（D は不適）。なお `maximum`/`violation` の設計変更は客先で自己判断せずエスカレーションが原則。（→ Day18） |
+| S4 | B | err-disabled 自体は `shutdown`→`no shutdown` で解除されポートは一旦 up する（D は誤り）。しかし古い sticky MAC が許可 MAC として残ったままなので、`maximum 1` を超える新 PC のフレーム到達時に再度違反が発火し、再び err-disabled へ落ちる。MAC の自動上書きや `maximum` の自動引き上げは起こらない（A・C は誤り）。（→ Day18） |

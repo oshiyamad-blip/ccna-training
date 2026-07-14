@@ -1246,3 +1246,110 @@ resource "aws_instance" "web" {
 | D5: セキュリティ基礎 | Q76-90 | 15 | ___ | ___% |
 | D6: 自動化とプログラマビリティ | Q91-100 | 10 | ___ | ___% |
 | 合計 | Q1-100 | 100 | ___ | ___% |
+
+## シムレット演習（実技代替・本編 100 問とは別枠）
+
+> この演習は本試験の**シミュレーション/シムレット問題**（実機を模した環境で show 出力や
+> 構成を読み解き、複数の設問に連続して答える形式）に慣れるための実技代替演習です。
+> **本編 100 問の採点には含めません**（別枠）。目安 10〜15 分。show 出力・構成を丁寧に
+> 読み、「原因の切り分け → 対処 → 結果予測」の流れを練習してください。
+
+### シナリオ: R2–R3 間のネイバーが FULL にならず、R3 配下の LAN 経路が届かない
+
+R1–R2–R3 の 3 台を数珠つなぎに接続したシングルエリア（area 0）の OSPFv2 構成です。
+すべてのリンクはギガビットイーサネット（既定のネットワークタイプ broadcast）で、
+OSPF プロセス ID・エリア・参照帯域幅はすべて既定のまま統一されています。各ルータには
+Router ID 安定化のためのループバック（Lo0）を設定済みです。
+
+構築直後、R1 から R3 配下の LAN（`192.0.2.0/24`）へ ping が通らないという申告があり、
+切り分けのため以下の出力を採取しました。
+
+```
+[トポロジ]
+         Gi0/0        Gi0/0   Gi0/1        Gi0/1        Gi0/1
+  R1 ───────────── R2 ───────────── R3 ───────── LAN 192.0.2.0/24
+    10.1.12.0/30       10.1.23.0/30
+
+  Router ID:  R1 = 10.0.0.1   R2 = 10.0.0.2   R3 = 10.0.0.3
+  IP:  R1 Gi0/0 10.1.12.1/30   R2 Gi0/0 10.1.12.2/30   R2 Gi0/1 10.1.23.2/30
+       R3 Gi0/0 10.1.23.3/30   R3 Gi0/1 192.0.2.1/24
+```
+
+```
+R2# show ip ospf neighbor
+
+Neighbor ID     Pri   State           Dead Time   Address       Interface
+10.0.0.1          1   FULL/BDR        00:00:34    10.1.12.1     GigabitEthernet0/0
+10.0.0.3          1   EXSTART/DR      00:00:31    10.1.23.3     GigabitEthernet0/1
+```
+
+（数分間、繰り返し観察しても `10.0.0.3` の State は EXSTART と EXCHANGE の間を
+行き来するだけで FULL に到達しません。）
+
+```
+R2# show ip ospf interface brief
+
+Interface    PID   Area   IP Address/Mask     Cost  State Nbrs F/C
+Gi0/0        1     0      10.1.12.2/30        1     DR    1/1
+Gi0/1        1     0      10.1.23.2/30        1     BDR   0/1
+Lo0          1     0      10.0.0.2/32         1     LOOP  0/0
+```
+
+```
+R1# show ip route ospf
+
+      10.0.0.0/8 is variably subnetted, 5 subnets, 2 masks
+O        10.0.0.2/32 [110/2] via 10.1.12.2, 00:14:03, GigabitEthernet0/0
+O        10.1.23.0/30 [110/2] via 10.1.12.2, 00:14:03, GigabitEthernet0/0
+```
+
+（R1 のルーティングテーブルには `192.0.2.0/24` も `10.0.0.3/32`（R3 の Lo0）も
+学習されていません。）
+
+```
+R2# show interfaces GigabitEthernet0/1
+GigabitEthernet0/1 is up, line protocol is up
+  Hardware is ..., address is ....
+  Internet address is 10.1.23.2/30
+  MTU 1500 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
+
+R3# show interfaces GigabitEthernet0/0
+GigabitEthernet0/0 is up, line protocol is up
+  Hardware is ..., address is ....
+  Internet address is 10.1.23.3/30
+  MTU 1400 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
+```
+
+**S1.** この出力から読み取れる状態として正しいものを **2 つ選べ**。
+- A. R2 と R3 のネイバーは検出されているが、EXSTART で停滞し FULL に到達していない
+- B. R2 と R3 の間ではネイバーがそもそも 1 つも検出されていない
+- C. R1 のルーティングテーブルに R3 配下の LAN（`192.0.2.0/24`）が学習されていない
+- D. R1 と R2 のネイバーも同時に Down しており、区間全体で隣接が形成されていない
+
+**S2.** ネイバーが FULL に到達しない原因として最も可能性が高いものはどれか。
+- A. Hello / Dead タイマーの不一致
+- B. R2 Gi0/1（1500）と R3 Gi0/0（1400）の MTU 不一致により、DBD 交換が完了できず停滞している
+- C. R2 Gi0/1 と R3 Gi0/0 のエリア ID が不一致になっている
+- D. R3 Gi0/0 が誤って passive-interface に設定されている
+
+**S3.** この障害を根本から解消するために R3 で実行すべきコマンドはどれか。
+- A. `R3(config)# router ospf 1` → `R3(config-router)# passive-interface GigabitEthernet0/0`
+- B. `R3(config)# interface GigabitEthernet0/0` → `R3(config-if)# ip ospf hello-interval 30`
+- C. `R3(config)# interface GigabitEthernet0/0` → `R3(config-if)# mtu 1500`
+- D. `R3(config)# router ospf 1` → `R3(config-router)# router-id 10.0.0.2`
+
+**S4.** S3 の対処を正しく行った後に予測される結果として最も適切なものはどれか。
+- A. R2–R3 のネイバーが EXSTART から EXCHANGE・Loading を経て FULL へ遷移し、R1 が
+  `192.0.2.0/24` を `via 10.1.12.2` で学習して LAN への ping が通るようになる
+- B. MTU を揃えても状態は EXSTART のままで、追加で全ルータの Router ID を振り直す必要がある
+- C. ネイバーは FULL になるが、`192.0.2.0/24` は R3 側で passive のため永久に広告されない
+- D. R1–R2 間のネイバーが一度 Down し、区間全体の再構築に約 50 秒かかる
+
+### シムレット演習 解答・解説（講師用・実施後に公開）
+
+| 問 | 解答 | 解説（→ Day） |
+|---|---|---|
+| S1 | A, C | `show ip ospf neighbor` に `10.0.0.3` が EXSTART で表示されている＝ネイバー自体は検出済みで、FULL 手前で停滞している（A 正・B 誤）。EXSTART/EXCHANGE 停滞では LSDB 同期が完了せず R3 の LSA が伝播しないため、R3 発の経路（`192.0.2.0/24`、`10.0.0.3/32`）が R1 に載らない。一方 R2 の直結である `10.1.23.0/30` は R2 自身の LSA に含まれ R1 に学習される点も出力と整合（C 正）。R1–R2 は FULL/BDR で正常（D 誤）。（→ Day12・Day13） |
+| S2 | B | ネイバーが「現れるが FULL にならず EXSTART/EXCHANGE で停滞」するのは MTU 不一致の典型症状。`show interfaces` で R2 Gi0/1＝1500、R3 Gi0/0＝1400 と食い違っている。タイマー／エリア ID 不一致や passive 誤設定は「ネイバーがそもそも現れない（表示されない／Init 止まり）」原因であり、EXSTART 停滞とは切り分けられる。（→ Day12・Day13） |
+| S3 | C | 対処は両端の MTU を一致させること。R3 Gi0/0 の MTU を 1500 に戻せば DBD 交換が完了し隣接が進む。passive 設定（A）はかえって Hello を止めネイバーを消す誤り、hello-interval 変更（B）は不要な不一致を作り込む誤り、Router ID を R2 と同一値（D）にするのは重複を招く誤り。（→ Day12・Day13） |
+| S4 | A | MTU を揃えると停滞が解消し、EXSTART→EXCHANGE→Loading→FULL と進む。FULL 到達後は R3 の LSA が伝播し、R1 が `192.0.2.0/24` を `via 10.1.12.2`（R1 の唯一の OSPF ネクストホップ）で学習して LAN へ疎通する。Router ID の振り直し（B）や passive（C）は不要・無関係で、正常な R1–R2 隣接は Down しない（D）。（→ Day12・Day13） |
