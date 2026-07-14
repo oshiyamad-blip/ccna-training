@@ -45,6 +45,9 @@ const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'day00-setup.md'), page: 'CCNA研修/00_ガイダンス/Day00 環境構築' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'error-log.md'), page: 'CCNA研修/00_ガイダンス/誤答ノートの書き方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'weekly-retro.md'), page: 'CCNA研修/00_ガイダンス/週次振り返りの書き方' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_2進数16進数' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'subnet-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_サブネット' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'wildcard-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_ワイルドカード' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/00_ガイダンス/PacketTracer導入マニュアル' },
 ]
