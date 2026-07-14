@@ -20,85 +20,86 @@
   <rect width="1000" height="800" fill="#ffffff"/>
 
   <text class="title" x="40" y="40">SVI が up/up になるための 3 条件（AND 条件）</text>
-  <text class="sub" x="40" y="64">① VLAN の存在　② ポートの up　③ no shutdown — いずれか 1 つでも欠けると SVI は down のまま</text>
+  <text class="sub" x="40" y="64">① VLAN の存在　② ポートの up　③ no shutdown — いずれか 1 つでも欠けると SVI は up/up にならない</text>
+  <text class="sub" x="40" y="82">（① が欠ける＝VLAN 未作成/suspend なら down/down、① と③ はあるが ② のみ欠けるなら up/down になる）</text>
 
   <!-- ============ Success case ============ -->
-  <text class="section" x="40" y="100" fill="#7ea800">✅ 3 条件をすべて満たす場合</text>
+  <text class="section" x="40" y="108" fill="#7ea800">✅ 3 条件をすべて満たす場合</text>
 
   <!-- card 1 -->
-  <rect x="50" y="112" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
-  <circle cx="80" cy="142" r="14" fill="#7ea800"/>
-  <path d="M 73 142 L 78 148 L 88 135" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="cardtitle" x="180" y="163">① VLAN の存在</text>
-  <text class="cardsub" x="180" y="188">VLAN データベースに作成済み</text>
+  <rect x="50" y="120" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <circle cx="80" cy="150" r="14" fill="#7ea800"/>
+  <path d="M 73 150 L 78 156 L 88 143" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardtitle" x="180" y="171">① VLAN の存在</text>
+  <text class="cardsub" x="180" y="196">VLAN データベースに作成済み</text>
 
   <!-- card 2 -->
-  <rect x="370" y="112" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
-  <circle cx="400" cy="142" r="14" fill="#7ea800"/>
-  <path d="M 393 142 L 398 148 L 408 135" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="cardtitle" x="500" y="163">② ポートの up</text>
-  <text class="cardsub" x="500" y="188">所属ポートが 1 つ以上 up</text>
+  <rect x="370" y="120" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <circle cx="400" cy="150" r="14" fill="#7ea800"/>
+  <path d="M 393 150 L 398 156 L 408 143" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardtitle" x="500" y="171">② ポートの up</text>
+  <text class="cardsub" x="500" y="196">所属ポートが 1 つ以上 up</text>
 
   <!-- card 3 -->
-  <rect x="690" y="112" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
-  <circle cx="720" cy="142" r="14" fill="#7ea800"/>
-  <path d="M 713 142 L 718 148 L 728 135" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="cardtitle" x="820" y="163">③ no shutdown</text>
-  <text class="cardsub" x="820" y="188">SVI 自身が shutdown でない</text>
+  <rect x="690" y="120" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <circle cx="720" cy="150" r="14" fill="#7ea800"/>
+  <path d="M 713 150 L 718 156 L 728 143" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardtitle" x="820" y="171">③ no shutdown</text>
+  <text class="cardsub" x="820" y="196">SVI 自身が shutdown でない</text>
 
   <!-- arrows into AND gate -->
-  <path class="link" d="M 180 207 L 180 230 Q 180 240 190 245 L 470 258" marker-end="url(#arrow)"/>
-  <path class="link" d="M 500 207 L 500 245" marker-end="url(#arrow)"/>
-  <path class="link" d="M 820 207 L 820 230 Q 820 240 810 245 L 530 258" marker-end="url(#arrow)"/>
+  <path class="link" d="M 180 215 L 180 238 Q 180 248 190 253 L 470 266" marker-end="url(#arrow)"/>
+  <path class="link" d="M 500 215 L 500 253" marker-end="url(#arrow)"/>
+  <path class="link" d="M 820 215 L 820 238 Q 820 248 810 253 L 530 266" marker-end="url(#arrow)"/>
 
-  <circle cx="500" cy="265" r="32" fill="#2779ca"/>
-  <text class="gate" x="500" y="271">AND</text>
+  <circle cx="500" cy="273" r="32" fill="#2779ca"/>
+  <text class="gate" x="500" y="279">AND</text>
 
-  <path class="link" d="M 500 297 L 500 322" marker-end="url(#arrow)"/>
+  <path class="link" d="M 500 305 L 500 330" marker-end="url(#arrow)"/>
 
-  <rect x="350" y="325" width="300" height="60" rx="10" fill="#ecfdf0" stroke="#7ea800" stroke-width="2"/>
-  <text class="result" x="500" y="362" fill="#4d7c0f">Vlan10: up/up</text>
+  <rect x="350" y="333" width="300" height="60" rx="10" fill="#ecfdf0" stroke="#7ea800" stroke-width="2"/>
+  <text class="result" x="500" y="370" fill="#4d7c0f">Vlan10: up/up</text>
 
-  <text class="note" x="500" y="405">→ VLAN10 のホストへ正常にルーティングできる</text>
+  <text class="note" x="500" y="413">→ VLAN10 のホストへ正常にルーティングできる</text>
 
-  <line x1="40" y1="430" x2="960" y2="430" stroke="#e5e7eb" stroke-width="1.5"/>
+  <line x1="40" y1="438" x2="960" y2="438" stroke="#e5e7eb" stroke-width="1.5"/>
 
   <!-- ============ Failure case ============ -->
-  <text class="section" x="40" y="465" fill="#64748b">❌ 条件が 1 つでも欠けると（例: ② が不成立）</text>
+  <text class="section" x="40" y="473" fill="#b45309">❌ ② ポートの up のみが不成立の場合（① VLAN・③ no shutdown は満たす）</text>
 
   <!-- card 1 -->
-  <rect x="50" y="477" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
-  <circle cx="80" cy="507" r="14" fill="#7ea800"/>
-  <path d="M 73 507 L 78 513 L 88 500" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="cardtitle" x="180" y="528">① VLAN の存在</text>
-  <text class="cardsub" x="180" y="553">VLAN データベースに作成済み</text>
+  <rect x="50" y="485" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <circle cx="80" cy="515" r="14" fill="#7ea800"/>
+  <path d="M 73 515 L 78 521 L 88 508" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardtitle" x="180" y="536">① VLAN の存在</text>
+  <text class="cardsub" x="180" y="561">VLAN データベースに作成済み</text>
 
   <!-- card 2 : failing -->
-  <rect x="370" y="477" width="260" height="95" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="7 5"/>
-  <circle cx="400" cy="507" r="14" fill="#64748b"/>
-  <path d="M 394 501 L 406 513 M 406 501 L 394 513" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-  <text class="cardtitle" x="500" y="528">② ポートの up</text>
-  <text class="cardsub" x="500" y="553" fill="#64748b">所属ポートがすべて down</text>
+  <rect x="370" y="485" width="260" height="95" rx="12" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="7 5"/>
+  <circle cx="400" cy="515" r="14" fill="#64748b"/>
+  <path d="M 394 509 L 406 521 M 406 509 L 394 521" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <text class="cardtitle" x="500" y="536">② ポートの up</text>
+  <text class="cardsub" x="500" y="561" fill="#64748b">所属ポートがすべて down</text>
 
   <!-- card 3 -->
-  <rect x="690" y="477" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
-  <circle cx="720" cy="507" r="14" fill="#7ea800"/>
-  <path d="M 713 507 L 718 513 L 728 500" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text class="cardtitle" x="820" y="528">③ no shutdown</text>
-  <text class="cardsub" x="820" y="553">SVI 自身が shutdown でない</text>
+  <rect x="690" y="485" width="260" height="95" rx="12" fill="#ffffff" stroke="#2779ca" stroke-width="2"/>
+  <circle cx="720" cy="515" r="14" fill="#7ea800"/>
+  <path d="M 713 515 L 718 521 L 728 508" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text class="cardtitle" x="820" y="536">③ no shutdown</text>
+  <text class="cardsub" x="820" y="561">SVI 自身が shutdown でない</text>
 
   <!-- arrows into AND gate -->
-  <path class="link" d="M 180 572 L 180 595 Q 180 605 190 610 L 470 623" marker-end="url(#arrow)"/>
-  <path class="link" d="M 500 572 L 500 610" marker-end="url(#arrow)"/>
-  <path class="link" d="M 820 572 L 820 595 Q 820 605 810 610 L 530 623" marker-end="url(#arrow)"/>
+  <path class="link" d="M 180 580 L 180 603 Q 180 613 190 618 L 470 631" marker-end="url(#arrow)"/>
+  <path class="link" d="M 500 580 L 500 618" marker-end="url(#arrow)"/>
+  <path class="link" d="M 820 580 L 820 603 Q 820 613 810 618 L 530 631" marker-end="url(#arrow)"/>
 
-  <circle cx="500" cy="630" r="32" fill="#64748b"/>
-  <text class="gate" x="500" y="636">AND</text>
+  <circle cx="500" cy="638" r="32" fill="#c98a02"/>
+  <text class="gate" x="500" y="644">AND</text>
 
-  <path class="link" d="M 500 662 L 500 687" marker-end="url(#arrow)"/>
+  <path class="link" d="M 500 670 L 500 695" marker-end="url(#arrow)"/>
 
-  <rect x="350" y="690" width="300" height="60" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
-  <text class="result" x="500" y="727" fill="#475569">Vlan10: down/down</text>
+  <rect x="350" y="698" width="300" height="60" rx="10" fill="#fffbeb" stroke="#c98a02" stroke-width="2"/>
+  <text class="result" x="500" y="735" fill="#b45309">Vlan10: up/down</text>
 
-  <text class="note" x="500" y="778">→ ② が欠けているため VLAN10 間のルーティングは成立しない</text>
+  <text class="note" x="500" y="786">→ ② 所属ポートが全 down のため、ライン プロトコルのみ down（VLAN 自体は存在するため Status は up）。VLAN10 間のルーティングは成立しない</text>
 </svg>

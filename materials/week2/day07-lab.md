@@ -15,6 +15,10 @@
 
 ![Day 7 トポロジ図](../images/day07-topology.png)
 
+※ この図は手順6・7完了後の最終状態（ネイティブ VLAN 99、許可 VLAN 10,20）を
+示しています。手順4・5の時点ではネイティブ VLAN は既定の 1、許可 VLAN は
+既定の 1-4094 のままです。
+
 ### IP アドレス割り当て表
 
 | 機器 | 接続ポート | VLAN | IP アドレス | サブネットマスク |
@@ -115,8 +119,11 @@
    ```
 
 3. 両スイッチで確認コマンドを実行し、トランクが成立していること、
-   ネイティブ VLAN が 1、許可 VLAN・転送中 VLAN がすべて（1-4094 相当）に
-   なっていることを確認する
+   ネイティブ VLAN が 1 になっていることを確認する。あわせて
+   『Vlans allowed on trunk』が既定の 1-4094 になっていること、
+   『Vlans allowed and active in management domain』および
+   『Vlans in spanning tree forwarding state and not pruned』は
+   実在する VLAN のみ（この時点では 1,10,20）になっていることを確認する
 
    ```
    SW1# show interfaces trunk
@@ -133,8 +140,10 @@
    ```
 
 2. 比較のため、PC1 → PC4（VLAN10 → VLAN20、異なる VLAN 間）へ ping し、
-   **失敗する**ことを確認する（デフォルトゲートウェイ未設定のため VLAN 間
-   ルーティングができない。VLAN 間通信は Day 8 で学ぶ）
+   **失敗する**ことを確認する（この構成には VLAN 間をルーティングする機器
+   （ルータ／L3 スイッチ）がなく、かつ各 PC にデフォルトゲートウェイも
+   設定していないため、異なるサブネット間は通信できない。VLAN 間
+   ルーティングの仕組みは Day 8 で学ぶ）
 
 ## 手順 6: 許可 VLAN 制御の演習（25 分）
 
@@ -156,10 +165,11 @@
 
 5. `show interfaces trunk` で Allowed VLANs が `10,20` に戻ったこと、
    PC2 → PC4 の疎通が回復したことを確認する
-6. （体験用・任意）手順 4 の代わりに `switchport trunk allowed vlan 20` を
-   `add` なしで実行すると、リストが VLAN20 のみに**上書き**され VLAN10 が
-   不通になることを、余裕があれば実際に試して確認する（確認後は必ず
-   `switchport trunk allowed vlan 10,20` に戻すこと）
+6. （体験用・任意）本手順（手順6）の 4 で実行した `add 20` の代わりに
+   `switchport trunk allowed vlan 20` を `add` なしで実行すると、リストが
+   VLAN20 のみに**上書き**され VLAN10 が不通になることを、余裕があれば
+   実際に試して確認する（確認後は必ず `switchport trunk allowed vlan
+   10,20` に戻すこと）
 
 ## 手順 7: ネイティブ VLAN 不一致の演習（25 分）
 
@@ -259,7 +269,7 @@
 | `show interfaces trunk` に Fa0/24 が出てこない | ケーブルが緑（アップ状態）か。片方が `access` モードのままになっていないか |
 | VLAN20 だけ疎通しない | `switchport trunk allowed vlan` の設定を確認し、`add` を付け忘れてリストを上書きしていないか |
 | `%CDP-4-NATIVE_VLAN_MISMATCH` が消えない | 両スイッチの `switchport trunk native vlan` の値が完全に一致しているか。反映まで数秒〜数十秒待つ |
-| `switchport nonegotiate` 後にリンクがダウンする | 対向ポートも静的モード（trunk または access）に固定されているか（両方が動的モードのままだと不整合が起きることがある） |
+| `switchport nonegotiate` 設定後にトランクが成立しない（リンクは up でも VLAN 通信ができない） | 対向ポートが `dynamic auto` / `dynamic desirable` のまま残っていないか（nonegotiate 側は静的トランクでも、対向が動的のままだと DTP を受け取れずトランク化しないことがある） |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

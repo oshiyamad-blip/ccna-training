@@ -138,8 +138,10 @@ Multilayer Switch 3560 x1（Part2 用の L3 スイッチ）、PC x4
    tracert 192.168.20.11
    ```
 
-5. `tracert` の結果で、宛先までの経路上に **R1（192.168.10.1 または
-   192.168.20.1）が 1 ホップ目として現れる**ことを観察する
+5. `tracert` の結果で、1 ホップ目に **192.168.10.1**（PC1 のデフォルト
+   ゲートウェイ＝R1 の Gi0/0.10）が現れることを観察する（PC3 から
+   `tracert 192.168.10.11` を実行した場合は、1 ホップ目が 192.168.20.1
+   になる）
 
 ### Part1 観察ポイント（記録しておく）
 
@@ -276,7 +278,7 @@ Multilayer Switch 3560 x1（Part2 用の L3 スイッチ）、PC x4
 |---|---|
 | Part1 で VLAN 間 ping が失敗する | サブインターフェースの `encapsulation dot1q` の VLAN-ID、SW1 の Fa0/24 がトランクになっているか |
 | Part1 で同一 VLAN 内も失敗する | SW1 のアクセスポート割り当て（`switchport access vlan`）、PC の IP/マスク |
-| Part2 で SVI が down/down のまま | 対応する VLAN が `vlan` コマンドで作成済みか、その VLAN のポートが 1 つ以上 up しているか |
+| Part2 で SVI が down/down または up/down のまま | down/down は対応する VLAN が `vlan` コマンドで作成済みか（VLAN 未作成/suspend でないか）、up/down はその VLAN のポートが 1 つ以上 up しているかを確認する |
 | Part2 で SVI は up/up だが VLAN 間 ping が失敗する | `ip routing` が有効になっているか（`show running-config` で確認） |
 | ルーテッドポートで IP が付かない | `no switchport` を先に実行したか（アクセス/トランク設定が残っていると失敗する） |
 

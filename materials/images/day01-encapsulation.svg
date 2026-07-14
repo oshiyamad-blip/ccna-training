@@ -74,7 +74,7 @@
     <text class="cell" x="770" y="424">FCS</text>
   </g>
   <text class="pdu" x="860" y="424" fill="#d97706">= フレーム</text>
-  <text class="note" x="120" y="458">宛先 MAC（ルータ通過ごとに書き換わる）＋ 誤り検出（FCS）</text>
+  <text class="note" x="120" y="458">送信元・宛先 MAC（ルータ通過ごとに書き換わる）＋ 誤り検出（FCS）</text>
 
   <line x1="580" y1="450" x2="580" y2="480" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>
 

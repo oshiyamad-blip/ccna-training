@@ -95,7 +95,7 @@
 | Q6 | B | running-configはRAM上の現在の稼働設定で揮発性。startup-configはNVRAM上で不揮発性。保存コマンドは source→destination の順で `copy running-config startup-config` が正しく、Aはこれの逆方向（`copy startup-config running-config`）で、直前の未保存の変更を破棄してしまうため誤り |
 | Q7 | C | コンソール接続のデフォルトは9600bps・8-N-1（データ8・パリティなし・ストップ1）・フロー制御なし |
 | Q8 | D | `transport input ssh` を設定するとVTYで許可される接続プロトコルがSSHのみになり、Telnetは拒否される |
-| Q9 | B | pingが成功している時点でL1〜L3（ケーブル・IP到達性・ゲートウェイ）は問題ない。SSH固有の前提はhostname→ip domain-name→`crypto key generate rsa`→ローカルユーザ→VTYの`login local`/`transport input ssh`で、どれかが欠けるとSSHのみ失敗する。RSA鍵未生成は代表的な原因。A・C・Dはping自体が失敗する原因であり、pingが通っている本問には当てはまらない |
+| Q9 | B | pingが成功している時点でL1〜L3（ケーブル・IP到達性）は問題ない。SSH固有の前提はhostname→ip domain-name→`crypto key generate rsa`→ローカルユーザ→VTYの`login local`/`transport input ssh`で、どれかが欠けるとSSHのみ失敗する。RSA鍵未生成は代表的な原因。A・Dはインタフェースがdown/リンク不良になりping自体を失敗させる原因なので、pingが成功している本問には当てはまらない。Cのデフォルトゲートウェイは、管理元が別サブネットにある場合の戻り通信にのみ関係し、同一サブネット内のping可否やSSHサービスの起動可否とは無関係のため原因にならない |
 | Q10 | 例 | 「`enable secret <pw>` で特権EXECパスワードをハッシュ保存する。`service password-encryption` で残る平文パスワード（enable passwordやline password）をType7で隠す。VTYは `line vty 0 4` → `transport input ssh` → `login local` でSSH接続のみ許可し、Telnetを排除する」等、3要素すべてに触れ、目的（ハッシュ化・平文の隠蔽・暗号化された接続への限定）を説明できていれば正解 |
 
 **採点**: 1 問 10 点、70 点未満は翌朝再テスト。Q10 は趣旨が合っていれば 10 点。

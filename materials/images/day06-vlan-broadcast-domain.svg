@@ -67,7 +67,7 @@
   <use href="#pc" x="380" y="520"/>
   <text class="srclabel" x="160" y="205">送信元</text>
 
-  <text class="caption" x="270" y="580" fill="#c2410c">→ ブロードキャストが 4 台すべてに到達</text>
+  <text class="caption" x="270" y="580" fill="#c2410c">→ ブロードキャストが送信元を除く残り3台すべてに到達</text>
 
   <!-- RIGHT: with VLAN -->
   <text class="panelhead" x="840" y="112">VLAN あり：VLAN ごとに独立したブロードキャストドメイン</text>

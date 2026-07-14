@@ -74,9 +74,9 @@
   <!-- binary detail box -->
   <rect x="790" y="378" width="270" height="112" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
   <text class="binhead" x="808" y="400">先頭バイトの U/L ビット反転</text>
-  <text class="binline" x="808" y="422" fill="#374151">00 = 0000 000<tspan fill="#dc2626" font-weight="700">0</tspan></text>
+  <text class="binline" x="808" y="422" fill="#374151">00 = 0000 00<tspan fill="#dc2626" font-weight="700">0</tspan>0</text>
   <text class="binline" x="808" y="444" fill="#6b7280">　　　　7番目のビットを反転</text>
-  <text class="binline" x="808" y="466" fill="#374151">02 = 0000 001<tspan fill="#dc2626" font-weight="700">0</tspan></text>
+  <text class="binline" x="808" y="466" fill="#374151">02 = 0000 00<tspan fill="#dc2626" font-weight="700">1</tspan>0</text>
 
   <!-- Arrow 2 -->
   <line x1="550" y1="392" x2="550" y2="432" stroke="#9ca3af" stroke-width="2.5" marker-end="url(#arrow)"/>

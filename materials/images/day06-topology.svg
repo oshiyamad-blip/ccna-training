@@ -84,5 +84,5 @@
   <!-- goal note -->
   <rect x="40" y="680" width="1120" height="56" rx="8" fill="#fff7ed" stroke="#fdba74"/>
   <text x="60" y="705" font-size="14">ゴール: 同一 VLAN 内（PC1⇄PC2、PC3⇄PC4）では ping が成功し、異なる VLAN 間（例: PC1→PC3）では ping が失敗すること</text>
-  <text x="60" y="726" font-size="14">（Request timed out）を、show vlan brief ／ show mac address-table と疎通試験の両方から検証する。</text>
+  <text x="60" y="726" font-size="14">（Destination host unreachable）を、show vlan brief ／ show mac address-table と疎通試験の両方から検証する。</text>
 </svg>

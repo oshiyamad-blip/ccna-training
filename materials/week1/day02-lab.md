@@ -171,23 +171,38 @@ Admin-PC のロールオーバーケーブルを SW2 の Console ポートへつ
 
 ## 手順 11: 全機器の保存と service password-encryption の比較（10 分）
 
-R1・SW1・SW2 それぞれで設定を保存します。
+R1・SW1・SW2 それぞれで、コンソールケーブルをその機器の Console ポートへつなぎ替えて
+（または Admin-PC から SSH でログインして）、特権 EXEC モードで設定を保存します。
 
 ```
-copy running-config startup-config
+R1# copy running-config startup-config
+SW1# copy running-config startup-config
+SW2# copy running-config startup-config
 ```
 
-SW1 で `show running-config` を実行し、`enable password`・`enable secret`・
-`line` 配下の `password` の表示を確認したら、続けて次のコマンドを実行して差分を
-観察します。
+続けて SW1 で以下を行います。コンソールケーブルが SW1 に接続されていること
+（または SSH で SW1 にログイン済みであること）を確認してください。
 
 ```
+SW1# show running-config
+```
+
+`enable password`・`enable secret`・`line` 配下の `password` の表示を確認し記録します。
+続けて設定モードへ入り、`service password-encryption` を実行します。
+
+```
+SW1# configure terminal
 SW1(config)# service password-encryption
 ```
 
-再度 `show running-config` を実行し、`enable password` とコンソール/VTY の
-`password` の表示がどう変化したか、また `enable secret` の行に変化があったかを
-記録します。
+設定モードを抜けずに確認するには、講義で扱った `do` を使います。
+
+```
+SW1(config)# do show running-config
+```
+
+`enable password` とコンソール/VTY の `password` の表示がどう変化したか、また
+`enable secret` の行に変化があったかを記録します。
 
 ## 手順 12: PC の IP 設定と疎通確認（10 分）
 
@@ -210,6 +225,9 @@ Admin-PC の Command Prompt から次のコマンドを実行します。
 ```
 ssh -l admin 192.168.1.11
 ```
+
+※ `-l` は小文字の**エル（L）**です（数字の 1 ではありません）。ログインユーザ名を
+指定するオプションです。
 
 パスワード `adminpw` を入力してログインし、リモートセッション上で次のコマンドを
 実行して結果を記録します。
@@ -246,8 +264,9 @@ telnet 192.168.1.1
 1. `service password-encryption` を有効化する前と後で、`show running-config` の
    `enable password`・`line` 配下の `password`・`enable secret` の表示はそれぞれ
    どう変わったか。`enable secret` が影響を受けなかった理由は何か。
-2. Admin-PC から SW1 へ SSH できたが、`transport input ssh` を設定した VTY に対して
-   Telnet 接続は成功したか失敗したか。その結果になった理由を述べよ。
+2. 手順 15 で R1 へ Telnet（`telnet 192.168.1.1`）を試みた結果は成功したか失敗したか。
+   R1・SW1・SW2 のいずれも `transport input ssh` を設定しているため、SW1 や SW2 に
+   Telnet を試みても同じ結果になるはずです。その理由もあわせて述べよ。
 3. SW1 の VLAN1 インタフェースに `ip default-gateway` を設定しなかった場合、別
    サブネットの PC から SW1 へ管理アクセスできるか。スイッチが管理 IP を SVI に
    持つ理由とあわせて説明せよ。
