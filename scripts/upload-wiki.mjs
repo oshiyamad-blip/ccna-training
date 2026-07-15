@@ -52,8 +52,8 @@ const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/00_ガイダンス/PacketTracer導入マニュアル' },
 ]
 
-const KIND_LABEL = { lecture: '講義', lab: 'ラボ手順書', quiz: '小テスト' }
-const KIND_FOLDER = { lecture: '01_教材', lab: '02_ラボ手順書', quiz: '04_講師用_小テスト原本' }
+const KIND_LABEL = { lecture: '講義', lab: 'ラボ手順書', work: '実習手順書', quiz: '小テスト' }
+const KIND_FOLDER = { lecture: '01_教材', lab: '02_ラボ手順書', work: '02_ラボ手順書', quiz: '04_講師用_小テスト原本' }
 
 async function api(method, path, params = {}) {
   const url = new URL(`${SPACE_URL}/api/v2${path}`)
@@ -199,7 +199,7 @@ async function collectPages() {
     }
   }
 
-  // materials/weekN/dayNN-{lecture,lab,quiz}.md
+  // materials/weekN/dayNN-{lecture,lab,quiz}.md（week0 は pNN-{lecture,work,quiz}.md）
   const weeks = (await readdir(MATERIALS_DIR, { withFileTypes: true }))
     .filter((e) => e.isDirectory() && /^week\d$/.test(e.name))
     .map((e) => e.name)
@@ -208,16 +208,17 @@ async function collectPages() {
   for (const week of weeks) {
     const files = (await readdir(join(MATERIALS_DIR, week))).filter((f) => f.endsWith('.md')).sort()
     for (const f of files) {
-      const m = f.match(/^day(\d{2})-(lecture|lab|quiz)\.md$/)
+      const m = f.match(/^(day|p)(\d{2})-(lecture|lab|work|quiz)\.md$/)
       if (!m) continue
-      const [, day, kind] = m
+      const [, prefix, num, kind] = m
       if (kind === 'quiz' && !INCLUDE_QUIZ) continue
       const mdDir = join(MATERIALS_DIR, week)
       const raw = await readFile(join(mdDir, f), 'utf8')
       const images = extractImages(raw, mdDir)
       const weekLabel = week.replace('week', 'Week')
+      const unitLabel = prefix === 'p' ? `P${num}` : `Day${num}`
       pages.push({
-        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/Day${day} ${KIND_LABEL[kind]}`,
+        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${unitLabel} ${KIND_LABEL[kind]}`,
         content: normalizeForBacklog(rewriteImageRefs(raw, images)),
         images,
       })
