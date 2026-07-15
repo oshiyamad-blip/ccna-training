@@ -140,9 +140,18 @@ function normalizeForBacklog(md) {
   let inFence = false
   let buf = null
   let bufType = null
-  const flush = () => { if (buf !== null) { out.push(buf); buf = null; bufType = null } }
   const needSpace = (a, b) => /[A-Za-z0-9]$/.test(a) && /^[A-Za-z0-9]/.test(b)
   const join = (a, b) => a + (needSpace(a, b) ? ' ' : '') + b
+  // 段落・引用は句点「。」ごとに1文=1行へ分割（文の途中では切らない）。
+  // Backlog は単一改行を <br> にするため、これで密になりすぎず読みやすいリズムになる。
+  const splitSentences = (t) => t.match(/[^。]*。[」』）】〕》”]*|[^。]+$/g) || [t]
+  const flush = () => {
+    if (buf === null) return
+    if (bufType === 'prose') for (const s of splitSentences(buf)) out.push(s)
+    else if (bufType === 'quote') for (const s of splitSentences(buf.replace(/^>\s?/, ''))) out.push('> ' + s)
+    else out.push(buf)
+    buf = null; bufType = null
+  }
 
   const isBlank = (l) => /^\s*$/.test(l)
   const isFence = (l) => /^\s*(```|~~~)/.test(l)
