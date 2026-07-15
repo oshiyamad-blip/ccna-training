@@ -173,6 +173,8 @@ function normalizeForBacklog(md) {
   const isList = (l) => /^\s*(?:[-*+]|\d+[.)])\s+/.test(l)
   // 選択肢行（a. / A) / ア. / ① …）も各行を独立させる（連結しない）
   const isChoice = (l) => /^\s*(?:[A-Za-zＡ-Ｚａ-ｚア-ン][.)．）]|[①-⑳])[ 　]/.test(l)
+  // W1. / Q10. / S2. / 問3. などの番号付きラベル行も独立させる（解答の連結防止）
+  const isLabel = (l) => /^\s*(?:[A-Za-zＡ-Ｚ]{1,3}\d{1,3}|問\d{1,3}|設問\d{1,3})[.)．）:：][ 　]?/.test(l)
   const isQuote = (l) => /^\s*>/.test(l)
   const isHtml = (l) => /^\s*<\/?[a-zA-Z]/.test(l)
   const isImageOnly = (l) => /^\s*!\[[^\]]*\]\([^)]*\)\s*$/.test(l)
@@ -184,7 +186,7 @@ function normalizeForBacklog(md) {
     if (isHeading(line) || isHr(line) || isTable(line) || isHtml(line) || isImageOnly(line)) {
       flush(); out.push(line); continue
     }
-    if (isList(line) || isChoice(line)) { flush(); buf = line.replace(/\s+$/, ''); bufType = 'list'; continue }
+    if (isList(line) || isChoice(line) || isLabel(line)) { flush(); buf = line.replace(/\s+$/, ''); bufType = 'list'; continue }
     if (isQuote(line)) {
       const content = line.replace(/^\s*>\s?/, '')
       if (content === '') { flush(); out.push(line); continue }
