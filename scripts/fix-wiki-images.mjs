@@ -1,6 +1,11 @@
 #!/usr/bin/env node
-// Wiki ページ内の画像参照 ![alt](filename.png) を
-// Backlog 添付ダウンロードURL ![alt](https://space/downloadWikiAttachment/wikiId/attachId) に書き換える
+// Wiki ページ内の画像参照を Backlog の #image(filename) 記法に書き換える。
+// Backlog Markdown モードでも添付ファイルのインライン表示には #image() が必要。
+//
+// 使い方:
+//   BACKLOG_SPACE_URL=https://your-space.backlog.com \
+//   BACKLOG_API_KEY=xxx \
+//   node fix-wiki-images.mjs <PROJECT_KEY> [--dry-run]
 
 const SPACE_URL = (process.env.BACKLOG_SPACE_URL ?? '').replace(/\/$/, '')
 const API_KEY = process.env.BACKLOG_API_KEY
@@ -36,30 +41,35 @@ async function main() {
 
   let updated = 0
   for (const w of wikis) {
-    // 添付ファイルがないページはスキップ
     const attachments = await api(`/wikis/${w.id}/attachments`)
     if (!attachments.length) continue
 
-    // filename → download URL マップ
-    const urlMap = new Map(
-      attachments.map(a => [a.name, `${SPACE_URL}/downloadWikiAttachment/${w.id}/${a.id}`])
-    )
-
-    // 個別取得でコンテンツを得る
     const detail = await api(`/wikis/${w.id}`)
     let content = detail.content ?? ''
     let changed = false
-    for (const [filename, dlUrl] of urlMap) {
-      const pattern = new RegExp(`!\\[([^\\]]*)\\]\\(${filename.replace('.', '\\.')}\\)`, 'g')
-      const replaced = content.replace(pattern, (_, alt) => `![${alt}](${dlUrl})`)
-      if (replaced !== content) { content = replaced; changed = true }
+
+    for (const { name: filename } of attachments) {
+      const escName = filename.replace(/\./g, '\\.')
+      // downloadWikiAttachment URL 形式 → #image()
+      const patternUrl = new RegExp(
+        `!\\[[^\\]]*\\]\\(https?://[^)]+/downloadWikiAttachment/\\d+/\\d+\\)`,
+        'g'
+      )
+      // ファイル名だけの形式 → #image()
+      const patternName = new RegExp(`!\\[[^\\]]*\\]\\(${escName}\\)`, 'g')
+
+      for (const pat of [patternUrl, patternName]) {
+        const replaced = content.replace(pat, `#image(${filename})`)
+        if (replaced !== content) { content = replaced; changed = true }
+      }
     }
 
     if (!changed) continue
 
     if (DRY_RUN) {
       console.log(`[dry-run] 更新: ${w.name}`)
-      for (const [f, u] of urlMap) console.log(`  ${f} → ${u}`)
+      const imgs = attachments.map(a => a.name).join(', ')
+      console.log(`  → #image(${imgs})`)
     } else {
       await patchWiki(w.id, content)
       console.log(`更新: ${w.name}`)
