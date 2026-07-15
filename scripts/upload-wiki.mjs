@@ -129,6 +129,54 @@ async function attachImagesToWiki(wikiId, images) {
   return attached
 }
 
+// Backlog の Markdown は段落内の単一改行を <br> として描画するため、教材の
+// ハードラップ（Git 可読性のための手動折り返し）がそのまま改行として出てしまう。
+// 送信前に「段落・箇条書き項目・引用の内部の折り返し改行」だけを連結する。
+// 見出し・表・コードフェンス・水平線・HTML・画像単独行・箇条書きマーカーは構造として保持。
+// 英数字で単語が分断された箇所のみ半角スペースを入れ、日本語同士は詰める。
+function normalizeForBacklog(md) {
+  const lines = md.split('\n')
+  const out = []
+  let inFence = false
+  let buf = null
+  let bufType = null
+  const flush = () => { if (buf !== null) { out.push(buf); buf = null; bufType = null } }
+  const needSpace = (a, b) => /[A-Za-z0-9]$/.test(a) && /^[A-Za-z0-9]/.test(b)
+  const join = (a, b) => a + (needSpace(a, b) ? ' ' : '') + b
+
+  const isBlank = (l) => /^\s*$/.test(l)
+  const isFence = (l) => /^\s*(```|~~~)/.test(l)
+  const isHeading = (l) => /^#{1,6}\s/.test(l)
+  const isHr = (l) => /^\s*([-*_])\s*(\1\s*){2,}$/.test(l)
+  const isTable = (l) => /^\s*\|/.test(l)
+  const isList = (l) => /^\s*(?:[-*+]|\d+[.)])\s+/.test(l)
+  const isQuote = (l) => /^\s*>/.test(l)
+  const isHtml = (l) => /^\s*<\/?[a-zA-Z]/.test(l)
+  const isImageOnly = (l) => /^\s*!\[[^\]]*\]\([^)]*\)\s*$/.test(l)
+
+  for (const line of lines) {
+    if (isFence(line)) { flush(); out.push(line); inFence = !inFence; continue }
+    if (inFence) { out.push(line); continue }
+    if (isBlank(line)) { flush(); out.push(line); continue }
+    if (isHeading(line) || isHr(line) || isTable(line) || isHtml(line) || isImageOnly(line)) {
+      flush(); out.push(line); continue
+    }
+    if (isList(line)) { flush(); buf = line.replace(/\s+$/, ''); bufType = 'list'; continue }
+    if (isQuote(line)) {
+      const content = line.replace(/^\s*>\s?/, '')
+      if (content === '') { flush(); out.push(line); continue }
+      if (bufType === 'quote') buf = join(buf, content)
+      else { flush(); buf = '> ' + content; bufType = 'quote' }
+      continue
+    }
+    const text = line.trim()
+    if (bufType === 'prose' || bufType === 'list' || bufType === 'quote') buf = join(buf, text)
+    else { buf = text; bufType = 'prose' }
+  }
+  flush()
+  return out.join('\n')
+}
+
 async function collectPages() {
   const pages = []
 
@@ -136,7 +184,7 @@ async function collectPages() {
   for (const g of GUIDANCE_FILES) {
     try {
       const content = await readFile(g.file, 'utf8')
-      pages.push({ name: g.page, content, images: [] })
+      pages.push({ name: g.page, content: normalizeForBacklog(content), images: [] })
     } catch {
       console.warn(`スキップ（読めません）: ${g.file}`)
     }
@@ -161,7 +209,7 @@ async function collectPages() {
       const weekLabel = week.replace('week', 'Week')
       pages.push({
         name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/Day${day} ${KIND_LABEL[kind]}`,
-        content: rewriteImageRefs(raw, images),
+        content: normalizeForBacklog(rewriteImageRefs(raw, images)),
         images,
       })
     }
