@@ -74,8 +74,8 @@ async function api(method, path, params = {}) {
   return res.json()
 }
 
-// Backlog では Markdown モードでも添付画像のインライン表示に #image(名前) が必要。
-const imageRef = (_alt, filename) => `#image(${filename})`
+// Backlog Markdown モードで添付画像をインライン表示する参照形式（実機検証済み）。
+const imageRef = (_alt, filename) => `![${filename}][${filename}]`
 
 // 本文中の ../images/xxx.png 参照を抽出し、{alt, filename, absPath} の配列で返す
 function extractImages(content, mdDir) {
@@ -152,7 +152,7 @@ function normalizeForBacklog(md) {
   const isList = (l) => /^\s*(?:[-*+]|\d+[.)])\s+/.test(l)
   const isQuote = (l) => /^\s*>/.test(l)
   const isHtml = (l) => /^\s*<\/?[a-zA-Z]/.test(l)
-  const isImageOnly = (l) => /^\s*!\[[^\]]*\]\([^)]*\)\s*$/.test(l)
+  const isImageOnly = (l) => /^\s*!\[[^\]]*\][([][^)\]]*[)\]]\s*$/.test(l)
 
   for (const line of lines) {
     if (isFence(line)) { flush(); out.push(line); inFence = !inFence; continue }
