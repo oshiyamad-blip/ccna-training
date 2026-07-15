@@ -74,10 +74,8 @@ async function api(method, path, params = {}) {
   return res.json()
 }
 
-// 画像添付ファイルのインライン参照記法。スペースの書式設定により異なる場合が
-// あるため、初回投入後に表示を確認し、必要ならこのテンプレートを調整すること
-// （Markdown 書式なら添付ファイル名での相対参照、Backlog 記法なら #image(名前)）。
-const imageRef = (alt, filename) => `![${alt}](${filename})`
+// Backlog では Markdown モードでも添付画像のインライン表示に #image(名前) が必要。
+const imageRef = (_alt, filename) => `#image(${filename})`
 
 // 本文中の ../images/xxx.png 参照を抽出し、{alt, filename, absPath} の配列で返す
 function extractImages(content, mdDir) {
