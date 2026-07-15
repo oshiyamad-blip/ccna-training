@@ -48,6 +48,7 @@ const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_2進数16進数' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'subnet-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_サブネット' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'wildcard-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_ワイルドカード' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'glossary.md'), page: 'CCNA研修/00_ガイダンス/用語辞書' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/00_ガイダンス/PacketTracer導入マニュアル' },
 ]
