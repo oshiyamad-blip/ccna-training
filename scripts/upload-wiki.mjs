@@ -52,8 +52,8 @@ const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/00_ガイダンス/PacketTracer導入マニュアル' },
 ]
 
-const KIND_LABEL = { lecture: '講義', lab: 'ラボ手順書', quiz: '小テスト' }
-const KIND_FOLDER = { lecture: '01_教材', lab: '02_ラボ手順書', quiz: '04_講師用_小テスト原本' }
+const KIND_LABEL = { lecture: '講義', lab: 'ラボ手順書', work: '実習', quiz: '小テスト' }
+const KIND_FOLDER = { lecture: '01_教材', lab: '02_ラボ手順書', work: '02_実習手順書', quiz: '04_講師用_小テスト原本' }
 
 async function api(method, path, params = {}) {
   const url = new URL(`${SPACE_URL}/api/v2${path}`)
@@ -146,7 +146,17 @@ function normalizeForBacklog(md) {
   const join = (a, b) => a + (needSpace(a, b) ? ' ' : '') + b
   // 段落・引用は句点「。」ごとに1文=1行へ分割（文の途中では切らない）。
   // Backlog は単一改行を <br> にするため、これで密になりすぎず読みやすいリズムになる。
-  const splitSentences = (t) => t.match(/[^。]*。[」』）】〕》”]*|[^。]+$/g) || [t]
+  // 太字(**)やコード(`)を分断しないよう、記号が奇数個で閉じていない断片は次の文と結合する
+  const balanced = (s) => (s.match(/\*\*/g) || []).length % 2 === 0 && (s.match(/`/g) || []).length % 2 === 0
+  const splitSentences = (t) => {
+    const raw = t.match(/[^。]*。[」』）】〕》”’"']*|[^。]+$/g) || [t]
+    const res = []
+    for (const p of raw) {
+      if (res.length && !balanced(res[res.length - 1])) res[res.length - 1] += p
+      else res.push(p)
+    }
+    return res
+  }
   const flush = () => {
     if (buf === null) return
     if (bufType === 'prose') for (const s of splitSentences(buf)) out.push(s)
@@ -161,6 +171,8 @@ function normalizeForBacklog(md) {
   const isHr = (l) => /^\s*([-*_])\s*(\1\s*){2,}$/.test(l)
   const isTable = (l) => /^\s*\|/.test(l)
   const isList = (l) => /^\s*(?:[-*+]|\d+[.)])\s+/.test(l)
+  // 選択肢行（a. / A) / ア. / ① …）も各行を独立させる（連結しない）
+  const isChoice = (l) => /^\s*(?:[A-Za-zＡ-Ｚａ-ｚア-ン][.)．）]|[①-⑳])[ 　]/.test(l)
   const isQuote = (l) => /^\s*>/.test(l)
   const isHtml = (l) => /^\s*<\/?[a-zA-Z]/.test(l)
   const isImageOnly = (l) => /^\s*!\[[^\]]*\]\([^)]*\)\s*$/.test(l)
@@ -172,7 +184,7 @@ function normalizeForBacklog(md) {
     if (isHeading(line) || isHr(line) || isTable(line) || isHtml(line) || isImageOnly(line)) {
       flush(); out.push(line); continue
     }
-    if (isList(line)) { flush(); buf = line.replace(/\s+$/, ''); bufType = 'list'; continue }
+    if (isList(line) || isChoice(line)) { flush(); buf = line.replace(/\s+$/, ''); bufType = 'list'; continue }
     if (isQuote(line)) {
       const content = line.replace(/^\s*>\s?/, '')
       if (content === '') { flush(); out.push(line); continue }
@@ -210,16 +222,20 @@ async function collectPages() {
   for (const week of weeks) {
     const files = (await readdir(join(MATERIALS_DIR, week))).filter((f) => f.endsWith('.md')).sort()
     for (const f of files) {
-      const m = f.match(/^day(\d{2})-(lecture|lab|quiz)\.md$/)
+      // 本編は dayNN-{lecture,lab,quiz}、Week0 は pN-{lecture,work,quiz}
+      const dm = f.match(/^day(\d{2})-(lecture|lab|quiz)\.md$/)
+      const pm = f.match(/^p(\d{1,2})-(lecture|work|quiz)\.md$/)
+      const m = dm || pm
       if (!m) continue
-      const [, day, kind] = m
+      const kind = m[2]
+      const itemPrefix = dm ? `Day${m[1]}` : `P${Number(m[1])}`
       if (kind === 'quiz' && !INCLUDE_QUIZ) continue
       const mdDir = join(MATERIALS_DIR, week)
       const raw = await readFile(join(mdDir, f), 'utf8')
       const images = extractImages(raw, mdDir)
       const weekLabel = week.replace('week', 'Week')
       pages.push({
-        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/Day${day} ${KIND_LABEL[kind]}`,
+        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${itemPrefix} ${KIND_LABEL[kind]}`,
         content: normalizeForBacklog(rewriteImageRefs(raw, images)),
         images,
       })
