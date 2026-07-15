@@ -232,7 +232,6 @@ async function collectPages() {
       const raw = await readFile(join(mdDir, f), 'utf8')
       const images = extractImages(raw, mdDir)
       const weekLabel = week.replace('week', 'Week')
-      const unitLabel = prefix === 'p' ? `P${num}` : `Day${num}`
       pages.push({
         name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${itemPrefix} ${KIND_LABEL[kind]}`,
         content: normalizeForBacklog(rewriteImageRefs(raw, images)),
