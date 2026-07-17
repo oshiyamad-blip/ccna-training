@@ -15,6 +15,8 @@
 //               受講者ごとにプロジェクトを分ける運用（推奨）では指定不要。
 //   --assignee  課題の担当者のユーザー ID（数値、省略可）
 //   --skip-precourse  Week0「ITベーシック」プレコースを省略する（IT経験者向け）
+//   --skip-ops  継続率・合格率の運営課題（週次伴走・KPI・キックオフ等）を省略する。
+//               既定では作成する（10-retention-and-pass-rate.md に対応）
 //   --dry-run   API を呼ばず作成予定の内容を表示する
 //
 // ローリング型（受講者が随時入学）の運用では、受講者の入学ごとに本スクリプトを
@@ -24,7 +26,7 @@
 // Node.js 18 以上（fetch 内蔵）で動作。依存パッケージなし。
 
 import {
-  ISSUE_TYPES, CATEGORIES, MILESTONES, DAYS, EXAM_PHASE_ISSUES, PRE_PHASE_ISSUES,
+  ISSUE_TYPES, CATEGORIES, MILESTONES, DAYS, EXAM_PHASE_ISSUES, PRE_PHASE_ISSUES, OPS_ISSUES,
   lectureDescription, labDescription, quizDescription,
 } from './curriculum-data.mjs'
 
@@ -44,6 +46,9 @@ const DRY_RUN = args.includes('--dry-run')
 // IT経験者には --skip-precourse を指定すると Day1 から開始し、Day00（環境構築）課題を別途作成する
 const SKIP_PRE = args.includes('--skip-precourse')
 const OFFSET = SKIP_PRE ? 0 : 5 // 本編 Day1 の開始が Week0 のぶん後ろにずれる
+// 既定で継続率・合格率の運営課題（週次伴走・KPI・キックオフ等）も作成する。
+// 運営タスクを別管理する純粋な学習者専用プロジェクトでは --skip-ops で省略できる。
+const SKIP_OPS = args.includes('--skip-ops')
 
 // 受講者名によるプレフィックス（単一プロジェクト同居モード用）
 const summaryPrefix = TRAINEE ? `[${TRAINEE}] ` : ''
@@ -316,6 +321,37 @@ async function main() {
     })
     created++
     console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+  }
+
+  // 運営課題（継続率・合格率の伴走タスク。10-retention-and-pass-rate.md に対応）
+  if (!SKIP_OPS) {
+    for (const o of OPS_ISSUES) {
+      // 期限日: pre=開講前日 / start=その週の開始日 / end=その週の最終営業日
+      const base = o.week === 0 ? 0 : OFFSET + (o.week - 1) * 5
+      const dueDate = o.at === 'pre'
+        ? prevBusinessDay(START)
+        : addBusinessDays(START, o.at === 'end' ? base + 4 : base)
+      // マイルストーン: Week0 が省略されている場合は Week1 に寄せる
+      const mWeek = (o.week === 0 && SKIP_PRE) ? 1 : o.week
+      const summary = summaryPrefix + o.summary
+      if (DRY_RUN) {
+        console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=運営 週=Week${mWeek}`)
+        created++
+        continue
+      }
+      await api('POST', '/issues', {
+        projectId,
+        summary,
+        description: o.description,
+        issueTypeId: issueTypeIds.get('運営'),
+        priorityId,
+        dueDate,
+        'milestoneId[]': [milestoneIds.get(milestonePrefix + MILESTONES.find((m) => m.week === mWeek).name)],
+        ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
+      })
+      created++
+      console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+    }
   }
 
   console.log(`\n完了: ${created} 件の課題を${DRY_RUN ? '作成予定として表示' : '作成'}しました。`)
