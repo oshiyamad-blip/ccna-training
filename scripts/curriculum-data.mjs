@@ -8,7 +8,7 @@ export const ISSUE_TYPES = [
   { name: '小テスト', color: '#e30000' },
   { name: '週次テスト', color: '#ff9200' },
   { name: '模試', color: '#814fbc' },
-  { name: '運営', color: '#999999' }, // 講師の伴走タスク（継続率・合格率施策。10-retention-and-pass-rate.md に対応）
+  { name: '運営', color: '#666665' }, // 講師の伴走タスク（継続率・合格率施策。10-retention-and-pass-rate.md に対応）
 ]
 
 export const CATEGORIES = [
