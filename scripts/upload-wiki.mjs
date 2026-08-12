@@ -40,17 +40,21 @@ if (!PROJECT_KEY || (!DRY_RUN && (!SPACE_URL || !API_KEY))) {
 }
 
 const MATERIALS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'materials')
+// フォルダ構成はレビュー（2026-08 中村）を反映:
+//   00_ガイダンス   … 研修の進め方（先頭）・カリキュラム全体表・誤答ノート・週次振り返りのみ
+//   01_教材/Week0   … 環境構築系（Day00・Packet Tracer マニュアル）は Week0 と一体で学ぶ
+//   07_試験対策     … 計算ドリル・用語辞書は試験対策として独立セクションに
 const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '04-guidance.md'), page: 'CCNA研修/00_ガイダンス/研修の進め方' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'day00-setup.md'), page: 'CCNA研修/00_ガイダンス/Day00 環境構築' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'error-log.md'), page: 'CCNA研修/00_ガイダンス/誤答ノートの書き方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'weekly-retro.md'), page: 'CCNA研修/00_ガイダンス/週次振り返りの書き方' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_2進数16進数' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'subnet-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_サブネット' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'wildcard-drill.md'), page: 'CCNA研修/00_ガイダンス/計算ドリル_ワイルドカード' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'glossary.md'), page: 'CCNA研修/00_ガイダンス/用語辞書' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/00_ガイダンス/PacketTracer導入マニュアル' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'day00-setup.md'), page: 'CCNA研修/01_教材/Week0/Day00 環境構築' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/01_教材/Week0/PacketTracer導入マニュアル' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_2進数16進数' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'subnet-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_サブネット' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'wildcard-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_ワイルドカード' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'glossary.md'), page: 'CCNA研修/07_試験対策/用語辞書' },
 ]
 
 const KIND_LABEL = { lecture: '講義', lab: 'ラボ手順書', work: '実習', quiz: '小テスト' }

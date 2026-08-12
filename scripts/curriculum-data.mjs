@@ -55,7 +55,7 @@ export const PRE_PHASE_ISSUES = [
     description: '## やること\n1. この課題の状態を「処理中」に変える\n2. コメントで見出し・箇条書き・表を1つずつ書いてみる\n3. スクリーンショットを添付してみる\n\n## 完了条件\n- [ ] 状態変更・コメント・添付の3つができた' },
   { day: 4, type: '小テスト', summary: '[P4] 小テスト: Backlog操作とITマナー', description: '10問・30分。解答はコメントに「Q1: A」形式で。' },
   { day: 5, type: '講義', summary: '[P5] 講義: ネットワークに触れる（ipconfig・Packet Tracer準備）',
-    description: '## 進め方\n- 教材「week0 > P5」を読む。自分のPCが今どうネットにつながっているかを ipconfig で確認し、明日から使う Packet Tracer をセットアップします（手順は「00_ガイダンス > Day00 環境構築」）' },
+    description: '## 進め方\n- 教材「week0 > P5」を読む。自分のPCが今どうネットにつながっているかを ipconfig で確認し、明日から使う Packet Tracer をセットアップします（手順は「01_教材 > Week0 > Day00 環境構築」）' },
   { day: 5, type: 'ラボ', summary: '[P5] 実習: Packet TracerでPC2台をつないでping',
     description: '## やること\n- Packet Tracer のセットアップ（NetAcadアカウント作成→インストール）\n- ミニ演習: PC2台+スイッチで ping 成功まで\n\n## 提出\n- ping成功のスクリーンショットと .pkt ファイルを添付' },
   { day: 5, type: '週次テスト', summary: '[P5] Week0まとめテスト', description: 'Week0の全範囲から15問・45分。70%以上で本編（Day1）へ進みます。届かなくても大丈夫、弱いところを補強してから進めば良いだけです。解答はコメントに「Q1: A」形式で。' },
