@@ -19,7 +19,7 @@
 
 | 重大度 | 内容 | 対応 |
 |---|---|---|
-| medium | Google Public DNS の実 IP `8.8.8.8` / `8.8.4.4` / `8.8.8.1` を、Day14・Day20 の外部サーバの**デバイス設定値**（IP・DHCP dns-server・ACL 宛先・ping 対象）として使用 | 文書用レンジ `198.51.100.0/24`（TEST-NET-2）に全置換。教材（lecture/lab/quiz）・模試①③・図 3 枚を修正し再レンダリング。参照整合を確認 |
+| medium | Google Public DNS の実 IP `8.8.8.8` / `8.8.4.4` / `8.8.8.1` を、Exercise14・Exercise20 の外部サーバの**デバイス設定値**（IP・DHCP dns-server・ACL 宛先・ping 対象）として使用 | 文書用レンジ `198.51.100.0/24`（TEST-NET-2）に全置換。教材（lecture/lab/quiz）・模試①③・図 3 枚を修正し再レンダリング。参照整合を確認 |
 | low | OSPF Router ID に `1.1.1.1`（Cloudflare）・`9.9.9.9`（Quad9）を使用 | 業界慣習として許容（Packet Tracer 内で完結）。厳密化は任意として 09 に記載 |
 
 MAC アドレスはプレースホルダ/プロトコル標準のみ、ドメインは example.com 系と

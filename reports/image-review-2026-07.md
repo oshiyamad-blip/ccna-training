@@ -16,24 +16,24 @@
 
 | 図 | 種別 | 不具合 | 修正 |
 |---|---|---|---|
-| day06-topology | overlap | Fa0/2・Fa0/4 のラベルを接続線が貫通 | 4ラベルを線の上へ統一配置＋白ハローで分離 |
-| day09-topology | overlap | SW1・SW3 の「Gi0/2」がスイッチ枠に重なる | ラベルを枠外へオフセットして重なり解消 |
-| day11-topology | overlap | バックアップ経路の点線が住所ラベルを貫通 | ラベルを外側へオフセット＋白ハロー付与 |
-| day12-topology | overlap | OSPFエリア境界の点線がPC2リンクラベルを分断 | ラベルを境界の内側へ移動 |
-| day14-nat-terminology | overflow | 用語ボックスのヘッダーが枠内いっぱいで余白なし | 枠幅拡張＋フォント微縮小で左右パディング確保 |
-| day19-topology | overlap | リンク線がゲートウェイIPラベルを貫通 | ラベルを線の右へ左寄せ配置（style優先で確実化） |
+| exercise06-topology | overlap | Fa0/2・Fa0/4 のラベルを接続線が貫通 | 4ラベルを線の上へ統一配置＋白ハローで分離 |
+| exercise09-topology | overlap | SW1・SW3 の「Gi0/2」がスイッチ枠に重なる | ラベルを枠外へオフセットして重なり解消 |
+| exercise11-topology | overlap | バックアップ経路の点線が住所ラベルを貫通 | ラベルを外側へオフセット＋白ハロー付与 |
+| exercise12-topology | overlap | OSPFエリア境界の点線がPC2リンクラベルを分断 | ラベルを境界の内側へ移動 |
+| exercise14-nat-terminology | overflow | 用語ボックスのヘッダーが枠内いっぱいで余白なし | 枠幅拡張＋フォント微縮小で左右パディング確保 |
+| exercise19-topology | overlap | リンク線がゲートウェイIPラベルを貫通 | ラベルを線の右へ左寄せ配置（style優先で確実化） |
 
 ## 2. 検出と修正（low＝読みやすさ・様式の統一）
 
 | 図 | 種別 | 不具合 | 修正 |
 |---|---|---|---|
-| day01-encapsulation | font | 右端の縦向き注記が各文字90°横倒しで読みにくい | `writing-mode: vertical-rl` の日本語縦組み（グリフ正立）に変更 |
-| day01-encapsulation | alignment | 層ラベルのL2/L1だけ基準位置が他行と食い違い | 5行すべてボックス上端・左寄せに統一 |
-| day03-vlsm-block-allocation | alignment | 上段「WAN /30」ラベルが隣のグレー(未使用)ブロック上にあり誤読 | 上段のWANラベルを削除し下段コールアウトへ一本化、「プリンタ /28」を対象ブロック中心へ |
-| day06-topology | label-correctness | PCのIP表記「…11 /24」に半角スペース（他図と不一致） | 4か所の `/24` 前スペースを削除し「…11/24」に統一 |
-| day01-topology | style-consistency | スイッチ本体だけ枠線付き（他トポロジは枠線なし） | 枠線を削除し塗りのみに統一 |
-| day07-native-vlan-mismatch | font | 等幅フォントが `monospace` 単独指定（他図は2段フォールバック） | `"DejaVu Sans Mono", monospace` に統一（環境差の字形ブレ耐性向上） |
-| day08-topology | style-consistency | `text-anchor:end` のコロン後スペース欠落（ソース書式ゆれ） | `text-anchor: end` に統一（見た目不変） |
+| exercise01-encapsulation | font | 右端の縦向き注記が各文字90°横倒しで読みにくい | `writing-mode: vertical-rl` の日本語縦組み（グリフ正立）に変更 |
+| exercise01-encapsulation | alignment | 層ラベルのL2/L1だけ基準位置が他行と食い違い | 5行すべてボックス上端・左寄せに統一 |
+| exercise03-vlsm-block-allocation | alignment | 上段「WAN /30」ラベルが隣のグレー(未使用)ブロック上にあり誤読 | 上段のWANラベルを削除し下段コールアウトへ一本化、「プリンタ /28」を対象ブロック中心へ |
+| exercise06-topology | label-correctness | PCのIP表記「…11 /24」に半角スペース（他図と不一致） | 4か所の `/24` 前スペースを削除し「…11/24」に統一 |
+| exercise01-topology | style-consistency | スイッチ本体だけ枠線付き（他トポロジは枠線なし） | 枠線を削除し塗りのみに統一 |
+| exercise07-native-vlan-mismatch | font | 等幅フォントが `monospace` 単独指定（他図は2段フォールバック） | `"DejaVu Sans Mono", monospace` に統一（環境差の字形ブレ耐性向上） |
+| exercise08-topology | style-consistency | `text-anchor:end` のコロン後スペース欠落（ソース書式ゆれ） | `text-anchor: end` に統一（見た目不変） |
 
 ## 3. トンマナ（トーン&マナー）一貫性の判定 → 非常に高い
 
@@ -47,7 +47,7 @@
 - 下部の🎯付き「ゴール/試験のポイント」callout
 - stroke-width の使い分け（ケーブル線／アイコン枠／強調矢印）と矢印マーカー定義
 
-残っていた不一致（day01-topologyのスイッチ枠線、等幅フォントのフォールバック段数、CSS書式ゆれ）は
+残っていた不一致（exercise01-topologyのスイッチ枠線、等幅フォントのフォールバック段数、CSS書式ゆれ）は
 いずれも装飾/ソース書式レベルの軽微なもので、上記2で全て是正済み。
 
 ## 結論

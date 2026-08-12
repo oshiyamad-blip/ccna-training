@@ -32,7 +32,7 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 - ケーブルは「自動選択（Automatically Choose Connection Type）」で可。ただし
   リンクが赤くなる場合は手順書指定の種別（ストレート/クロス）で結線
 - リンクが**緑**になる（STP 収束済み）状態まで待ってから保存する
-- ファイル名は `dayNN_start.pkt`（例: `day06_start.pkt`）。Day0/P5 用は `day00_start.pkt`
+- ファイル名は `dayNN_start.pkt`（例: `exercise06_start.pkt`）。Exercise0/P5 用は `exercise00_start.pkt`
 - 保存前に受講者視点で一度開き、意図した状態（本題が未設定）になっているか確認
 
 ## 検収チェック（各ファイル共通）
@@ -50,62 +50,62 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 各行の「参照」列のラボ手順書で、機器・ポート・IP の詳細と完成状態を確認すること。
 「作り込みレベル」は上表の A/B/C。
 
-### Week 0（プレコース）
+### LESSON 0（プレコース）
 
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
-| day00_start.pkt | materials/day00-setup.md ／ 03-packet-tracer-manual.md | — | **空ファイルで可**（PC2台+スイッチを受講者が置く体験が目的）。開始ファイルは不要だが、完成見本を `day00_answer.pkt` として用意すると質問対応が楽 |
+| exercise00_start.pkt | materials/exercise00-setup.md ／ 03-packet-tracer-manual.md | — | **空ファイルで可**（PC2台+スイッチを受講者が置く体験が目的）。開始ファイルは不要だが、完成見本を `exercise00_answer.pkt` として用意すると質問対応が楽 |
 
-### Week 1
-
-| ファイル | 参照 | レベル | 特記事項 |
-|---|---|---|---|
-| day01_start.pkt | week1/day01-lab.md | **B** | PC2台+スイッチ2960。配線のみ。IP設定〜pingが学習対象なので PC の IP も未設定 |
-| day02_start.pkt | week1/day02-lab.md | A | R1/SW1/SW2/PC/Admin-PC 配線済み・PC類IP済み。IOS初期設定（hostname/SSH等）が本題なのでルータ/スイッチは初期状態 |
-| day03_start.pkt | week1/day03-lab.md | **B** | VLSM設計が学習対象。機器配置+配線のみ、IP は受講者が設計・設定 |
-| day04_start.pkt | week1/day04-lab.md | A | IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み |
-| day05_start.pkt | week1/day05-lab.md | A | MACテーブル観察・切り分け。配線済み・PC IP済み、スイッチは初期状態 |
-
-### Week 2
+### LESSON 1
 
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
-| day06_start.pkt | week2/day06-lab.md | A | VLAN作成が本題。スイッチ+PC配線済み・PC IP済み、スイッチ初期状態 |
-| day07_start.pkt | week2/day07-lab.md | **C** | トランク設定・障害演習。前提として各スイッチにVLANとアクセスポートを投入済みにし、トランク設定を受講者が行う |
-| day08_start.pkt | week2/day08-lab.md | C | VLAN間ルーティング。VLAN・アクセスポート・PC IP済み。Router-on-a-Stick / SVI が本題 |
-| day09_start.pkt | week2/day09-lab.md | A | STP/EtherChannel観察。スイッチ3台の冗長配線済み・初期状態（STPの既定動作を観察するため） |
-| day10_start.pkt | week2/day10-lab.md | A | WLC+AP+クライアント配置・有線側配線済み。WLAN構築が本題 |
+| exercise01_start.pkt | lesson1/exercise01-lab.md | **B** | PC2台+スイッチ2960。配線のみ。IP設定〜pingが学習対象なので PC の IP も未設定 |
+| exercise02_start.pkt | lesson1/exercise02-lab.md | A | R1/SW1/SW2/PC/Admin-PC 配線済み・PC類IP済み。IOS初期設定（hostname/SSH等）が本題なのでルータ/スイッチは初期状態 |
+| exercise03_start.pkt | lesson1/exercise03-lab.md | **B** | VLSM設計が学習対象。機器配置+配線のみ、IP は受講者が設計・設定 |
+| exercise04_start.pkt | lesson1/exercise04-lab.md | A | IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み |
+| exercise05_start.pkt | lesson1/exercise05-lab.md | A | MACテーブル観察・切り分け。配線済み・PC IP済み、スイッチは初期状態 |
 
-### Week 3
-
-| ファイル | 参照 | レベル | 特記事項 |
-|---|---|---|---|
-| day11_start.pkt | week3/day11-lab.md | A | 静的ルート。ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空（静的ルート投入が本題） |
-| day12_start.pkt | week3/day12-lab.md | A | OSPF。ルータ3〜4台の配線・インターフェースIP済み。OSPF設定は空 |
-| day13_start.pkt | week3/day13-lab.md | **C** | OSPF障害切り分け+HSRP。**意図的なミス入りのOSPF設定を投入済み**（手順書の障害シナリオどおり）。切り分けとHSRPが本題 |
-| day14_start.pkt | week3/day14-lab.md | A | NAT。内部/外部セグメント配線・IP済み（外部サーバは 198.51.100.8）。NAT設定が本題 |
-| day15_start.pkt | week3/day15-lab.md | A | DHCP/NTP/Syslog。配線・IP済み。各サービス設定が本題 |
-
-### Week 4
+### LESSON 2
 
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
-| day16_start.pkt | week4/day16-lab.md | A | デバイス堅牢化。配線・IP済み、機器は初期状態（堅牢化設定が本題） |
-| day17_start.pkt | week4/day17-lab.md | **C** | ACL。VLAN間ルーティングやサーバ配置など前提を完成済みにし、ACL設計・適用のみを本題に残す |
-| day18_start.pkt | week4/day18-lab.md | C | L2セキュリティ。スイッチ+PC+（不正DHCP役）配線・IP済み。ポートセキュリティ/DHCPスヌーピングが本題 |
-| day19_start.pkt | week4/day19-lab.md | A | 自動化。ネットワークコントローラ+機器配置済み。REST API/JSON演習が本題（PT のコントローラ機能を使用） |
-| day20_start.pkt | week4/day20-lab.md | **C（大規模・要注意）** | **総合演習**。機器配置+配線+PC/サーバIPまでを済ませ、**すべてのIOS設定は空**（VLAN/OSPF/HSRP/DHCP/NAT/ACL/SSH/ポートセキュリティを受講者がゼロから）。最も作成に時間がかかる。完成見本 `day20_answer.pkt` も必ず用意 |
+| exercise06_start.pkt | lesson2/exercise06-lab.md | A | VLAN作成が本題。スイッチ+PC配線済み・PC IP済み、スイッチ初期状態 |
+| exercise07_start.pkt | lesson2/exercise07-lab.md | **C** | トランク設定・障害演習。前提として各スイッチにVLANとアクセスポートを投入済みにし、トランク設定を受講者が行う |
+| exercise08_start.pkt | lesson2/exercise08-lab.md | C | VLAN間ルーティング。VLAN・アクセスポート・PC IP済み。Router-on-a-Stick / SVI が本題 |
+| exercise09_start.pkt | lesson2/exercise09-lab.md | A | STP/EtherChannel観察。スイッチ3台の冗長配線済み・初期状態（STPの既定動作を観察するため） |
+| exercise10_start.pkt | lesson2/exercise10-lab.md | A | WLC+AP+クライアント配置・有線側配線済み。WLAN構築が本題 |
+
+### LESSON 3
+
+| ファイル | 参照 | レベル | 特記事項 |
+|---|---|---|---|
+| exercise11_start.pkt | lesson3/exercise11-lab.md | A | 静的ルート。ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空（静的ルート投入が本題） |
+| exercise12_start.pkt | lesson3/exercise12-lab.md | A | OSPF。ルータ3〜4台の配線・インターフェースIP済み。OSPF設定は空 |
+| exercise13_start.pkt | lesson3/exercise13-lab.md | **C** | OSPF障害切り分け+HSRP。**意図的なミス入りのOSPF設定を投入済み**（手順書の障害シナリオどおり）。切り分けとHSRPが本題 |
+| exercise14_start.pkt | lesson3/exercise14-lab.md | A | NAT。内部/外部セグメント配線・IP済み（外部サーバは 198.51.100.8）。NAT設定が本題 |
+| exercise15_start.pkt | lesson3/exercise15-lab.md | A | DHCP/NTP/Syslog。配線・IP済み。各サービス設定が本題 |
+
+### LESSON 4
+
+| ファイル | 参照 | レベル | 特記事項 |
+|---|---|---|---|
+| exercise16_start.pkt | lesson4/exercise16-lab.md | A | デバイス堅牢化。配線・IP済み、機器は初期状態（堅牢化設定が本題） |
+| exercise17_start.pkt | lesson4/exercise17-lab.md | **C** | ACL。VLAN間ルーティングやサーバ配置など前提を完成済みにし、ACL設計・適用のみを本題に残す |
+| exercise18_start.pkt | lesson4/exercise18-lab.md | C | L2セキュリティ。スイッチ+PC+（不正DHCP役）配線・IP済み。ポートセキュリティ/DHCPスヌーピングが本題 |
+| exercise19_start.pkt | lesson4/exercise19-lab.md | A | 自動化。ネットワークコントローラ+機器配置済み。REST API/JSON演習が本題（PT のコントローラ機能を使用） |
+| exercise20_start.pkt | lesson4/exercise20-lab.md | **C（大規模・要注意）** | **総合演習**。機器配置+配線+PC/サーバIPまでを済ませ、**すべてのIOS設定は空**（VLAN/OSPF/HSRP/DHCP/NAT/ACL/SSH/ポートセキュリティを受講者がゼロから）。最も作成に時間がかかる。完成見本 `exercise20_answer.pkt` も必ず用意 |
 
 ### 試験対策フェーズ（任意）
 
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
-| exam_lab_start.pkt | 07-exam-phase.md（Day24 総仕上げラボ） | C | Day20 総合演習の類題。別トポロジ・別アドレスで1つ用意すると、制限時間付き実技練習に使える（任意） |
+| exam_lab_start.pkt | 07-exam-phase.md（Exercise24 総仕上げラボ） | C | Exercise20 総合演習の類題。別トポロジ・別アドレスで1つ用意すると、制限時間付き実技練習に使える（任意） |
 
 ## 作成の進め方（推奨）
 
-1. まず **Day1〜5** を作る（Week1 が始まればすぐ必要）。1個15〜30分が目安
-2. 障害シナリオ入り（Day13）と総合演習（Day20）は時間がかかるので優先的に着手
+1. まず **Exercise1〜5** を作る（LESSON1 が始まればすぐ必要）。1個15〜30分が目安
+2. 障害シナリオ入り（Exercise13）と総合演習（Exercise20）は時間がかかるので優先的に着手
 3. 各ファイルは完成後、上の「検収チェック」を実施
 4. 作成した `.pkt` は各ラボ課題に添付する（`upload-wiki.mjs` は Markdown 教材専用の
    ため、`.pkt` は Backlog 課題への手動添付、またはファイル共有で配布する）

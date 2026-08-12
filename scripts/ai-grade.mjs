@@ -13,11 +13,11 @@
 //   BACKLOG_SPACE_URL=https://your-space.backlog.jp \
 //   BACKLOG_API_KEY=xxxxxxxx \
 //   ANTHROPIC_API_KEY=sk-ant-... \
-//   node ai-grade.mjs --issue CCNA-42 --day 3 [--post] [--model claude-opus-4-8]
+//   node ai-grade.mjs --issue CCNA-42 --exercise 3 [--post] [--model claude-opus-4-8]
 //
 //   --issue  小テスト課題の課題キー
-//   --day    出題日（1〜20）。教材 materials/weekN/dayNN-quiz.md を正解として使用
-//   --quiz   quiz ファイルのパスを直接指定（--day の代わり）
+//   --exercise 出題番号（1〜20）。教材 materials/lessonN/exerciseNN-quiz.md を正解として使用
+//   --quiz   quiz ファイルのパスを直接指定（--exercise の代わり）
 //   --post   採点結果を Backlog の課題にコメント投稿する（既定は表示のみ）
 //   --model  使用モデル（既定: claude-opus-4-8）
 //
@@ -47,7 +47,7 @@ function argValue(name) {
   return i >= 0 ? args[i + 1] : undefined
 }
 const ISSUE = argValue('--issue')
-const DAY = argValue('--day')
+const DAY = argValue('--exercise') ?? argValue('--day')
 const QUIZ_PATH = argValue('--quiz')
 const POST = args.includes('--post')
 const MODEL = argValue('--model') ?? 'claude-opus-4-8'
@@ -58,7 +58,7 @@ const BACKLOG_KEY = process.env.BACKLOG_API_KEY
 if (!ISSUE || (!DAY && !QUIZ_PATH) || !SPACE_URL || !BACKLOG_KEY || !process.env.ANTHROPIC_API_KEY) {
   console.error('必須の指定が不足しています。')
   console.error('  環境変数: BACKLOG_SPACE_URL, BACKLOG_API_KEY, ANTHROPIC_API_KEY')
-  console.error('  引数    : --issue <課題キー> --day <1-20>（または --quiz <path>） [--post] [--model <id>]')
+  console.error('  引数    : --issue <課題キー> --exercise <1-20>（または --quiz <path>） [--post] [--model <id>]')
   process.exit(1)
 }
 
@@ -138,7 +138,7 @@ const GRADE_SCHEMA = {
 async function main() {
   // 1. 教材（正解）を読む
   const base = join(dirname(fileURLToPath(import.meta.url)), '..')
-  const quizFile = QUIZ_PATH ?? join(base, 'materials', `week${Math.ceil(Number(DAY) / 5)}`, `day${String(DAY).padStart(2, '0')}-quiz.md`)
+  const quizFile = QUIZ_PATH ?? join(base, 'materials', `lesson${Math.ceil(Number(DAY) / 5)}`, `exercise${String(DAY).padStart(2, "0")}-quiz.md`)
   const quizMd = await readFile(quizFile, 'utf8')
 
   // 2. 受講者の解答コメントを取得

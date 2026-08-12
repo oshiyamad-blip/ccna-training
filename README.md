@@ -1,6 +1,6 @@
 # CCNA 研修プログラム（Backlog 構築用）
 
-CCNA 200-301 v1.1 に準拠した社内研修（Week0 プレコース 5 営業日 / 35 時間を含め
+CCNA 200-301 v1.1 に準拠した社内研修（LESSON0 プレコース 5 営業日 / 35 時間を含め
 計 25 営業日 / 175 時間。本編は 20 営業日 / 140 時間）を、
 Nulab **Backlog** 上に構築するための設計ドキュメント・教材・ツール一式です。
 
@@ -15,11 +15,11 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
 | [`04-guidance.md`](./04-guidance.md) | 受講者向けガイダンス「研修の進め方」（Backlog `00_ガイダンス` 用） |
 | [`05-instructor-guide.md`](./05-instructor-guide.md) | 講師用運用ガイド（開講前チェックリスト・日次運用・採点基準。受講者非公開） |
 | [`06-rolling-operations.md`](./06-rolling-operations.md) | ローリング型運用ガイド（随時入学・卒業のプロジェクト構成、入学/卒業手順、負荷目安) |
-| [`07-exam-phase.md`](./07-exam-phase.md) | 試験対策フェーズ（Day 21〜）。模試サイクルで合格まで伴走する設計（自習期間なし） |
+| [`07-exam-phase.md`](./07-exam-phase.md) | 試験対策フェーズ（Exercise 21〜）。模試サイクルで合格まで伴走する設計（自習期間なし） |
 | [`09-security-privacy.md`](./09-security-privacy.md) | セキュリティ・プライバシー運用ガイド（個人データの棚卸し・アクセス権・保存/削除・AI採点告知・シークレット管理） |
-| [`materials/`](./materials/) | 教材本体（Week0 + Day1〜20 の講義・ラボ手順書・小テスト、計算ドリル、模試、pkt-build-spec.md） |
+| [`materials/`](./materials/) | 教材本体（LESSON0 + Exercise1〜20 の講義・ラボ手順書・小テスト、計算ドリル、模試、pkt-build-spec.md） |
 | [`scripts/`](./scripts/) | 運用スクリプト（課題一括投入 / Wiki 教材投入 / 選択式の機械採点 / AI 一次採点） |
-| [`samples/`](./samples/) | Day 1 のサンプル教材（講義ドキュメント・ラボ手順書・小テスト） |
+| [`samples/`](./samples/) | Exercise 1 のサンプル教材（講義ドキュメント・ラボ手順書・小テスト） |
 
 ## 使い方（構築フロー）
 

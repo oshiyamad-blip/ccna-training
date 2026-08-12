@@ -57,7 +57,7 @@ Opus・high effort で、模試5本×100問＝**計500問を1問ずつ分類**�
 
 ### 「教材を暗記したら満点が取れる？」→ 取れない。天井は平均73%
 
-各設問を「**参照Dayの教材本文を丸暗記していれば正答できるか**」で排他分類した（memorizable + application + uncoverable = 100）。
+各設問を「**参照Exerciseの教材本文を丸暗記していれば正答できるか**」で排他分類した（memorizable + application + uncoverable = 100）。
 
 | 模試 | 暗記で解ける | 要・適用（計算/解釈/適用） | 教材の穴（記載なし） | **暗記天井** |
 |---|---|---|---|---|
@@ -81,29 +81,29 @@ Opus・high effort で、模試5本×100問＝**計500問を1問ずつ分類**�
 
 **(B) 教材の穴＝平均2.0%**（暗記努力と無関係に落とす。**教材側で補強が必要**）
 
-| 追加すべき教材 | Day | 根拠設問 |
+| 追加すべき教材 | Exercise | 根拠設問 |
 |---|---|---|
-| config-register / ROMMON / パスワード回復（0x2102, 0x2142） | Day2 | m5 Q5,Q6 |
-| `crypto key zeroize rsa`（RSA鍵の再生成/削除） | Day2 | m4 Q7 |
-| `login quiet-mode access-class` による管理サブネット除外 | Day16 | m2 Q82, m5 Q83 |
-| 隠れ端末問題・RTS/CTS | Day10 | m4 Q35 |
-| SWIM / ゴールデンイメージ / 一括アップグレード | Day19 | m4 Q93 |
-| YANG（データモデリング言語） | Day19 | m5 Q95 |
-| SD-Access ファブリック3ノード役割 | Day19 | m5 Q97 |
-| DMVPN / マルチポイントVPN | Day18 | m5 Q90 |
+| config-register / ROMMON / パスワード回復（0x2102, 0x2142） | Exercise2 | m5 Q5,Q6 |
+| `crypto key zeroize rsa`（RSA鍵の再生成/削除） | Exercise2 | m4 Q7 |
+| `login quiet-mode access-class` による管理サブネット除外 | Exercise16 | m2 Q82, m5 Q83 |
+| 隠れ端末問題・RTS/CTS | Exercise10 | m4 Q35 |
+| SWIM / ゴールデンイメージ / 一括アップグレード | Exercise19 | m4 Q93 |
+| YANG（データモデリング言語） | Exercise19 | m5 Q95 |
+| SD-Access ファブリック3ノード役割 | Exercise19 | m5 Q97 |
+| DMVPN / マルチポイントVPN | Exercise18 | m5 Q90 |
 
-> 最優先は **Day19・Day2・Day16**。特に Day19 は**最頻出（各回Q91-100の10問）なのに教材が浅い**（SWIM/YANG/SD-Access欠落）＝投資対効果が最大の補強ポイント。補強すれば mock-5 の天井は 67%→約73% に回復し、他模試との整合も取れる。
+> 最優先は **Exercise19・Exercise2・Exercise16**。特に Exercise19 は**最頻出（各回Q91-100の10問）なのに教材が浅い**（SWIM/YANG/SD-Access欠落）＝投資対効果が最大の補強ポイント。補強すれば mock-5 の天井は 67%→約73% に回復し、他模試との整合も取れる。
 
 ### 教材→模試のカバレッジ（濃淡）
 
-- **厚い**: Day19（自動化, 各回10問で最大の得点源）／Day12（OSPF）／Day15（IPサービス）／Day16（セキュリティ）／Day8（inter-VLAN）
-- **薄い**: Day14（NAT, 一貫して2問前後で最薄）／Day6・Day17・Day1・Day4・Day5
-- **出題ゼロ**: Day20（総復習・受験前調整回。設問化しないのは**設計通り**で教材欠陥ではない）
+- **厚い**: Exercise19（自動化, 各回10問で最大の得点源）／Exercise12（OSPF）／Exercise15（IPサービス）／Exercise16（セキュリティ）／Exercise8（inter-VLAN）
+- **薄い**: Exercise14（NAT, 一貫して2問前後で最薄）／Exercise6・Exercise17・Exercise1・Exercise4・Exercise5
+- **出題ゼロ**: Exercise20（総復習・受験前調整回。設問化しないのは**設計通り**で教材欠陥ではない）
 
 ### 参照アンカーの整合（軽微・分類の問題）
 
-- OSPF応用（MTU不一致・default-information originate・E1/E2）が模試では **Day12参照だが実体は Day13**（m5 Q56-58）。→ 教材側で **Day12=シングルエリア基礎／Day13=OSPF応用** の範囲境界を明示すると学習者の参照迷子を防げる。
-- VLANホッピングのアンカーDayが模試内で二重化（Day7 と Day18）。→ どちらかに寄せるか相互参照を付す。
+- OSPF応用（MTU不一致・default-information originate・E1/E2）が模試では **Exercise12参照だが実体は Exercise13**（m5 Q56-58）。→ 教材側で **Exercise12=シングルエリア基礎／Exercise13=OSPF応用** の範囲境界を明示すると学習者の参照迷子を防げる。
+- VLANホッピングのアンカーExerciseが模試内で二重化（Exercise7 と Exercise18）。→ どちらかに寄せるか相互参照を付す。
 
 ---
 
@@ -114,7 +114,7 @@ Opus・high effort で、模試5本×100問＝**計500問を1問ずつ分類**�
 1. **暗記だけでは天井73%＝不合格**。recall/understand の73%を固めるのは必要条件。だが合格には**あと10ポイント以上を暗記の外側から積む**。
 2. **ドリル（計算）で7〜11%を回収**。サブネット・メトリック・ワイルドカードは最も投資効率の良い上積み（計算ドリル163問が対応）。
 3. **ラボ（出力解釈）で apply/analyze を回収**。`show`出力・コンフィグ読解は実機/シミュレータのハンズオン以外に代替なし。本番に近い模試ほどこの比率が上がる。
-4. **教材穴（平均2%・最大6%）は制作側で補強**（上表 Day2/16/19 ほか）。
+4. **教材穴（平均2%・最大6%）は制作側で補強**（上表 Exercise2/16/19 ほか）。
 
 > 本研修は既に「講義（暗記）＋計算ドリル＋Packet Tracer ラボ」の三本柱を備えており、方向性は正しい。上記の**模試へのシムレット追加・フォーム等価化**と**教材8箇所の穴埋め**を行えば、模試の合否予測精度と教材の網羅性がさらに上がる。
 
@@ -124,8 +124,8 @@ Opus・high effort で、模試5本×100問＝**計500問を1問ずつ分類**�
 
 | 優先 | 区分 | 内容 |
 |---|---|---|
-| 高 | 教材補強 | Day19 に SWIM/YANG/SD-Access、Day2 に config-register/パスワード回復/`crypto key zeroize`、Day16 に `login quiet-mode access-class` を追記 |
+| 高 | 教材補強 | Exercise19 に SWIM/YANG/SD-Access、Exercise2 に config-register/パスワード回復/`crypto key zeroize`、Exercise16 に `login quiet-mode access-class` を追記 |
 | 高 | 模試設計 | シムレット模擬を各回3〜5問追加（Sim欠落の補償）／5本のフォーム等価化 or GO基準の見直し |
-| 中 | 教材補強 | Day10 に隠れ端末・RTS/CTS、Day18 に DMVPN を追記 |
+| 中 | 教材補強 | Exercise10 に隠れ端末・RTS/CTS、Exercise18 に DMVPN を追記 |
 | 中 | 模試設計 | v1.1新規（生成AI/ML・クラウド管理）を自動化ドメインに各1問固定 |
-| 低 | 整合 | Day12/Day13 の範囲境界明示、VLANホッピングのアンカー統一、mock-2 のD&D露出追加、いくつかの曖昧設問（m1 Q88, m4 Q95, m5 Q4/Q94 等）の設問文精緻化 |
+| 低 | 整合 | Exercise12/Exercise13 の範囲境界明示、VLANホッピングのアンカー統一、mock-2 のD&D露出追加、いくつかの曖昧設問（m1 Q88, m4 Q95, m5 Q4/Q94 等）の設問文精緻化 |

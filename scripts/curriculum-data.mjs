@@ -22,50 +22,50 @@ export const CATEGORIES = [
 
 // week: 1〜5 がマイルストーンに対応
 export const MILESTONES = [
-  { week: 0, name: 'Week0-ITベーシック' },
-  { week: 1, name: 'Week1-ネットワーク基礎' },
-  { week: 2, name: 'Week2-ネットワークアクセス' },
-  { week: 3, name: 'Week3-IPコネクティビティとIPサービス' },
-  { week: 4, name: 'Week4-セキュリティと自動化' },
-  { week: 5, name: 'Week5-試験対策' },
+  { week: 0, name: 'LESSON0-ITベーシック' },
+  { week: 1, name: 'LESSON1-ネットワーク基礎' },
+  { week: 2, name: 'LESSON2-ネットワークアクセス' },
+  { week: 3, name: 'LESSON3-IPコネクティビティとIPサービス' },
+  { week: 4, name: 'LESSON4-セキュリティと自動化' },
+  { week: 5, name: 'LESSON5-試験対策' },
 ]
 
 
-// Week 0「IT ベーシック」プレコース（P1〜P5）。ITリテラシーゼロの受講者向け。
-// day は Week0 内の営業日（1〜5）。経験者は --skip-precourse で丸ごと省略できる
+// LESSON 0「IT ベーシック」プレコース（P1〜P5）。ITリテラシーゼロの受講者向け。
+// day は LESSON0 内の営業日（1〜5）。経験者は --skip-precourse で丸ごと省略できる
 export const PRE_PHASE_ISSUES = [
   { day: 1, type: '講義', summary: '[P1] 講義: コンピュータの基礎（ハードウェア・OS・ファイル）',
-    description: '## 進め方\n- 教材「week0 > P1」を読む（3h目安）。CPU=作業する人、メモリ=作業机、ストレージ=本棚、のたとえで全体像をつかむ\n- わからない言葉が出てきたら、それ自体を課題コメントで質問してOK（この研修では質問が最重要スキルです）' },
+    description: '## 進め方\n- 教材「lesson0 > P1」を読む（3h目安）。CPU=作業する人、メモリ=作業机、ストレージ=本棚、のたとえで全体像をつかむ\n- わからない言葉が出てきたら、それ自体を課題コメントで質問してOK（この研修では質問が最重要スキルです）' },
   { day: 1, type: 'ラボ', summary: '[P1] 実習: ファイル・フォルダ操作とタイピング',
     description: '## やること\n1. 教材の手順どおりフォルダ作成・コピー・名前変更・削除を実施\n2. ショートカットキー（コピー/貼り付け/元に戻す/スクリーンショット）を体で覚える\n3. タイピング練習 10 分（明日から毎朝続けます）\n\n## 提出\n- 作ったフォルダ構成のスクリーンショットをコメントに貼る' },
   { day: 1, type: '小テスト', summary: '[P1] 小テスト: コンピュータの構成', description: '10問・30分。解答はコメントに「Q1: A」形式で。やさしい問題です。まちがえても大丈夫、明日の朝に解き直せば力になります。' },
   { day: 2, type: '講義', summary: '[P2] 講義: 数の基礎（2進数・16進数・単位）',
-    description: '## 進め方\n- 教材「week0 > P2」を読む。なぜコンピュータは0と1しか使わないのか、から始めます\n- **この回は本編のサブネット計算（Day3）の土台になる最重要回です**。焦らずじっくり' },
+    description: '## 進め方\n- 教材「lesson0 > P2」を読む。なぜコンピュータは0と1しか使わないのか、から始めます\n- **この回は本編のサブネット計算（Exercise3）の土台になる最重要回です**。焦らずじっくり' },
   { day: 2, type: 'ラボ', summary: '[P2] 実習: 2進数⇔10進数の変換練習',
     description: '## やること\n- ワークシートの変換問題を電卓検算つきで20問\n- 128/64/32/16/8/4/2/1 の並びを見ないで書けるようになるまで練習\n\n## 提出\n- ワークシートの結果（正答数）をコメントに記録' },
   { day: 2, type: '小テスト', summary: '[P2] 小テスト: 2進数・16進数・単位', description: '10問・30分。解答はコメントに「Q1: A」形式で。' },
   { day: 3, type: '講義', summary: '[P3] 講義: インターネットの基礎（Webの仕組み・データの旅）',
-    description: '## 進め方\n- 教材「week0 > P3」を読む。URLを打ってからページが出るまでに何が起きているかを「住所と郵便」のたとえで追いかけます' },
+    description: '## 進め方\n- 教材「lesson0 > P3」を読む。URLを打ってからページが出るまでに何が起きているかを「住所と郵便」のたとえで追いかけます' },
   { day: 3, type: 'ラボ', summary: '[P3] 実習: 通信を目で見てみる',
     description: '## やること\n1. ブラウザの開発者ツール（F12）でWebページの通信を観察\n2. 家庭用ルータ／オフィスのネットワーク機器を観察（教材の観察シート）\n\n## 提出\n- 開発者ツールのスクリーンショット＋気づいたこと1つをコメント' },
   { day: 3, type: '小テスト', summary: '[P3] 小テスト: インターネットの仕組み', description: '10問・30分。解答はコメントに「Q1: A」形式で。' },
   { day: 4, type: '講義', summary: '[P4] 講義: 仕事のIT基礎（Backlog・Markdown・セキュリティ）',
-    description: '## 進め方\n- 教材「week0 > P4」を読む。この研修で毎日使うBacklogの操作と、コメントの書き方（Markdown）、パスワードの基本を覚えます' },
+    description: '## 進め方\n- 教材「lesson0 > P4」を読む。この研修で毎日使うBacklogの操作と、コメントの書き方（Markdown）、パスワードの基本を覚えます' },
   { day: 4, type: 'ラボ', summary: '[P4] 実習: Backlogを一通り使ってみる',
     description: '## やること\n1. この課題の状態を「処理中」に変える\n2. コメントで見出し・箇条書き・表を1つずつ書いてみる\n3. スクリーンショットを添付してみる\n\n## 完了条件\n- [ ] 状態変更・コメント・添付の3つができた' },
   { day: 4, type: '小テスト', summary: '[P4] 小テスト: Backlog操作とITマナー', description: '10問・30分。解答はコメントに「Q1: A」形式で。' },
   { day: 5, type: '講義', summary: '[P5] 講義: ネットワークに触れる（ipconfig・Packet Tracer準備）',
-    description: '## 進め方\n- 教材「week0 > P5」を読む。自分のPCが今どうネットにつながっているかを ipconfig で確認し、明日から使う Packet Tracer をセットアップします（手順は「01_教材 > Week0 > Day00 環境構築」）' },
+    description: '## 進め方\n- 教材「lesson0 > P5」を読む。自分のPCが今どうネットにつながっているかを ipconfig で確認し、明日から使う Packet Tracer をセットアップします（手順は「01_教材 > LESSON0 > Exercise00 環境構築」）' },
   { day: 5, type: 'ラボ', summary: '[P5] 実習: Packet TracerでPC2台をつないでping',
     description: '## やること\n- Packet Tracer のセットアップ（NetAcadアカウント作成→インストール）\n- ミニ演習: PC2台+スイッチで ping 成功まで\n\n## 提出\n- ping成功のスクリーンショットと .pkt ファイルを添付' },
-  { day: 5, type: '週次テスト', summary: '[P5] Week0まとめテスト', description: 'Week0の全範囲から15問・45分。70%以上で本編（Day1）へ進みます。届かなくても大丈夫、弱いところを補強してから進めば良いだけです。解答はコメントに「Q1: A」形式で。' },
+  { day: 5, type: '週次テスト', summary: '[P5] LESSON0まとめテスト', description: 'LESSON0の全範囲から15問・45分。70%以上で本編（Exercise1）へ進みます。届かなくても大丈夫、弱いところを補強してから進めば良いだけです。解答はコメントに「Q1: A」形式で。' },
 ]
 
-// 試験対策フェーズ（Day 21〜25）。詳細は 07-exam-phase.md
-// type は ISSUE_TYPES の名前、day は開始日からの営業日数（Day1 = 1）
+// 試験対策フェーズ（Exercise 21〜25）。詳細は 07-exam-phase.md
+// type は ISSUE_TYPES の名前、day は開始日からの営業日数（Exercise1 = 1）
 export const EXAM_PHASE_ISSUES = [
   {
-    day: 21, type: '講義', summary: '[Day21] 本試験オリエン＋通し訓練: 形式・時間配分・Sim/Testletの解き方（B1）',
+    day: 21, type: '講義', summary: '[Exercise21] 本試験オリエン＋通し訓練: 形式・時間配分・Sim/Testletの解き方（B1）',
     description: [
       '## ねらい',
       '- 実力はあっても「本試験の形式」で失点しないための最終調整（初回合格率の底上げ）',
@@ -83,7 +83,7 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 21, type: '模試', summary: '[Day21] 模試①: 本試験形式（100問/120分）',
+    day: 21, type: '模試', summary: '[Exercise21] 模試①: 本試験形式（100問/120分）',
     description: [
       '## ルール',
       '- 100 問 / 制限時間 120 分・本試験形式（教材参照なし）',
@@ -95,7 +95,7 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 21, type: '講義', summary: '[Day21] 誤答分析①: 模試①の誤答を誤答ノートへ・弱点ドメイン特定',
+    day: 21, type: '講義', summary: '[Exercise21] 誤答分析①: 模試①の誤答を誤答ノートへ・弱点ドメイン特定',
     description: [
       '## 進め方',
       '1. 模試①の全誤答を誤答ノートに記録（エラータイプ分類を忘れずに）',
@@ -104,10 +104,10 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 22, type: 'ラボ', summary: '[Day22] 弱点補強①: 弱点ドメインの教材再読・追加演習・ラボやり直し',
+    day: 22, type: 'ラボ', summary: '[Exercise22] 弱点補強①: 弱点ドメインの教材再読・追加演習・ラボやり直し',
     description: [
       '## 進め方',
-      '- 午前: 弱点ドメイン 1 の補強（教材再読 + 該当 Day の確認問題を解き直し）',
+      '- 午前: 弱点ドメイン 1 の補強（教材再読 + 該当 Exercise の確認問題を解き直し）',
       '- 午後: 弱点ドメイン 2 の補強 + 苦手ラボのやり直し（Packet Tracer）',
       '',
       '## 完了条件',
@@ -115,7 +115,7 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 23, type: '模試', summary: '[Day23] 模試②: 本試験形式（100問/120分）',
+    day: 23, type: '模試', summary: '[Exercise23] 模試②: 本試験形式（100問/120分）',
     description: [
       '## ルール',
       '- 模試①と同じ運用（設問は講師が当日配布・コメント提出・セルフ採点）',
@@ -123,7 +123,7 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 23, type: '講義', summary: '[Day23] 誤答分析②: 模試②の誤答分析＋誤答ノート総ざらい',
+    day: 23, type: '講義', summary: '[Exercise23] 誤答分析②: 模試②の誤答分析＋誤答ノート総ざらい',
     description: [
       '## 進め方',
       '1. 模試②の全誤答を誤答ノートに記録',
@@ -132,15 +132,15 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 24, type: 'ラボ', summary: '[Day24] 弱点補強②＋総仕上げ: 暗記事項の最終確認と制限時間付きラボ',
+    day: 24, type: 'ラボ', summary: '[Exercise24] 弱点補強②＋総仕上げ: 暗記事項の最終確認と制限時間付きラボ',
     description: [
       '## 進め方',
       '- 午前: 残弱点の補強 + 頻出暗記事項の最終確認（ポート番号・AD値・コマンド）',
-      '- 午後: 総仕上げラボ（Day20 総合演習の類題を制限時間 2 時間で）',
+      '- 午後: 総仕上げラボ（Exercise20 総合演習の類題を制限時間 2 時間で）',
     ].join('\n'),
   },
   {
-    day: 25, type: '模試', summary: '[Day25] 模試③: 最終判定（100問/120分）',
+    day: 25, type: '模試', summary: '[Exercise25] 模試③: 最終判定（100問/120分）',
     description: [
       '## ルール',
       '- 本試験形式・最終判定。受験 GO 基準: 模試 2 回連続 85% 以上 +',
@@ -149,7 +149,7 @@ export const EXAM_PHASE_ISSUES = [
     ].join('\n'),
   },
   {
-    day: 25, type: '講義', summary: '[Day25] 受験準備: GO判定・受験予約・直前ガイダンス',
+    day: 25, type: '講義', summary: '[Exercise25] 受験準備: GO判定・受験予約・直前ガイダンス',
     description: [
       '## 進め方',
       '1. 講師の GO 判定を受ける（判定根拠は課題コメントに記録される）',
@@ -182,7 +182,7 @@ export const EXAM_PHASE_ISSUES = [
 ]
 
 // 継続率・合格率の運営施策（講師の伴走タスク）。10-retention-and-pass-rate.md に対応。
-// week は割り当てるマイルストーン（0=開講前/Week0, 1〜5=各週）。
+// week は割り当てるマイルストーン（0=開講前/LESSON0, 1〜5=各週）。
 // at: 'pre'=開講前日 / 'start'=その週の開始日 / 'end'=その週の最終営業日。
 export const OPS_ISSUES = [
   {
@@ -195,7 +195,7 @@ export const OPS_ISSUES = [
       '1. 運用メトリクスシート（管理用プロジェクト or 表計算）を作成し、10-retention-and-pass-rate.md の KPI 一覧の列を用意',
       '   - 週次残存率／離脱率・離脱発生週／修了率／対策フェーズ到達率／初回・最終合格率／平均所要日／ドメイン別平均／再テスト率',
       '2. 離脱シグナル（黄・赤）の基準を担当講師間で確認（提出遅延・小テスト連続不合格・質問ゼロ・ログイン途絶）',
-      '3. 受講者向けの進捗ビュー（Day達成数・ストリーク・マイルストーン消化率）の見せ方を決める（A3）',
+      '3. 受講者向けの進捗ビュー（Exercise達成数・ストリーク・マイルストーン消化率）の見せ方を決める（A3）',
     ].join('\n'),
   },
   {
@@ -206,13 +206,13 @@ export const OPS_ISSUES = [
       '',
       '## やること（15〜20分・受講者ごと）',
       '1. 受講の目的と、取得後に就きたい仕事を本人に話してもらう',
-      '2. 総所要の見通し（中心層で約 2.5 ヶ月）と、Week3 が山場であることを先に共有',
+      '2. 総所要の見通し（中心層で約 2.5 ヶ月）と、LESSON3 が山場であることを先に共有',
       '3. 「わからないのが普通・質問が最重要スキル」を伝え、30 分ルールを約束',
-      '4. Week0 の早期勝利（ping が通る等）を最初のゴールとして提示',
+      '4. LESSON0 の早期勝利（ping が通る等）を最初のゴールとして提示',
     ].join('\n'),
   },
   {
-    week: 1, at: 'end', summary: '[運営] 週次伴走①(Week1): 離脱シグナル確認・KPI更新・個人スコアカード更新（A1/A3/B4/C）',
+    week: 1, at: 'end', summary: '[運営] 週次伴走①(LESSON1): 離脱シグナル確認・KPI更新・個人スコアカード更新（A1/A3/B4/C）',
     description: [
       '## 毎週の伴走メニュー',
       '- [ ] 離脱シグナル（黄・赤）を確認し、該当者に翌営業日フォロー（A1）',
@@ -224,18 +224,18 @@ export const OPS_ISSUES = [
     ].join('\n'),
   },
   {
-    week: 2, at: 'end', summary: '[運営] 週次伴走②(Week2): 上記＋Week3(山場)の事前予告と補強日の確保（A4）',
+    week: 2, at: 'end', summary: '[運営] 週次伴走②(LESSON2): 上記＋LESSON3(山場)の事前予告と補強日の確保（A4）',
     description: [
       '## 週次伴走メニュー（①と同じ6項目）＋今週の重点',
       '- [ ] 離脱シグナル確認／KPI更新／スコアカード更新／消化率FB／共有会／欠席フォロー',
       '',
-      '## 今週の重点: Week3 の地ならし（A4）',
-      '- 受講者に「来週(Week3・OSPF/NAT)が最難関。みんなここでつまずくのが普通」と予告し正常化',
-      '- Week3 に補強日／余白を確保（ラボ一部の宿題化を想定）',
+      '## 今週の重点: LESSON3 の地ならし（A4）',
+      '- 受講者に「来週(LESSON3・OSPF/NAT)が最難関。みんなここでつまずくのが普通」と予告し正常化',
+      '- LESSON3 に補強日／余白を確保（ラボ一部の宿題化を想定）',
     ].join('\n'),
   },
   {
-    week: 3, at: 'end', summary: '[運営] 週次伴走③(Week3): 山場ケア強化・声かけ・再テストフォロー（A4）',
+    week: 3, at: 'end', summary: '[運営] 週次伴走③(LESSON3): 山場ケア強化・声かけ・再テストフォロー（A4）',
     description: [
       '## 週次伴走メニュー（①と同じ6項目）＋今週の重点',
       '- [ ] 離脱シグナル確認／KPI更新／スコアカード更新／消化率FB／共有会／欠席フォロー',
@@ -247,7 +247,7 @@ export const OPS_ISSUES = [
     ].join('\n'),
   },
   {
-    week: 4, at: 'end', summary: '[運営] 週次伴走④(Week4): 修了前レビュー・口頭試問（アウトプット確認）（B3）',
+    week: 4, at: 'end', summary: '[運営] 週次伴走④(LESSON4): 修了前レビュー・口頭試問（アウトプット確認）（B3）',
     description: [
       '## 週次伴走メニュー（①と同じ6項目）＋今週の重点',
       '- [ ] 離脱シグナル確認／KPI更新／スコアカード更新／消化率FB／共有会／欠席フォロー',
@@ -305,7 +305,7 @@ export const DAYS = [
     theme: 'TCP / UDP・スイッチング動作・物理層',
     lecture: 'TCP と UDP、主要ポート番号、スイッチの MAC 学習と転送、ケーブル・PoE、仮想化基礎',
     lab: 'MAC アドレステーブルと ARP の観察、速度/デュプレックス不一致の切り分け',
-    quiz: 'Week1 全範囲（週次テスト①）',
+    quiz: 'LESSON1 全範囲（週次テスト①）',
   },
   {
     day: 6, week: 2, categories: ['2-ネットワークアクセス'],
@@ -340,7 +340,7 @@ export const DAYS = [
     theme: '無線 LAN と検出プロトコル',
     lecture: '無線の基礎、AP と WLC のアーキテクチャ（CAPWAP）、WPA2/WPA3、CDP/LLDP',
     lab: 'WLC + AP による WLAN（WPA2-PSK）構築と CDP/LLDP の確認',
-    quiz: 'Week2 全範囲（週次テスト②）',
+    quiz: 'LESSON2 全範囲（週次テスト②）',
   },
   {
     day: 11, week: 3, categories: ['3-IPコネクティビティ'],
@@ -375,7 +375,7 @@ export const DAYS = [
     theme: 'IP サービス総合',
     lecture: 'DHCP（DORA・リレー）、DNS、NTP、SNMP、Syslog、SSH/FTP/TFTP、QoS 概要',
     lab: 'DHCP サーバ + リレー、NTP、Syslog の構成',
-    quiz: 'Week3 全範囲（週次テスト③）',
+    quiz: 'LESSON3 全範囲（週次テスト③）',
   },
   {
     day: 16, week: 4, categories: ['5-セキュリティ基礎'],
@@ -424,7 +424,7 @@ export function lectureDescription(d) {
     `- ${d.lecture}`,
     '',
     '## 教材',
-    `- ドキュメント: 「01_教材 > Week${d.week} > Day${String(d.day).padStart(2, '0')}_${d.theme}」を参照`,
+    `- ドキュメント: 「01_教材 > LESSON${d.week} > Exercise${String(d.day).padStart(2, '0')}_${d.theme}」を参照`,
     '',
     '## 進め方',
     '1. 教材ドキュメントを通読する（3.5h 目安）',
@@ -444,7 +444,7 @@ export function labDescription(d) {
     `- ${d.lab}`,
     '',
     '## 手順書',
-    `- ドキュメント: 「02_ラボ手順書 > Week${d.week} > Day${String(d.day).padStart(2, '0')}」を参照`,
+    `- ドキュメント: 「02_ラボ手順書 > LESSON${d.week} > Exercise${String(d.day).padStart(2, '0')}」を参照`,
     '- 開始用ファイル（.pkt / .pka）はこの課題の添付を使用',
     '',
     '## 提出物',
@@ -471,7 +471,7 @@ export function quizDescription(d) {
   }
   if (d.weeklyTest) {
     return [
-      `## 週次テスト（Week${d.week}）`,
+      `## 週次テスト（LESSON${d.week}）`,
       `- 範囲: ${d.quiz}`,
       '- 25 問 / 制限時間 60 分・教材参照なし',
       '- 正答率 70% 以上で当該週のマイルストーン完了',

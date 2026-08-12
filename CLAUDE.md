@@ -18,15 +18,15 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
 |---|---|
 | `00`〜`07-*.md` | 設計ドキュメント（実現可能性調査 / カリキュラム / Backlog構成 / PTマニュアル / ガイダンス / 講師ガイド / ローリング運用 / 試験対策フェーズ） |
 | `PROJECT-BACKLOG.md` | **開発側の課題管理台帳**。作業のたびに状態を更新してコミットする |
-| `materials/` | 教材本体。`weekN/dayNN-{lecture,lab,quiz}.md`（Day 1〜20 × 3種）+ `day00-setup.md` + `templates/` |
-| `samples/` | Day 1 のフォーマット基準（教材執筆時はこれに合わせる） |
+| `materials/` | 教材本体。`weekN/dayNN-{lecture,lab,quiz}.md`（Exercise 1〜20 × 3種）+ `exercise00-setup.md` + `templates/` |
+| `samples/` | Exercise 1 のフォーマット基準（教材執筆時はこれに合わせる） |
 | `scripts/` | Backlog API / Claude API の運用スクリプト（Node 18+）。`ai-grade.mjs` のみ `scripts/` で `npm install` が必要 |
 
 ## 慣習と注意点
 
 - **言語は日本語**（教材・ドキュメント・コミットメッセージとも）。文体は「です・ます」調
 - **教材は完全オリジナル執筆**。既存教材・書籍・Web記事の転載は著作権上不可
-- 教材フォーマットの正は `samples/day01-*.md` と `materials/README.md` の執筆仕様
+- 教材フォーマットの正は `samples/exercise01-*.md` と `materials/README.md` の執筆仕様
 - **quiz ファイルには解答・解説が含まれる**。Backlog へ投入する際は受講者に
   見えない場所（04_講師用）で管理する。`upload-wiki.mjs` は既定で quiz を除外する
 - カリキュラム内容を変更したら `01-curriculum.md` と
@@ -37,8 +37,8 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
 - スクリプトは依存なしの素の Node（`ai-grade.mjs` のみ `@anthropic-ai/sdk`）。
   変更後は `node --check` と `--dry-run` で検証する
 - テストランナー・リンターはなし
-- 受講者は IT リテラシーゼロが前提。本編 Day1〜20 の前に Week0「ITベーシック」
-  プレコース（materials/week0/）がある。ペルソナは `08-personas.md` が正
+- 受講者は IT リテラシーゼロが前提。本編 Exercise1〜20 の前に LESSON0「ITベーシック」
+  プレコース（materials/lesson0/）がある。ペルソナは `08-personas.md` が正
   - 執筆トーンは materials/README.md の規定に従う: **成人学習者として扱う**
     （ひらがな緩和表記や子ども向けの言い回し禁止）、たとえ話は厳選、
     絵文字乱用・励まし連発などの過剰表現禁止
@@ -53,10 +53,10 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
 
 - 運用モデル A: 共有「CCNA-教材」プロジェクト + 受講者ごとの「CCNA-氏名」プロジェクト
 - 入学のたびに `scripts/create-backlog-issues.mjs --project <KEY> --start <日付>` を実行
-  （Week0 プレコース 15 + 本編 Day1〜20 の 60 + 試験対策フェーズ Day21〜25 の 8
-  = 計83課題を投入。`--skip-precourse` 指定時は Week0 を除き Day00 環境構築を追加して69課題）
+  （LESSON0 プレコース 15 + 本編 Exercise1〜20 の 60 + 試験対策フェーズ Exercise21〜25 の 8
+  = 計83課題を投入。`--skip-precourse` 指定時は LESSON0 を除き Exercise00 環境構築を追加して69課題）
 - 講師は兼務 2 名（当番制）。採点は `grade-quiz.mjs`（選択式）/ `ai-grade.mjs`（AI一次採点）
-- **自習型モデル**: 一斉講義は行わない。受講者は `01_教材`（Day 別テキスト）を自分で読んで
+- **自習型モデル**: 一斉講義は行わない。受講者は `01_教材`（Exercise 別テキスト）を自分で読んで
   学び、講師は提出物・質問のレビュー（確認・フィードバック・採点・進捗フォロー）を担う。
   「講義」は教材ドキュメント／その読解課題の名称であり、講師が話す時間ではない。教材や
   ガイダンスの文言を編集する際はこの前提（自習＋レビュー）を崩さないこと

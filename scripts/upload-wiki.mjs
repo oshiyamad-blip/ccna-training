@@ -42,15 +42,15 @@ if (!PROJECT_KEY || (!DRY_RUN && (!SPACE_URL || !API_KEY))) {
 const MATERIALS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'materials')
 // フォルダ構成はレビュー（2026-08 中村）を反映:
 //   00_ガイダンス   … 研修の進め方（先頭）・カリキュラム全体表・誤答ノート・週次振り返りのみ
-//   01_教材/Week0   … 環境構築系（Day00・Packet Tracer マニュアル）は Week0 と一体で学ぶ
+//   01_教材/LESSON0   … 環境構築系（Exercise00・Packet Tracer マニュアル）は LESSON0 と一体で学ぶ
 //   07_試験対策     … 計算ドリル・用語辞書は試験対策として独立セクションに
 const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '04-guidance.md'), page: 'CCNA研修/00_ガイダンス/研修の進め方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'error-log.md'), page: 'CCNA研修/00_ガイダンス/誤答ノートの書き方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'weekly-retro.md'), page: 'CCNA研修/00_ガイダンス/週次振り返りの書き方' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'day00-setup.md'), page: 'CCNA研修/01_教材/Week0/Day00 環境構築' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/01_教材/Week0/PacketTracer導入マニュアル' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'exercise00-setup.md'), page: 'CCNA研修/01_教材/LESSON0/Exercise00 環境構築' },
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/01_教材/LESSON0/PacketTracer導入マニュアル' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_2進数16進数' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'subnet-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_サブネット' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'wildcard-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_ワイルドカード' },
@@ -218,27 +218,27 @@ async function collectPages() {
     }
   }
 
-  // materials/weekN/dayNN-{lecture,lab,quiz}.md（week0 は pNN-{lecture,work,quiz}.md）
+  // materials/lessonN/exerciseNN-{lecture,lab,quiz}.md（lesson0 は pNN-{lecture,work,quiz}.md）
   const weeks = (await readdir(MATERIALS_DIR, { withFileTypes: true }))
-    .filter((e) => e.isDirectory() && /^week\d$/.test(e.name))
+    .filter((e) => e.isDirectory() && /^lesson\d$/.test(e.name))
     .map((e) => e.name)
     .sort()
 
   for (const week of weeks) {
     const files = (await readdir(join(MATERIALS_DIR, week))).filter((f) => f.endsWith('.md')).sort()
     for (const f of files) {
-      // 本編は dayNN-{lecture,lab,quiz}、Week0 は pN-{lecture,work,quiz}
-      const dm = f.match(/^day(\d{2})-(lecture|lab|quiz)\.md$/)
+      // 本編は exerciseNN-{lecture,lab,quiz}、LESSON0 は pN-{lecture,work,quiz}
+      const dm = f.match(/^exercise(\d{2})-(lecture|lab|quiz)\.md$/)
       const pm = f.match(/^p(\d{1,2})-(lecture|work|quiz)\.md$/)
       const m = dm || pm
       if (!m) continue
       const kind = m[2]
-      const itemPrefix = dm ? `Day${m[1]}` : `P${Number(m[1])}`
+      const itemPrefix = dm ? `Exercise${m[1]}` : `P${Number(m[1])}`
       if (kind === 'quiz' && !INCLUDE_QUIZ) continue
       const mdDir = join(MATERIALS_DIR, week)
       const raw = await readFile(join(mdDir, f), 'utf8')
       const images = extractImages(raw, mdDir)
-      const weekLabel = week.replace('week', 'Week')
+      const weekLabel = week.replace('lesson', 'LESSON')
       pages.push({
         name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${itemPrefix} ${KIND_LABEL[kind]}`,
         content: normalizeForBacklog(rewriteImageRefs(raw, images)),
