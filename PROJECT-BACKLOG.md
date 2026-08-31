@@ -72,6 +72,7 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 | DEV-28 | 外部レビュー（2026-08 中村）対応 | フォルダ再編（ガイダンス整理・07_試験対策新設・Exercise00/PTマニュアルをLESSON0へ）、Exercise1章構成再編＋機器/プロトコル/Spine-Leaf図強化、Exercise2区切り動線、Exercise3クラスA統一・グローバルアドレス定義・プレフィックス注記、Exercise4 DHCP/DNS導入、Exercise5仮想化拡充（方式3分類・クラウド形態・IaaS/PaaS/SaaS）、週次振り返り選択式化。Exercise組み替え系は実データ確認後に判断（`reports/material-review-response-2026-08.md`） |
 | DEV-29 | 第2回外部レビュー（2026-08-26）対応 | 新規指摘のみ反映: Exercise13 VRRP/GLBP掘り下げ+EIGRP言及、Exercise14 NAT用語の2軸表、Exercise15 3部区切り+QoS拡充（DSCP値・WLC QoSプロファイル）、Exercise16 認証5要素+FW/IPS小節、Exercise18 WAN背景知識+Exercise16との流れ、Exercise5 IEEE 802.3導入、Wikiページ名にテーマ付与（検索性）。組み替え系はIMP-5へ統合（`reports/material-review-response-2026-08.md` 後半） |
 | DEV-30 | 教材品質監査と全指摘の修正 | 全教材約30,000行をファクトチェック＋日本語点検（8並列）。ドリル163問全問正解・模試520問中の解答誤り1件を確認し、確定した誤り8件（STPコスト・模試OSPF INIT・OSPFネットワークタイプ・ワイルドカード・copy方向・OSI層・可換・quiz複数正解）を修正。加えて参照切れ・矛盾指示・リネーム残り253箇所・表記統一873箇所を解消。群別修正196件＋敵対的検証＋4レンズ全体スイープで、修正が作り込んだ回帰9件（.pkt命名・samples取りこぼし・図版不一致ほか）も是正（`reports/quality-audit-2026-08.md`） |
+| DEV-31 | 学習順序の組み替え（IMP-5） | 前提逆転の解消を目的に Exercise を再配列（旧5→2/旧2→3/旧3→4/旧11→5/旧12〜15→11〜14/旧4→15）。教材72ファイルのリネーム＋140ファイルの参照書き換え、`curriculum-data.mjs` の DAYS 並べ替え、LESSON まとめテストの Exercise5/15 への再配置（4ファイルを再構成し新規9問を作成）、想起クイズ51問の再執筆、IPv6静的ルートの Exercise5→15 移設（Exercise5 ラボは 210→150 分に収まった）、図版18枚の再レンダリング。dry-run は課題92件・Wiki60ページで組み替え前と同数 |
 
 ## レポート
 
@@ -91,5 +92,5 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 | ~~IMP-2~~ ✅ | 模試設計 | **完了**。各模試末尾に「シムレット演習（実技代替・別枠）」を1本追加（S1〜S4の多段設問＋show出力/構成）。mock1=VLAN/トランク・mock2=OSPF(MTU不一致)・mock3=ACL(順序)・mock4=NAT(ip nat outside欠落)・mock5=L2セキュリティ(port-security違反)。本編100問の採点は不変 | 高 |
 | ~~IMP-3~~ ✅ | 模試設計 | **完了**。GO基準を「総合85%以上を直近2回連続、うち1回以上は重い回②④⑤で達成」に精緻化し、易しい①だけでの通過を封じた（模試の大量書き換えは回避）。07-exam-phase.md/各模試/READMEに反映 | 中 |
 | ~~IMP-4~~ ✅ | 整合 | **完了**。Exercise12/13の範囲境界を講義に明示、VLANホッピングのアンカーをExercise7に統一、m5 Q56-58の参照をExercise13へ修正、曖昧設問を正答・難易度を保ったまま一意化（m1 Q88/Q30・m4 Q95・m5 Q4/Q94）。m2は誤検出で現状維持 | 低 |
-| IMP-5 | カリキュラム | 外部レビュー（2026-08）提案のExercise組み替え: Exercise2後半（リモートアクセス）をExercise3後へ／VLAN(Exercise6-8)の前にルーティング基礎／STP(Exercise9)をOSPF・ACL後へ／IPv6(Exercise4)を後半へ／Exercise5前半をExercise1直後へ。**初回コホートの実データ（週次・模試のつまずきExercise）を見てv2改訂として判断**。波及: 教材60ファイル・模試参照500問・課題92件・ビルドシート21枚（`reports/material-review-response-2026-08.md`） | 中 |
+| ~~IMP-5~~ ✅ | カリキュラム | **完了**。外部レビュー（2026-08）提案の Exercise 組み替えを実施（旧5→2, 旧2→3, 旧3→4, 旧11→5, 旧12〜15→11〜14, 旧4→15）。VLAN間ルーティング(Exercise8)が`show ip route`を説明するのにルーティング基礎が後回しだった前提逆転を解消し、IPv6をIPv4定着後へ移動。教材72ファイルのリネーム・140ファイルの参照書き換え・DAYS配列の並べ替え・LESSONまとめテストの再配置（Exercise5/15）・想起クイズ51問の再執筆・図版18枚の再レンダリングまで実施（`reports/material-review-response-2026-08.md`） | 中 |
 | IMP-6 | ラボ設計 | 外部レビュー（2026-08）: ルータ+ハブ→L2→L3と段階を見せるラボ構成の明示化、Exercise10無線ラボの必須/任意の切り分け（WLC GUIは試験対策上有益なため「最低限」と「余裕があれば」に分割） | 低 |

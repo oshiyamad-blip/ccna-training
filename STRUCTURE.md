@@ -179,33 +179,31 @@
 各 Exercise = **講義（exercise##-lecture）＋ ラボ（exercise##-lab）＋ 小テスト（exercise##-quiz）**。
 各講義冒頭に「ウォームアップ（想起クイズ）」を配置（Exercise02 以降）。
 
-### LESSON1 ネットワーク基礎（ドメイン1）
-- **Exercise1** ネットワークの全体像と OSI / TCP-IP モデル
+### LESSON1 ネットワーク基礎（ドメイン1 + ルーティング入門）
+- **Exercise01** ネットワークの全体像と OSI / TCP-IP モデル
   （ネットワークとは／トポロジ／OSI・TCP-IP／カプセル化と PDU）
-- **Exercise3** Cisco IOS の基本操作とデバイス初期設定
-  （CLI アクセス／コマンドモード／基本設定／管理 IP／SSH／設定保存）
-- **Exercise4** IPv4 アドレッシングとサブネット化
-  （構造／クラス・特殊アドレス／RFC1918・NAT 前提／マスク・プレフィックス／計算／VLSM）
-- **Exercise15** IPv6 アドレッシング
-  （必要性・構造／表記・省略／アドレスタイプ／EUI-64／設定・SLAAC・DHCPv6／NDP）
-- **Exercise2** TCP/UDP・スイッチング動作・物理層
+- **Exercise02** TCP/UDP・スイッチング動作・物理層
   （トランスポート層／3wayハンドシェイク・ポート／MAC 学習／ケーブル・速度・デュプレックス／PoE／仮想化）
+- **Exercise03** Cisco IOS の基本操作とデバイス初期設定
+  （CLI アクセス／コマンドモード／基本設定／管理 IP／SSH／設定保存）
+- **Exercise04** IPv4 アドレッシングとサブネット化
+  （構造／クラス・特殊アドレス／RFC1918・NAT 前提／マスク・プレフィックス／計算／VLSM）
+- **Exercise05** ルーティングの基礎と静的ルート（LESSON1 まとめテスト）
+  （ルーティングテーブル／経路選択 3 段階／静的ルート／デフォルト・フローティング）
 
 ### LESSON2 ネットワークアクセス（ドメイン2）
-- **Exercise6** VLAN の基礎
+- **Exercise06** VLAN の基礎
   （ブロードキャストドメイン分割／種類・デフォルト VLAN／作成・命名／アクセスポート／確認・TS）
-- **Exercise7** トランクと VLAN 設計
+- **Exercise07** トランクと VLAN 設計
   （802.1Q タギング／ネイティブ VLAN／許可 VLAN 制御／DTP／VTP／検証・TS）
-- **Exercise8** VLAN 間ルーティング
+- **Exercise08** VLAN 間ルーティング
   （必要性／Router-on-a-Stick／L3 スイッチと SVI／ルーテッドポート／方式比較／確認・TS）
-- **Exercise9** STP と EtherChannel
+- **Exercise09** STP と EtherChannel
   （ブリッジングループ／ルートブリッジ選出・BID／ポートロール・ステート・タイマ／RSTP・PortFast・BPDU Guard／EtherChannel・LACP）
 - **Exercise10** 無線 LAN と検出プロトコル
   （電波・チャネル・SSID／自律型 AP・Lightweight AP＋WLC／WPA2・WPA3／WLC GUI／CDP・LLDP）
 
-### LESSON3 IP コネクティビティ + IP サービス（ドメイン3・4）
-- **Exercise5** ルーティングの基礎と静的ルート
-  （ルーティングテーブル／経路選択 3 段階／静的ルート／デフォルト・フローティング／IPv6 静的）
+### LESSON3 IP コネクティビティ + IP サービス（ドメイン3・4 + IPv6）
 - **Exercise11** OSPFv2（シングルエリア）
   （リンクステート／パケット・ネイバー確立／Router ID・DR/BDR／コスト計算／設定・パッシブ／確認・TS）
 - **Exercise12** OSPF 応用と FHRP
@@ -214,6 +212,8 @@
   （必要性／inside・outside・local・global／静的 NAT／動的 NAT／PAT・オーバーロード／確認・TS）
 - **Exercise14** IP サービス総合
   （DHCP・DORA／DNS／NTP・stratum／SNMP・Syslog／SSH・Telnet・FTP・TFTP／QoS）
+- **Exercise15** IPv6 アドレッシング（LESSON3 まとめテスト）
+  （必要性・構造／表記・省略／アドレスタイプ／EUI-64／設定・SLAAC・DHCPv6／NDP／IPv6 静的ルート）
 
 ### LESSON4 セキュリティ + 自動化 + 総まとめ（ドメイン5・6）
 - **Exercise16** セキュリティの概念とデバイス保護
