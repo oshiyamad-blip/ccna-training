@@ -586,6 +586,6 @@ R1# reload
 
 ## 次のステップ
 
-この Exercise のラボ課題「[Exercise3] ラボ: IOS の基本操作とデバイス初期設定」に進み、実機
+この Exercise のラボ課題「[Exercise03] ラボ: IOS の基本操作とデバイス初期設定」に進み、実機
 （Packet Tracer 上のルータ・スイッチ）に対してホスト名・パスワード・管理 IP・SSH を
 実際に設定し、Admin-PC から SSH でリモートログインできることを確認してください。

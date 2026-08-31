@@ -46,7 +46,11 @@ const DRY_RUN = args.includes('--dry-run')
 const SPACE_URL = (process.env.BACKLOG_SPACE_URL ?? '').replace(/\/$/, '')
 const API_KEY = process.env.BACKLOG_API_KEY
 
-if (!PROJECT_KEY || (!DRY_RUN && (!SPACE_URL || !API_KEY))) {
+// CLI として直接叩かれたときだけ引数を必須にする。collectPages() を import する側
+// （delete-old-wiki.mjs・check-consistency.mjs）には --project は関係がないため、
+// import しただけで終了しないようにここで分岐する。
+const IS_CLI = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href
+if (IS_CLI && (!PROJECT_KEY || (!DRY_RUN && (!SPACE_URL || !API_KEY)))) {
   console.error('必須の指定が不足しています。')
   console.error('  環境変数: BACKLOG_SPACE_URL, BACKLOG_API_KEY（--dry-run 時は不要）')
   console.error('  引数    : --project <KEY> [--include-quiz] [--dry-run]')
@@ -58,7 +62,7 @@ const MATERIALS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'mater
 //   00_ガイダンス   … 研修の進め方（先頭）・カリキュラム全体表・誤答ノート・LESSON振り返りのみ
 //   01_教材/LESSON0   … 環境構築系（Exercise00・Packet Tracer マニュアル）は LESSON0 と一体で学ぶ
 //   07_試験対策     … 計算ドリル・用語辞書は試験対策として独立セクションに
-const GUIDANCE_FILES = [
+export const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '04-guidance.md'), page: 'CCNA研修/00_ガイダンス/研修の進め方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'error-log.md'), page: 'CCNA研修/00_ガイダンス/誤答ノートの書き方' },
@@ -311,7 +315,7 @@ async function main() {
 
 // 直接実行されたときだけ投入を行う（delete-old-wiki.mjs などが collectPages を
 // import した場合は実行しない）
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (IS_CLI) {
   main().catch((err) => {
     console.error(err.message ?? err)
     process.exit(1)

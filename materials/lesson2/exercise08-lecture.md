@@ -441,6 +441,6 @@ L3 スイッチを使う場合の使い分けとしては、**端末を収容す
 
 ## 次のステップ
 
-この Exercise のラボ課題「[Exercise8] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
+この Exercise のラボ課題「[Exercise08] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
 L3 スイッチ + SVI」に進み、Router-on-a-Stick と L3 スイッチの両方式で
 VLAN10・VLAN20 間の疎通を実際に構築・比較してください。

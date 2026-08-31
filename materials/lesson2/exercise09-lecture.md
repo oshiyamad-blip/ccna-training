@@ -564,7 +564,7 @@ mode trunk`（または access）を設定しますが、L3 EtherChannel は `no
 
 ## 次のステップ
 
-この Exercise のラボ課題「[Exercise9] ラボ: STP の動作観察とルートブリッジの変更、EtherChannel
+この Exercise のラボ課題「[Exercise09] ラボ: STP の動作観察とルートブリッジの変更、EtherChannel
 の構成」に進み、3 台のスイッチによる冗長トライアングルでルートブリッジの選出と
 ポートのブロッキングを実際に確認し、LACP による EtherChannel の構成を体験して
 ください。
