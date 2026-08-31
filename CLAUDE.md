@@ -36,7 +36,16 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
   （種別「運営」）／`EXAM_PHASE_ISSUES`（B1・B5）で、変更時は両方を同期する
 - スクリプトは依存なしの素の Node（`ai-grade.mjs` のみ `@anthropic-ai/sdk`）。
   変更後は `node --check` と `--dry-run` で検証する
-- テストランナー・リンターはなし
+- **教材・カリキュラムを触ったら `node scripts/check-consistency.mjs` を通す**。
+  Exercise の並べ替え・追加・削除や、番号の一括置換のあとは必須。
+  作業の最後にまとめてではなく、**各ステップの直後に**通すこと（どの操作が
+  壊したかが分かる）。落ちたまま先に進まない。検査自体を疑うときは
+  `bash scripts/check-consistency.selftest.sh`（わざと壊して検出を確認する。
+  未コミットの変更があると止まる）
+  - とくに `Exercise 5 / 10 / 15 / 20` は**中身ではなく位置**（LESSON の区切り）を
+    指す。番号の一括置換ではここと `[ExerciseNN]` のゼロ埋めが真っ先に壊れる。
+    `reports/` と `PROJECT-BACKLOG.md` は当時の事実を残す文書なので置換対象外
+- テストランナー・リンターはなし（整合性チェックが実質のゲート）
 - 受講者は IT リテラシーゼロが前提。本編 Exercise1〜20 の前に LESSON0「ITベーシック」
   プレコース（materials/lesson0/）がある。ペルソナは `08-personas.md` が正
   - 執筆トーンは materials/README.md の規定に従う: **成人学習者として扱う**
