@@ -18,7 +18,7 @@
 
 import { readdir, readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { DAYS } from './curriculum-data.mjs'
 
 // ページ名にテーマを含める（レビュー 2026-08: 「開くまで内容が分からない」対策）。
@@ -218,7 +218,7 @@ function normalizeForBacklog(md) {
   return out.join('\n')
 }
 
-async function collectPages() {
+export async function collectPages() {
   const pages = []
 
   // ガイダンス系
@@ -304,7 +304,11 @@ async function main() {
   if (attachedTotal) console.log('注意: 画像のインライン表示はスペースの書式設定に依存します。表示されない場合は upload-wiki.mjs の imageRef テンプレートを調整してください。')
 }
 
-main().catch((err) => {
-  console.error(err.message ?? err)
-  process.exit(1)
-})
+// 直接実行されたときだけ投入を行う（delete-old-wiki.mjs などが collectPages を
+// import した場合は実行しない）
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err.message ?? err)
+    process.exit(1)
+  })
+}
