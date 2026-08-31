@@ -60,6 +60,15 @@ try "DAYS の並びの崩れ" \
 try "配置先の LESSON 表記ずれ" \
   "sed -i '3s|01_教材 > LESSON1|01_教材 > LESSON4|' materials/lesson1/exercise01-lecture.md" \
   "配置先が LESSON4"
+try "ビルドシートの対象ラボが別の lesson を指す" \
+  "sed -i '3s|materials/lesson1/exercise05-lab.md|materials/lesson3/exercise05-lab.md|' materials/pkt-build-sheets/exercise05.md" \
+  "対象ラボが"
+try "ビルドシートが存在しない手順を参照" \
+  "sed -i '0,/手順4以降/s//手順40以降/' materials/pkt-build-sheets/exercise05.md" \
+  "がラボにない"
+try "機種にないポートをビルドシートが指定" \
+  "sed -i '0,/Gi0\/2/s//Gi0\/7/' materials/pkt-build-sheets/exercise05.md" \
+  "は実在しない"
 try "LESSON フォルダ名の接尾辞ゆれ" \
   "sed -i '0,/📁 LESSON1$/s//📁 LESSON1_ネットワーク基礎/' 02-backlog-design.md" \
   "接尾辞なし"
