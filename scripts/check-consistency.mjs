@@ -372,6 +372,26 @@ await check('ビルドシートのポート名が機種の実在ポートと一�
   return bad
 })
 
+await check('3 桁インターフェース名の機種には解説が対になっている', async () => {
+  // 2026-08 決定: Exercise17 だけ ISR 4331（`Gi0/0/0`）を使い、他は 2911（`Gi0/0`）。
+  // 意図的な不一致なので、必ず講義側の解説とセットで存在させる。
+  // 解説なしに 3 桁表記だけが増えると、受講者には理由不明の食い違いになる。
+  const EXPLAINER = 'インターフェース名の桁数が機種によって違う'
+  const bad = []
+  for (const d of DAYS) {
+    if (!(await exists(buildSheet(d.day)))) continue
+    const sheet = await read(buildSheet(d.day))
+    const usesThreePart = /\b4331\b/.test(sheet) || /(?:Gi|GigabitEthernet)\s?\d+\/\d+\/\d+/.test(sheet)
+    const lecture = join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lecture.md`)
+    const explained = (await exists(lecture)) && (await read(lecture)).includes(EXPLAINER)
+    if (usesThreePart && !explained) {
+      bad.push(`${rel(buildSheet(d.day))}: 3 桁のインターフェース名を使うのに、`
+        + `exercise${pad(d.day)}-lecture.md に「${EXPLAINER}」の解説がない`)
+    }
+  }
+  return bad
+})
+
 // ------------------------------------------------- F. 位置マーカー・命名規則
 
 await check('LESSON の区切りを示す Exercise 番号が全文書で一致', async () => {

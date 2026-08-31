@@ -69,6 +69,9 @@ try "ビルドシートが存在しない手順を参照" \
 try "機種にないポートをビルドシートが指定" \
   "sed -i '0,/Gi0\/2/s//Gi0\/7/' materials/pkt-build-sheets/exercise05.md" \
   "は実在しない"
+try "3桁インターフェース名の解説が消える" \
+  "sed -i 's|^### インターフェース名の桁数が機種によって違う|### （削除された見出し）|' materials/lesson4/exercise17-lecture.md" \
+  "の解説がない"
 try "LESSON フォルダ名の接尾辞ゆれ" \
   "sed -i '0,/📁 LESSON1$/s//📁 LESSON1_ネットワーク基礎/' 02-backlog-design.md" \
   "接尾辞なし"
