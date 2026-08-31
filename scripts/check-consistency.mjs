@@ -372,6 +372,19 @@ await check('ビルドシートのポート名が機種の実在ポートと一�
   return bad
 })
 
+await check('.pkt 作成手順書のチェックリストが全 Exercise を網羅', async () => {
+  const guide = join(MATERIALS, 'pkt-build-guide.md')
+  if (!(await exists(guide))) return ['materials/pkt-build-guide.md がない']
+  const txt = await read(guide)
+  const bad = []
+  for (const d of DAYS) {
+    if (!new RegExp(`- \\[ \\] Exercise${pad(d.day)}\\b`).test(txt)) {
+      bad.push(`Exercise${pad(d.day)} が進捗チェックリストにない`)
+    }
+  }
+  return bad
+})
+
 await check('3 桁インターフェース名の機種には解説が対になっている', async () => {
   // 2026-08 決定: Exercise17 だけ ISR 4331（`Gi0/0/0`）を使い、他は 2911（`Gi0/0`）。
   // 意図的な不一致なので、必ず講義側の解説とセットで存在させる。

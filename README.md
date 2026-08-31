@@ -48,6 +48,12 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
 
 5. 研修開始後の採点は `scripts/grade-quiz.mjs` で支援できます（コメント解答の自動採点）
 
+### ラボ用 .pkt ファイルを作るとき
+
+ラボ演習には Packet Tracer の開始ファイルが必要です（初回のみの作業）。
+作り方は `materials/pkt-build-guide.md`（作成作業手順書）に従ってください。
+1 ファイルごとの設計図は `materials/pkt-build-sheets/exerciseNN.md` です。
+
 ### 教材を編集したとき
 
 投入の前に整合性チェックを通してください。落ちた状態で投入すると、

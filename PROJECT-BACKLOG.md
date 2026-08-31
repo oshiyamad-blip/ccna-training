@@ -14,7 +14,7 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 
 | ID | 課題 | 担当 | メモ |
 |---|---|---|---|
-| DEV-8 | ラボ開始用 .pkt ファイルの実作成（約21個） | **ユーザ** | `materials/pkt-build-spec.md` に従い Packet Tracer の GUI で作成。初回のみ。Exercise1〜5 と Exercise20 を優先 |
+| DEV-8 | ラボ開始用 .pkt ファイルの実作成（start 20 + answer 21 = 41 個） | **ユーザ** | `materials/pkt-build-guide.md`（作成作業手順書）に従い Packet Tracer の GUI で作成。1 ファイルごとの設計図は `materials/pkt-build-sheets/exerciseNN.md`。初回のみ。開講日に必須のファイルはなく、受講者が最初に使うのは開講 6 営業日目の Exercise01。目安 10〜12 時間。Exercise01〜05 を優先、Exercise20 が最重量 |
 | DEV-11 | Backlog スペースへの実投入（開講準備一式） | ユーザ＋Claude | スペース URL とプロジェクト管理者権限の API キーがあれば Claude が実行可能（課題投入・教材 Wiki 投入）。テンプレート `backlog/project-template.json` からプロジェクト作成 |
 
 ## 完了 ✅

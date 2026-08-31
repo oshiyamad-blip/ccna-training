@@ -4,6 +4,11 @@
 Packet Tracer は GUI 操作のため AI では作れません。この仕様に沿って一度作れば、
 以後の開講で流用できます（初回だけの作業）。
 
+> **実際に手を動かす手順は `materials/pkt-build-guide.md`（作成作業手順書）**を
+> 見てください。本書は「何をどこまで作り込むか」の仕様、
+> `pkt-build-sheets/exerciseNN.md` が 1 ファイルごとの設計図、
+> 手順書が「どう操作して、どの順に作るか」という役割分担です。
+
 > 前提バージョン: Cisco Packet Tracer 9.x。保存形式は `.pkt`。
 > 各ラボの**正確な機器・ポート・IP は、そのラボ手順書
 > （`materials/lessonN/exerciseNN-lab.md`。LESSON0 は `materials/lesson0/pN-work.md`）の
