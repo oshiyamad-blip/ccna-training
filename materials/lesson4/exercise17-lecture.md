@@ -18,27 +18,21 @@
 
 ## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 10「無線 LAN と検出
-> プロトコル」 / Exercise 13「NAT」 / Exercise 16「セキュリティの概念とデバイス保護」 の
-> 範囲から出題）。
+> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 16「セキュリティの概念とデバイス保護」 / Exercise 14「IP サービス総合」 / Exercise 12「OSPF 応用と FHRP」 の範囲から出題）。
 
-**W1.** （Exercise 10）無線 LAN で、有線の CSMA/CD に相当する衝突回避の方式の名称は
-何か。また、2.4GHz 帯で相互に干渉しない 3 つのチャネル番号を答えよ。
+**W1.** AAA の 3 つの A が何の略で、それぞれ何を行うかを答えよ。
 
-**W2.** （Exercise 13）PAT の設定で、動的 NAT と区別して多対 1 変換を有効にするために
-末尾に付けるキーワードは何か。また、inside local と inside global のうち、外部から
-見える変換後の公開アドレスはどちらか。
+**W2.** DHCP サーバが別のサブネットにあるとき、クライアント側インターフェースに
+設定するコマンドは何か。
 
-**W3.** （Exercise 16）RADIUS と TACACS+ のうち、コマンド単位の認可を柔軟に行えるのは
-どちらか。また、`login block-for 60 attempts 3 within 30` は何を防ぐための設定か。
+**W3.** HSRP・VRRP・GLBP のうち、業界標準のものと Cisco 独自のものを分けて答えよ。
 
 <details><summary>解答</summary>
 
-W1. CSMA/CA（衝突回避）。互いに干渉しない 2.4GHz 帯のチャネルは 1・6・11。
-W2. `overload` キーワード。外部から見える公開アドレスは inside global。
-W3. コマンド単位の認可が柔軟なのは TACACS+。`login block-for` は、指定時間内に
-指定回数ログインに失敗すると一定時間すべてのログインをブロックする設定で、
-ブルートフォース（総当たり）攻撃の緩和が目的。
+W1. Authentication（認証: 誰か）／Authorization（認可: 何ができるか）／
+Accounting（アカウンティング: 何をしたかの記録）
+W2. `ip helper-address <DHCP サーバの IP アドレス>`
+W3. 業界標準 = VRRP（RFC 5798）／Cisco 独自 = HSRP・GLBP
 
 </details>
 

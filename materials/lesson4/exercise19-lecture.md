@@ -19,29 +19,23 @@
 
 ## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 11「OSPFv2（シングル
-> エリア）」 / Exercise 16「セキュリティの概念とデバイス保護」 / Exercise 18「レイヤ 2
-> セキュリティと VPN 概要」 の範囲から出題）。
+> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 18「レイヤ 2 セキュリティと VPN 概要」 / Exercise 16「セキュリティの概念とデバイス保護」 / Exercise 14「IP サービス総合」 の範囲から出題）。
 
-**W1.** （Exercise 11）OSPF の Hello タイマーと Dead タイマーの既定値はそれぞれ何秒か。
-また、マルチアクセス網で DROTHER 同士のネイバー状態はどこで停止するのが正常か。
+**W1.** ポートセキュリティで違反を検知したときの 3 つの動作モードを答えよ。
 
-**W2.** （Exercise 16）AAA の 3 要素（認証・認可・アカウンティング）のうち、
-「ログイン後にどのコマンドの実行を許すか」を決めるのはどれか。また、RADIUS と
-TACACS+ のトランスポート層プロトコルの違いは何か。
+**W2.** 特権 EXEC モードのパスワードを設定するとき、`enable password` ではなく
+`enable secret` を使うべき理由は何か。
 
-**W3.** （Exercise 18）ポートセキュリティの違反モードのうち、違反フレームを破棄し
-かつポートを err-disabled にする（最も厳格な）モードはどれか。
+**W3.** Syslog の severity で、`%SYS-5-CONFIG_I` の `5` は何を表すか。
+数字が小さいほど重大か、大きいほど重大か。
 
 <details><summary>解答</summary>
 
-W1. Hello タイマー: 既定 10 秒／Dead タイマー: 既定 40 秒（Hello の 4 倍）。
-DROTHER 同士は **2-Way** で状態が停止するのが正常（Full まで進むのは DR/BDR
-との関係のみ）。
-W2. 「どのコマンドを許すか」を決めるのは **認可（Authorization）**。RADIUS は
-**UDP**（1812/1813）、TACACS+ は **TCP**（49）を使用する。
-W3. **shutdown** モード（違反フレームを破棄し、ポートを err-disabled にして
-通信を停止する。復旧には手動での `shutdown` / `no shutdown` が必要）。
+W1. protect（違反フレームを破棄）／restrict（破棄＋ログとカウンタ）／
+shutdown（ポートを err-disable。既定値）
+W2. `enable secret` はハッシュ化して保存されるが、`enable password` は
+平文（または簡易な暗号化）で保存されるため
+W3. severity 5 = Notification。数字が**小さい**ほど重大（0 = Emergency）
 
 </details>
 

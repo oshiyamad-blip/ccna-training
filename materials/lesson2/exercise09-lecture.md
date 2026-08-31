@@ -17,22 +17,21 @@
 
 ## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 3「Cisco IOS の基本操作とデバイス初期設定」 / Exercise 6「VLAN の基礎」 / Exercise 8「VLAN 間ルーティング」 の範囲から出題）。
+> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 8「VLAN 間ルーティング」 / Exercise 6「VLAN の基礎」 / Exercise 4「IPv4 アドレッシングとサブネット化」 の範囲から出題）。
 
-**W1.** running-config（実行コンフィグレーション）の内容を、再起動しても消えない
-startup-config（NVRAM）に保存するコマンドは何か。
+**W1.** Router on a Stick 構成で、サブインターフェースに VLAN 20 のタグを
+紐付けるコマンドは何か。
 
-**W2.** 1 本の物理リンクで複数 VLAN のフレームを伝送できるようにするポートモードの
-名称と、そのタグ付けを規定する IEEE 標準規格の番号を答えよ。
+**W2.** スイッチのポートを VLAN 20 のアクセスポートにするコマンドを 2 行で答えよ。
 
-**W3.** Router on a Stick 構成で、ルータのサブインターフェースに特定の VLAN（例: VLAN20）
-のタグを紐付けるために使うコマンドは何か。
+**W3.** `192.168.10.100/27` が属するサブネットのネットワークアドレスと
+ブロードキャストアドレスを答えよ。
 
 <details><summary>解答</summary>
 
-W1. `copy running-config startup-config`（`write memory` でも可）
-W2. トランクポート／IEEE 802.1Q
-W3. `encapsulation dot1Q 20`
+W1. `encapsulation dot1Q 20`
+W2. `switchport mode access` と `switchport access vlan 20`
+W3. ネットワーク = 192.168.10.96／ブロードキャスト = 192.168.10.127（ブロックサイズ 32）
 
 </details>
 

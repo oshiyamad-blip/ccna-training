@@ -26,27 +26,22 @@
 
 ## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 6「VLAN の基礎」 /
-> Exercise 10「無線 LAN と検出プロトコル」 / Exercise 11「OSPFv2（シングルエリア）」 の
-> 範囲から出題）。
+> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 11「OSPFv2（シングルエリア）」 / Exercise 9「STP と EtherChannel」 / Exercise 7「トランクと VLAN 設計」 の範囲から出題）。
 
-**W1.** （Exercise 6）スイッチにおける**標準範囲 VLAN** と**拡張範囲 VLAN** の
-番号帯は、それぞれ何番から何番か。
+**W1.** OSPF がネイバー関係を確立するために、両インターフェースで一致している
+必要がある項目を 3 つ挙げよ。
 
-**W2.** （Exercise 10）CDP の既定のアドバタイズ間隔（Hello）とホールドタイムは
-何秒か。また、業界標準の検出プロトコルの名称と、それを規定する IEEE 規格番号は
-何か。
+**W2.** RSTP のポートステートを 3 つ答えよ。
 
-**W3.** （Exercise 11）OSPF のインターフェースコストを求める既定の計算式と、
-Cisco IOS における既定の参照帯域幅（reference bandwidth）はいくらか。
+**W3.** トランクの両端でネイティブ VLAN が食い違うと何が起きるか。
 
 <details><summary>解答</summary>
 
-- W1: 標準範囲 VLAN は 1〜1005、拡張範囲 VLAN は 1006〜4094
-- W2: CDP は既定で Hello 60 秒・ホールドタイム 180 秒。業界標準は LLDP
-  （IEEE 802.1AB）
-- W3: コスト = 参照帯域幅 ÷ インターフェース帯域幅。Cisco IOS の既定の
-  参照帯域幅は 10^8（100 Mbps）
+W1. エリア ID／Hello・Dead インターバル／サブネット（同一セグメント）
+（ほかに認証設定・スタブフラグ）
+W2. Discarding／Learning／Forwarding
+W3. VLAN をまたいでフレームが漏れる（VLAN ホッピングの温床）。
+CDP が不一致を検出して警告を出す
 
 </details>
 
