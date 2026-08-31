@@ -1,13 +1,13 @@
 # exercise05 .pktビルドシート
 
 - **対象ラボ**: `materials/lesson3/exercise05-lab.md`（静的ルートとフローティングスタティックの構成 —
-  R1-R2-R3 直列トポロジ、IPv4/IPv6 静的ルート・デフォルトルート・フローティングスタティック）
+  R1-R2-R3 直列トポロジ、静的ルート・デフォルトルート・フローティングスタティック）
 - **作り込みレベル**: **A（配線済み・IP済み）** — `pkt-build-spec.md` の exercise05 行の指定どおり、
   「ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空
   （静的ルート投入が本題）」とする。汎用の A 定義（ルータ/スイッチは未設定＝ホスト名すら
   未設定の初期状態）ではなく、この exercise05 個別指定を優先する。具体的には、ラボ手順書の
-  **手順1（トポロジ作成・ホスト名・インターフェース IPv4/IPv6・`ipv6 unicast-routing`）と
-  手順2（PC の IP 設定）までを投入済み**にし、**手順4以降（IPv4/IPv6 静的ルート、
+  **手順1（トポロジ作成・ホスト名・インターフェース IPv4 アドレス）と
+  手順2（PC の IP 設定）までを投入済み**にし、**手順4以降（静的ルート、
   デフォルトルート、フローティングスタティック）はすべて受講者が入力する**空の状態で
   保存する。
 - **保存ファイル名**: `exercise05_start.pkt`
@@ -54,19 +54,18 @@
 
 | デバイス | IPアドレス | サブネットマスク | デフォルトGW | その他 |
 |---|---|---|---|---|
-| PC1 | 192.168.1.10 | 255.255.255.0 | 192.168.1.1 | IPv6: 2001:db8:1::10/64（プレフィックス長64）、IPv6 GW: 2001:db8:1::1 |
-| PC3 | 192.168.3.10 | 255.255.255.0 | 192.168.3.1 | IPv6: 2001:db8:3::10/64（プレフィックス長64）、IPv6 GW: 2001:db8:3::1 |
+| PC1 | 192.168.1.10 | 255.255.255.0 | 192.168.1.1 | LAN1 側 |
+| PC3 | 192.168.3.10 | 255.255.255.0 | 192.168.3.1 | LAN3 側 |
 
 - Desktop > IP Configuration で Static を選択し、IPv4（Address / Subnet Mask /
-  Default Gateway）と IPv6（Address / Prefix Length / Default Gateway）の両方を
   入力済みにする（レベル A の指定どおり PC 側は投入済み）。
 - DNS 欄は空欄のままでよい（ラボで DNS は使用しない）。
 
 ## 4. 貼り付け用コンフィグ（事前設定）
 
-ラボ手順書の**手順1（ホスト名・インターフェース IPv4/IPv6・`ipv6 unicast-routing`）**
+ラボ手順書の**手順1（ホスト名・インターフェース IPv4 アドレス）**
 までを投入済みにする。`enable` → `configure terminal` から開始する前提で、以下を
-そのまま各ルータの CLI に貼り付ける。**`ip route` / `ipv6 route`（手順4以降の静的
+そのまま各ルータの CLI に貼り付ける。**`ip route`（手順4以降の静的
 ルート・デフォルトルート・フローティングスタティック）は一切含めない**——これが
 exercise05 の本題であり、受講者が入力する部分として空のまま残す。
 
@@ -78,20 +77,16 @@ configure terminal
 hostname R1
 interface gigabitEthernet 0/0
  ip address 192.168.1.1 255.255.255.0
- ipv6 address 2001:db8:1::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 10.0.12.1 255.255.255.252
- ipv6 address 2001:db8:12::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/2
  ip address 10.0.13.1 255.255.255.252
- ipv6 address 2001:db8:13::1/64
  no shutdown
  exit
-ipv6 unicast-routing
 end
 copy running-config startup-config
 ```
@@ -104,15 +99,12 @@ configure terminal
 hostname R2
 interface gigabitEthernet 0/0
  ip address 10.0.12.2 255.255.255.252
- ipv6 address 2001:db8:12::2/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 10.0.23.1 255.255.255.252
- ipv6 address 2001:db8:23::1/64
  no shutdown
  exit
-ipv6 unicast-routing
 end
 copy running-config startup-config
 ```
@@ -125,20 +117,16 @@ configure terminal
 hostname R3
 interface gigabitEthernet 0/0
  ip address 10.0.23.2 255.255.255.252
- ipv6 address 2001:db8:23::2/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 192.168.3.1 255.255.255.0
- ipv6 address 2001:db8:3::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/2
  ip address 10.0.13.2 255.255.255.252
- ipv6 address 2001:db8:13::2/64
  no shutdown
  exit
-ipv6 unicast-routing
 end
 copy running-config startup-config
 ```
@@ -163,24 +151,18 @@ configure terminal
 hostname R1
 interface gigabitEthernet 0/0
  ip address 192.168.1.1 255.255.255.0
- ipv6 address 2001:db8:1::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 10.0.12.1 255.255.255.252
- ipv6 address 2001:db8:12::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/2
  ip address 10.0.13.1 255.255.255.252
- ipv6 address 2001:db8:13::1/64
  no shutdown
  exit
-ipv6 unicast-routing
 ip route 192.168.3.0 255.255.255.0 10.0.13.2
 ip route 192.168.3.0 255.255.255.0 10.0.12.2 5
-ipv6 route 2001:db8:3::/64 2001:db8:13::2
-ipv6 route 2001:db8:3::/64 2001:db8:12::2 5
 end
 copy running-config startup-config
 ```
@@ -193,19 +175,14 @@ configure terminal
 hostname R2
 interface gigabitEthernet 0/0
  ip address 10.0.12.2 255.255.255.252
- ipv6 address 2001:db8:12::2/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 10.0.23.1 255.255.255.252
- ipv6 address 2001:db8:23::1/64
  no shutdown
  exit
-ipv6 unicast-routing
 ip route 192.168.1.0 255.255.255.0 10.0.12.1
 ip route 192.168.3.0 255.255.255.0 10.0.23.2
-ipv6 route 2001:db8:1::/64 2001:db8:12::1
-ipv6 route 2001:db8:3::/64 2001:db8:23::2
 end
 copy running-config startup-config
 ```
@@ -218,25 +195,19 @@ configure terminal
 hostname R3
 interface gigabitEthernet 0/0
  ip address 10.0.23.2 255.255.255.252
- ipv6 address 2001:db8:23::2/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
  ip address 192.168.3.1 255.255.255.0
- ipv6 address 2001:db8:3::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/2
  ip address 10.0.13.2 255.255.255.252
- ipv6 address 2001:db8:13::2/64
  no shutdown
  exit
-ipv6 unicast-routing
 ip route 192.168.1.0 255.255.255.0 10.0.13.1
 ip route 192.168.1.0 255.255.255.0 10.0.23.1 5
 ip route 0.0.0.0 0.0.0.0 10.0.23.1
-ipv6 route 2001:db8:1::/64 2001:db8:13::1
-ipv6 route 2001:db8:1::/64 2001:db8:23::1 5
 end
 copy running-config startup-config
 ```
@@ -246,7 +217,7 @@ copy running-config startup-config
 IP 設定は「3. PC/サーバ設定」のまま変更なし。
 
 - 完成状態での疎通確認の想定結果:
-  - PC1 (192.168.1.10) → PC3 (192.168.3.10)：`ping`／`ping 2001:db8:3::10` とも成功
+  - PC1 (192.168.1.10) → PC3 (192.168.3.10)：`ping` が成功
   - `tracert 192.168.3.10`（PC1）：`R1 Gi0/0 → R1 Gi0/2 → R3 Gi0/2`（R1-R3 直結の
     主経路のみ、R2 は経由しない）の順にホップ
   - R1 の `show ip route 192.168.3.0`：主経路（via 10.0.13.2、AD/メトリック `[1/0]`）
@@ -262,19 +233,18 @@ IP 設定は「3. PC/サーバ設定」のまま変更なし。
 
 - [ ] PC1-R1、R1-R2、R2-R3、R3-PC3、R1-R3（直結）の全リンクが緑
 - [ ] R1・R2・R3 とも `hostname` が投入済み（プロンプトが `R1#`/`R2#`/`R3#`）で、
-      `show ip interface brief` と `show ipv6 interface brief` を実行すると、
-      IP アドレス表どおりの IPv4/IPv6 アドレスが設定され全インターフェースが
+      `show ip interface brief` を実行すると、
+      IP アドレス表どおりの IPv4 アドレスが設定され全インターフェースが
       `up`/`up` であることを確認
-- [ ] 各ルータで `ipv6 unicast-routing` が有効（`show running-config | include ipv6 unicast-routing`
       が1行返る）ことを確認
-- [ ] レベル A の指定どおり、`show ip route static` / `show ipv6 route static` が
-      いずれも**何も表示しない**（静的ルート・デフォルトルート・フローティング
-      スタティックが未投入）＝手順4以降が本題として残っていること
+- [ ] レベル A の指定どおり、`show ip route static` が**何も表示しない**
+      （静的ルート・デフォルトルート・フローティングスタティックが未投入）
+      ＝手順4以降が本題として残っていること
 - [ ] PC1 の Command Prompt から `ping 192.168.1.1`（R1 Gi0/0、同一セグメント）は
       成功し、`ping 192.168.3.10`（PC3、未到達）は失敗する（`Request timed out.`）
       ことを確認 ＝手順3で受講者が観察する「隣接ネットワークのみ疎通」の状態が
       保たれていること
-- [ ] PC1・PC3 の Desktop > IP Configuration に、3. の表のとおり IPv4/IPv6 の
-      IP・マスク（プレフィックス長）・デフォルトゲートウェイが入力済み
+- [ ] PC1・PC3 の Desktop > IP Configuration に、3. の表のとおり
+      IP・サブネットマスク・デフォルトゲートウェイが入力済み
 - [ ] `exercise05_start.pkt` として保存し、再度開いて配線・ホスト名・インターフェース
       IP・PC の IP が保持され、静的ルート類は未投入のままであることを確認
