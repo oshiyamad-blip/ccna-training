@@ -248,6 +248,30 @@ await check('講義に本文の章が存在する', async () => {
   return bad
 })
 
+await check('時間超過するラボの一覧が講師ガイドと一致', async () => {
+  // 2026-08 決定: 超過は教材を削らず宿題・繰り越しで吸収する。前提として
+  // 「どのラボが超過するか」を講師ガイドに明示しているので、実データとずれないよう見る。
+  const guide = join(ROOT, '05-instructor-guide.md')
+  if (!(await exists(guide))) return ['05-instructor-guide.md がない']
+  const actual = []
+  for (const d of DAYS) {
+    const p2 = join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lab.md`)
+    if (!(await exists(p2))) continue
+    const txt = await read(p2)
+    const mins = [...txt.matchAll(/^## 手順 ?\d+:[^\n（(]*[（(](\d+) ?分/gm)].map((m) => Number(m[1]))
+    const slotM = txt.match(/所要時間の目安: ([\d.]+) 時間/)
+    if (!mins.length || !slotM) continue
+    if (mins.reduce((a, b) => a + b, 0) > Number(slotM[1]) * 60) actual.push(d.day)
+  }
+  const gtxt = await read(guide)
+  const sec = gtxt.slice(gtxt.indexOf('### 時間超過が見込まれるラボ'))
+  const listed = [...sec.slice(0, sec.indexOf('運用のしかた')).matchAll(/^\| Exercise(\d\d) \|/gm)]
+    .map((m) => Number(m[1]))
+  return String(actual) === String(listed)
+    ? []
+    : [`実際に超過するのは Exercise ${actual.join('/')} だが、講師ガイドの一覧は ${listed.join('/') || '（空）'}`]
+})
+
 await check('ラボ手順書に手順と提出方法がある', async () => {
   const bad = []
   for (const d of DAYS) {
