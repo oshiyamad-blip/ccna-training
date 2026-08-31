@@ -315,6 +315,20 @@ await check('LESSON の区切りを示す Exercise 番号が全文書で一致',
   return bad
 })
 
+await check('LESSON フォルダ名に接尾辞が付いていない', async () => {
+  // 2026-08 決定: フォルダ名は upload-wiki.mjs が実際に作る `LESSON1` の形に統一する
+  // （`LESSON1_ネットワーク基礎` のような接尾辞付きは使わない）。
+  const bad = []
+  for (const p of await allMarkdown()) {
+    const lines = (await read(p)).split('\n')
+    lines.forEach((l, i) => {
+      const m = l.match(/LESSON\d_[^\s/`）」]+/)
+      if (m) bad.push(`${rel(p)}:${i + 1} 「${m[0]}」は接尾辞なし（LESSON${m[0][6]}）にする`)
+    })
+  }
+  return bad
+})
+
 await check('課題名の例が [ExerciseNN] のゼロ埋め表記', async () => {
   const bad = []
   for (const p of await allMarkdown()) {

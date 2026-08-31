@@ -60,6 +60,9 @@ try "DAYS の並びの崩れ" \
 try "配置先の LESSON 表記ずれ" \
   "sed -i '3s|01_教材 > LESSON1|01_教材 > LESSON4|' materials/lesson1/exercise01-lecture.md" \
   "配置先が LESSON4"
+try "LESSON フォルダ名の接尾辞ゆれ" \
+  "sed -i '0,/📁 LESSON1$/s//📁 LESSON1_ネットワーク基礎/' 02-backlog-design.md" \
+  "接尾辞なし"
 try "小テストが受講者向け投入に混入" \
   "sed -i \"s|if (kind === 'quiz' \&\& !INCLUDE_QUIZ) continue||\" scripts/upload-wiki.mjs" \
   "投入に含まれている"
