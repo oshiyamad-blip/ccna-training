@@ -79,7 +79,79 @@
 
 ## 4. 貼り付け用コンフィグ（事前設定）
 
-**事前設定なし（機器は初期状態）。**
+**有線側（VLAN・トランク・サブインターフェース・DHCP）を事前設定する。**
+
+ラボ本体は無線 LAN（WLC / LAP）が主題で、有線側は Exercise 6〜8 の既習内容のため、
+開始ファイルに設定済みにしておく（受講者は手順 1 で「確認」するだけ）。
+ゼロから構築したい受講者向けには、ラボ手順書の**発展課題 1** に手順がある。
+
+**SW1（2960）に貼り付け:**
+
+```
+enable
+configure terminal
+hostname SW1
+vlan 10
+ name WIRELESS-CLIENT
+ exit
+vlan 100
+ name MGMT
+ exit
+interface fastEthernet 0/1
+ switchport mode access
+ switchport access vlan 100
+ power inline auto
+ exit
+interface fastEthernet 0/24
+ switchport mode access
+ switchport access vlan 100
+ exit
+interface gigabitEthernet 0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 10,100
+ exit
+interface gigabitEthernet 0/2
+ switchport mode trunk
+ switchport trunk allowed vlan 10,100
+ switchport trunk native vlan 100
+ exit
+end
+copy running-config startup-config
+```
+
+**R1（2911）に貼り付け:**
+
+```
+enable
+configure terminal
+hostname R1
+interface gigabitEthernet 0/0
+ no shutdown
+ exit
+interface gigabitEthernet 0/0.100
+ encapsulation dot1Q 100
+ ip address 192.168.100.1 255.255.255.0
+ exit
+interface gigabitEthernet 0/0.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ exit
+ip dhcp excluded-address 192.168.100.1 192.168.100.10
+ip dhcp excluded-address 192.168.10.1 192.168.10.10
+ip dhcp pool VLAN100-MGMT
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ option 43 hex f104.c0a8.6402
+ exit
+ip dhcp pool VLAN10-CLIENT
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ exit
+end
+copy running-config startup-config
+```
+
+> **WLC・LAP は初期状態のまま**にしておくこと（受講者が手順 2 以降で設定する）。
 
 レベル A の指定どおり、R1・SW1・WLC-3504 はいずれもホスト名すら設定していない工場出荷状態
 で保存する。
