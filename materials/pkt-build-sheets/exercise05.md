@@ -1,6 +1,6 @@
 # exercise05 .pktビルドシート
 
-- **対象ラボ**: `materials/lesson3/exercise05-lab.md`（静的ルートとフローティングスタティックの構成 —
+- **対象ラボ**: `materials/lesson1/exercise05-lab.md`（静的ルートとフローティングスタティックの構成 —
   R1-R2-R3 直列トポロジ、静的ルート・デフォルトルート・フローティングスタティック）
 - **作り込みレベル**: **A（配線済み・IP済み）** — `pkt-build-spec.md` の exercise05 行の指定どおり、
   「ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空

@@ -213,6 +213,21 @@ await check('未習の Exercise を「学んだ」ものとして参照してい
   return bad
 })
 
+await check('バッククォート内に書いたリポジトリ内パスが実在する', async () => {
+  // `materials/lesson1/exercise05-lab.md` のような書き方はリンク記法ではないため
+  // 画像・リンクの検査に掛からない。組み替えで真っ先に腐るのでここで見る。
+  const bad = []
+  const re = /`((?:materials|scripts|samples)\/[A-Za-z0-9_./-]+\.(?:md|mjs|png|svg))`/g
+  for (const p of await allMarkdown()) {
+    for (const m of (await read(p)).matchAll(re)) {
+      // lessonN・pN・exerciseNN はプレースホルダなので実在を求めない
+      if (/lessonN|\bpN-|exerciseNN|ExerciseNN/.test(m[1])) continue
+      if (!(await exists(join(ROOT, m[1])))) bad.push(`${rel(p)} → ${m[1]}`)
+    }
+  }
+  return bad
+})
+
 // --------------------------------------------------- D. ウォームアップ想起クイズ
 
 // 出典は「1 つ前・3 つ前・5 つ前」。materials/README.md・01-curriculum.md に書かれた設計。
@@ -289,6 +304,70 @@ await check('小テストの設問数と解答表の行数が一致', async () =
     const qs = [...s.matchAll(/^\*\*Q(\d+)\.\*\*/gm)].length
     const as = [...s.matchAll(/^\| Q(\d+) \|/gm)].length
     if (qs !== as) bad.push(`${rel(p)}: 設問 ${qs} 問に対し解答 ${as} 行`)
+  }
+  return bad
+})
+
+// ------------------------------------------------- F. .pkt ビルドシート
+
+// ビルドシートは受講者には渡らないが、これが狂うと .pkt を GUI で作り直す羽目になる。
+// 手作業が高くつく領域なので、機械で分かる食い違いはここで止める。
+const buildSheet = (day) => join(MATERIALS, 'pkt-build-sheets', `exercise${pad(day)}.md`)
+
+await check('全 Exercise に .pkt ビルドシートがある', async () => {
+  const bad = []
+  for (const d of DAYS) if (!(await exists(buildSheet(d.day)))) bad.push(`${rel(buildSheet(d.day))} がない`)
+  return bad
+})
+
+await check('ビルドシートの「対象ラボ」が自分のラボを指している', async () => {
+  const bad = []
+  for (const d of DAYS) {
+    if (!(await exists(buildSheet(d.day)))) continue
+    const m = (await read(buildSheet(d.day))).match(/^- \*\*対象ラボ\*\*: `([^`]+)`/m)
+    if (!m) { bad.push(`${rel(buildSheet(d.day))}: 対象ラボの行がない`); continue }
+    const want = `materials/${lessonDir(d.day)}/exercise${pad(d.day)}-lab.md`
+    if (m[1] !== want) bad.push(`${rel(buildSheet(d.day))}: 対象ラボが ${m[1]}（期待 ${want}）`)
+  }
+  return bad
+})
+
+await check('ビルドシートが参照する手順番号がラボに実在する', async () => {
+  const bad = []
+  for (const d of DAYS) {
+    if (!(await exists(buildSheet(d.day)))) continue
+    const lab = await read(join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lab.md`))
+    const steps = new Set([...lab.matchAll(/^## 手順 ?(\d+)/gm)].map((m) => Number(m[1])))
+    const refs = new Set([...(await read(buildSheet(d.day))).matchAll(/手順\s?(\d+)/g)].map((m) => Number(m[1])))
+    const missing = [...refs].filter((r) => !steps.has(r)).sort((a, b) => a - b)
+    if (missing.length) bad.push(`${rel(buildSheet(d.day))}: 手順 ${missing.join('/')} がラボにない（ラボは 1〜${Math.max(...steps)}）`)
+  }
+  return bad
+})
+
+await check('ビルドシートのポート名が機種の実在ポートと一致', async () => {
+  // Packet Tracer の既定構成。GUI で組み始めてから「そのポートが無い」と気づくのを防ぐ。
+  const PORTS = {
+    2911: [0, 1, 2].map((i) => `GigabitEthernet0/${i}`),
+    1941: [0, 1].map((i) => `GigabitEthernet0/${i}`),
+    4331: [0, 1, 2].map((i) => `GigabitEthernet0/0/${i}`),
+    2960: [...Array(24)].map((_, i) => `FastEthernet0/${i + 1}`).concat(['GigabitEthernet0/1', 'GigabitEthernet0/2']),
+    3560: [...Array(24)].map((_, i) => `FastEthernet0/${i + 1}`).concat(['GigabitEthernet0/1', 'GigabitEthernet0/2']),
+  }
+  const bad = []
+  for (const d of DAYS) {
+    if (!(await exists(buildSheet(d.day)))) continue
+    const txt = await read(buildSheet(d.day))
+    const models = [...new Set([...txt.matchAll(/\b(2911|1941|4331|2960|3560)\b/g)].map((m) => m[1]))]
+    if (!models.length) continue
+    const allowed = new Set(models.flatMap((m) => PORTS[m]))
+    const seen = new Set()
+    // サブインターフェース（.10 等）は物理ポート名に落として判定する
+    for (const m of txt.matchAll(/\b(Gi|Fa|GigabitEthernet|FastEthernet)\s?((?:\d+\/){1,2}\d+)(?:\.\d+)?\b/g)) {
+      const full = (m[1].startsWith('Gi') ? 'GigabitEthernet' : 'FastEthernet') + m[2]
+      if (!allowed.has(full)) seen.add(full)
+    }
+    if (seen.size) bad.push(`${rel(buildSheet(d.day))}（機種 ${models.join('/')}）: ${[...seen].join(', ')} は実在しない`)
   }
   return bad
 })

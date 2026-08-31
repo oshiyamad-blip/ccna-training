@@ -1,6 +1,6 @@
 # exercise15 .pktビルドシート
 
-- **対象ラボ**: `materials/lesson1/exercise15-lab.md`（IPv6 アドレッシング — 静的設定と SLAAC の構成）
+- **対象ラボ**: `materials/lesson3/exercise15-lab.md`（IPv6 アドレッシング — 静的設定と SLAAC の構成）
 - **作り込みレベル**: **A（配線済み・IP済み）** — ただし `pkt-build-spec.md` の exercise15 特記事項により調整あり:
   「IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み」。
   本ラボは IPv4 を一切使わない IPv6 専用ラボであり、かつ **PC の IPv6 アドレス設定そのもの
