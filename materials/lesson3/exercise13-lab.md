@@ -124,9 +124,9 @@ R3(config-router)# exit
 各ルータで `show ip ospf neighbor` を実行し、ネイバーの状態を記録してください。
 この時点では **R1-R3 間・R2-R3 間ともにネイバーが正常に Full になりません**。
 
-ここからが本日の山場です。4 つの障害を一つずつ切り分けていきますが、
-「状態（State）を見る → 疑わしい原因を絞る → 設定を比較する」の順で進めれば
-必ず特定できます。時間をかけて構いません。
+> **ここからがこの Exercise の山場です。** 4 つの障害を一つずつ切り分けて
+> いきますが、「状態（State）を見る → 疑わしい原因を絞る → 設定を比較する」の順で
+> 進めれば必ず特定できます。時間をかけて構いません。
 
 ## 手順 3: 障害 1（Hello/Dead タイマー不一致・ネイバー不成立）の切り分けと修正（15 分）
 
@@ -199,17 +199,17 @@ R3(config-router)# exit
 4. R2・R3 で `show ip ospf neighbor` を確認し、R2-R3 間が **FULL** になったことを
    確認する
 
-## 手順 6: 障害 4（MTU 不一致・Exstart 停滞）の切り分けと修正（10 分）
+## 手順 6: 障害 4（MTU 不一致・ExStart 停滞）の切り分けと修正（10 分）
 
 > ⚠️ **Packet Tracer での見え方について**: 実機 IOS では MTU 不一致は DBD 交換を
-> 妨げ EXSTART／EXCHANGE で停滞しますが、Packet Tracer はバージョンによって
+> 妨げ ExStart／EXCHANGE で停滞しますが、Packet Tracer はバージョンによって
 > この MTU チェックを厳密に再現しないことがあります。もし手順 1 の時点で
 > R1-R3 間がすでに **FULL** になっていても異常ではありません。その場合は
 > 停滞の再現を待たず、手順 2〜4 の「両側の IP MTU を比較し、既定値へ戻す」
 > 作業そのものを設定衛生（不要な変更の除去）の練習として実施してください。
 
 1. R1・R3 で `show ip ospf neighbor` を確認する。R1-R3 間のネイバーが
-   **EXSTART** または **EXCHANGE** のまま停滞していないか確認する（Packet Tracer
+   **ExStart** または **EXCHANGE** のまま停滞していないか確認する（Packet Tracer
    では上記のとおり停滞せず FULL になっている場合もあります）
 2. 両ルータの IP MTU を比較する（OSPF の DBD MTU チェックは IP MTU を見るため、
    L2 の `show interfaces` ではなく `show ip interface` で確認します）
@@ -302,9 +302,18 @@ R2(config-if)# exit
    R2# show standby brief
    ```
 
-3. **確認**: R1 が **Active**、R2 が **Standby** であること、State 列の
-   ほかに仮想 IP（`192.168.10.1`）と仮想 MAC アドレスが表示されていることを
-   記録する
+3. **確認**: R1 が **Active**、R2 が **Standby** であること、および仮想 IP
+   （`192.168.10.1`）が `Virtual IP` 列に表示されていることを記録する
+4. 仮想 MAC アドレスは `show standby brief` の一覧には表示されません。R1 で
+   詳細表示のコマンドを実行し、`Virtual MAC address` の行を確認して記録する
+
+   ```
+   R1# show standby
+   ```
+
+   `show standby brief` の列は左から Interface / Grp / Pri / P（preempt）/ State /
+   Active addr / Standby addr / Virtual IP です。仮想 MAC を確認したいときは
+   詳細表示の `show standby` を使う、と覚えてください。
 
 ## 手順 13: 連続 ping の開始と Active 障害の発生（10 分）
 
@@ -356,7 +365,7 @@ R2(config-if)# exit
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. 4 つの OSPF 障害それぞれについて、ネイバー状態（Down / Init / Exstart 等）と
+1. 4 つの OSPF 障害それぞれについて、ネイバー状態（Down / Init / ExStart 等）と
    原因、確認に用いたコマンド、実施した修正を**表にまとめよ**。
 2. R1・R2 の `show ip route` に現れたデフォルトルートは何コード（例: O*E2）で
    表示され、その配布元と広告に用いたコマンドは何か。
@@ -378,7 +387,7 @@ R2(config-if)# exit
 | R1-R3 間のネイバーが一切現れない（設定直後） | `show ip ospf interface` で両側の Hello/Dead interval を比較（手順 3 の修正漏れ。タイマー不一致の Hello は相手に破棄されるため Init にも進みません） |
 | R2-R3 間にネイバーが全く現れない（設定直後） | `show ip protocols` で R2 の `network` 文に `10.0.23.0/30` が含まれているか（手順 4） |
 | network 文を追加してもまだネイバーが現れない | R3 側の `show ip protocols` で Passive Interface に該当リンクが入っていないか（手順 5） |
-| R1-R3 間が Exstart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません。Packet Tracer では停滞せず FULL のままのこともあります） |
+| R1-R3 間が ExStart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません。Packet Tracer では停滞せず FULL のままのこともあります） |
 | PC1-PC3 の ping が通らない | 全リンクの `show ip ospf neighbor` が FULL か、`show ip route ospf` に経路があるか |
 | `O*E2` が学習されない | R3 で `ip route 0.0.0.0 0.0.0.0 Null0` と `default-information originate` の両方が投入されているか |
 | `show standby brief` で Active/Standby が逆 | R1 の priority が 110 になっているか、`standby 1 ip` の仮想 IP が両ルータで一致しているか |

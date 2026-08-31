@@ -5,17 +5,17 @@ Backlog の課題管理と同じ要領で、状態と担当を管理します。
 
 状態の凡例: 🔴 未対応 ／ 🔵 処理中 ／ ✅ 完了 ／ ⛔ ブロック中（先行課題待ち）
 
-## 開発側の成果は完了。残るはユーザーの実環境作業のみ
+## 開発側の成果は完了。残るはユーザの実環境作業のみ
 
 Claude が制作できる開発物はすべて完成・コミット済み。残タスクは、人手（GUI 操作・
 Backlog スペースの認証情報）が必要な 2 件のみです。
 
-## 未対応 🔴 — ユーザーの実作業（Claude では代行不可）
+## 未対応 🔴 — ユーザの実作業（Claude では代行不可）
 
 | ID | 課題 | 担当 | メモ |
 |---|---|---|---|
-| DEV-8 | ラボ開始用 .pkt ファイルの実作成（約21個） | **ユーザー** | `materials/pkt-build-spec.md` に従い Packet Tracer の GUI で作成。初回のみ。Exercise1〜5 と Exercise20 を優先 |
-| DEV-11 | Backlog スペースへの実投入（開講準備一式） | ユーザー＋Claude | スペース URL とプロジェクト管理者権限の API キーがあれば Claude が実行可能（課題投入・教材 Wiki 投入）。テンプレート `backlog/project-template.json` からプロジェクト作成 |
+| DEV-8 | ラボ開始用 .pkt ファイルの実作成（約21個） | **ユーザ** | `materials/pkt-build-spec.md` に従い Packet Tracer の GUI で作成。初回のみ。Exercise1〜5 と Exercise20 を優先 |
+| DEV-11 | Backlog スペースへの実投入（開講準備一式） | ユーザ＋Claude | スペース URL とプロジェクト管理者権限の API キーがあれば Claude が実行可能（課題投入・教材 Wiki 投入）。テンプレート `backlog/project-template.json` からプロジェクト作成 |
 
 ## 完了 ✅
 
@@ -71,6 +71,7 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 | DEV-27 | 継続率・合格率の施策とKPIを運用に実装 | `10-retention-and-pass-rate.md`（KPI＋施策A1〜A6/B1〜B5）新設。種別「運営」と運営課題7件＋本試験オリエン(B1)・前日リハ(B5)を投入スクリプトに追加（`--skip-ops`）。05離脱シグナル・07オリエン/前日リハ・01 LESSON3山場・04早期勝利/復帰・06ピア・週次振り返りにFeynman欄を反映 |
 | DEV-28 | 外部レビュー（2026-08 中村）対応 | フォルダ再編（ガイダンス整理・07_試験対策新設・Exercise00/PTマニュアルをLESSON0へ）、Exercise1章構成再編＋機器/プロトコル/Spine-Leaf図強化、Exercise2区切り動線、Exercise3クラスA統一・グローバルアドレス定義・プレフィックス注記、Exercise4 DHCP/DNS導入、Exercise5仮想化拡充（方式3分類・クラウド形態・IaaS/PaaS/SaaS）、週次振り返り選択式化。Exercise組み替え系は実データ確認後に判断（`reports/material-review-response-2026-08.md`） |
 | DEV-29 | 第2回外部レビュー（2026-08-26）対応 | 新規指摘のみ反映: Exercise13 VRRP/GLBP掘り下げ+EIGRP言及、Exercise14 NAT用語の2軸表、Exercise15 3部区切り+QoS拡充（DSCP値・WLC QoSプロファイル）、Exercise16 認証5要素+FW/IPS小節、Exercise18 WAN背景知識+Exercise16との流れ、Exercise5 IEEE 802.3導入、Wikiページ名にテーマ付与（検索性）。組み替え系はIMP-5へ統合（`reports/material-review-response-2026-08.md` 後半） |
+| DEV-30 | 教材品質監査と全指摘の修正 | 全教材約30,000行をファクトチェック＋日本語点検（8並列）。ドリル163問全問正解・模試520問中の解答誤り1件を確認し、確定した誤り8件（STPコスト・模試OSPF INIT・OSPFネットワークタイプ・ワイルドカード・copy方向・OSI層・可換・quiz複数正解）を修正。加えて参照切れ・矛盾指示・リネーム残り253箇所・表記統一873箇所を解消。群別修正196件＋敵対的検証＋4レンズ全体スイープで、修正が作り込んだ回帰9件（.pkt命名・samples取りこぼし・図版不一致ほか）も是正（`reports/quality-audit-2026-08.md`） |
 
 ## レポート
 

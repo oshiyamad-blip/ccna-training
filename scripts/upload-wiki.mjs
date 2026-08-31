@@ -8,7 +8,8 @@
 //   BACKLOG_API_KEY=xxxxxxxx \
 //   node upload-wiki.mjs --project CCNA [--include-quiz] [--dry-run]
 //
-//   --include-quiz  小テストファイル（dayNN-quiz.md）も投入する。
+//   --include-quiz  小テストファイル（lessonN/exerciseNN-quiz.md、
+//                   LESSON0 は lesson0/pN-quiz.md）も投入する。
 //                   ※ quiz ファイルには解答・解説が含まれるため既定では除外。
 //                     受講者が Wiki を閲覧できる場合は絶対に指定しないこと。
 //   --dry-run       API を呼ばず投入予定を表示する
@@ -54,14 +55,18 @@ if (!PROJECT_KEY || (!DRY_RUN && (!SPACE_URL || !API_KEY))) {
 
 const MATERIALS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'materials')
 // フォルダ構成はレビュー（2026-08 中村）を反映:
-//   00_ガイダンス   … 研修の進め方（先頭）・カリキュラム全体表・誤答ノート・週次振り返りのみ
+//   00_ガイダンス   … 研修の進め方（先頭）・カリキュラム全体表・誤答ノート・LESSON振り返りのみ
 //   01_教材/LESSON0   … 環境構築系（Exercise00・Packet Tracer マニュアル）は LESSON0 と一体で学ぶ
 //   07_試験対策     … 計算ドリル・用語辞書は試験対策として独立セクションに
 const GUIDANCE_FILES = [
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '04-guidance.md'), page: 'CCNA研修/00_ガイダンス/研修の進め方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '01-curriculum.md'), page: 'CCNA研修/00_ガイダンス/カリキュラム全体表' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'error-log.md'), page: 'CCNA研修/00_ガイダンス/誤答ノートの書き方' },
-  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'weekly-retro.md'), page: 'CCNA研修/00_ガイダンス/週次振り返りの書き方' },
+  // 2026-08 のリネームに伴いページ名を「週次振り返りの書き方」から変更。
+  // ※ Backlog では Wiki ページ名がキーになるため、既存スペースへ再投入すると
+  //   新しいページが作られ、旧ページは残る。移行後に旧ページを削除すること
+  //   （ファイル名 weekly-retro.md は本スクリプトが参照しているため変更しない）。
+  { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'templates', 'weekly-retro.md'), page: 'CCNA研修/00_ガイダンス/LESSON振り返りの書き方' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'exercise00-setup.md'), page: 'CCNA研修/01_教材/LESSON0/Exercise00 環境構築' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', '03-packet-tracer-manual.md'), page: 'CCNA研修/01_教材/LESSON0/PacketTracer導入マニュアル' },
   { file: join(dirname(fileURLToPath(import.meta.url)), '..', 'materials', 'drills', 'binary-drill.md'), page: 'CCNA研修/07_試験対策/計算ドリル_2進数16進数' },

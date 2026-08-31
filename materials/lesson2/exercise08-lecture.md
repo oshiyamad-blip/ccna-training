@@ -16,7 +16,7 @@
 
 ---
 
-## ウォームアップ（朝の想起クイズ）
+## ウォームアップ（想起クイズ）
 
 > 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 1「ネットワークの
 > 全体像と OSI / TCP-IP モデル」 / Exercise 5「TCP / UDP・スイッチング動作・物理層」 /
@@ -38,6 +38,8 @@
 - W3: 12 ビット。理論上 4096 個（0 と 4095 は予約のため実用上は 4094 個）。
 
 </details>
+
+---
 
 ## 1. VLAN 間ルーティングの必要性と全体像
 
@@ -76,29 +78,39 @@ PC 側では、自分が所属する VLAN のサブネットに合った IP ア�
 ## 2. Router-on-a-Stick（サブインターフェースと encapsulation dot1q）
 
 **Router-on-a-Stick**（ルータオンアスティック）は、ルータと L2 スイッチを
-**1 本のトランクリンク**で接続し、ルータの物理インターフェース上に VLAN ごとの
-**論理サブインターフェース**（1 本の物理インターフェースを、設定上は VLAN の数だけ
-存在する独立したインターフェースであるかのように分割したもの）を作成して、それぞれに
-デフォルトゲートウェイの IP アドレスを割り当てる方式です。1 本の「棒（stick）」に
+**1 本のトランクリンク**で接続する方式です。ルータの物理インターフェース上に、
+VLAN ごとの**論理サブインターフェース**を作成します。サブインターフェースとは、
+1 本の物理インターフェースを、設定上は VLAN の数だけ独立したインターフェースが
+あるかのように分割したものです。そして、そのサブインターフェースそれぞれに
+デフォルトゲートウェイの IP アドレスを割り当てます。1 本の「棒（stick）」に
 ルータがぶら下がっているように見えることから、この名前が付いています。
 
 スイッチ側の接続ポートは `switchport mode trunk` でトランクにします。ルータは
 DTP（Dynamic Trunking Protocol）を話さないため、スイッチ側だけを自動ネゴシエーション
 に任せることはできず、**手動でトランクに固定**しておく必要があります。
 
-> **注意（機種による違い）**: 2960 のような dot1q 専用スイッチではこのまま
-> `switchport mode trunk` を実行すれば問題ありませんが、ISL（Inter-Switch
-> Link、Cisco 独自の古いトランク方式。現在は業界標準の 802.1Q が主流）も
-> サポートする機種（Catalyst 3560/3750 など従来 IOS 機。3650/3850 などの
-> IOS-XE 機は 802.1Q 専用のため該当しません）ではポートの trunk
-> encapsulation が既定で `negotiate`（auto）になっており、`switchport mode
-> trunk` がそのまま拒否されることがあります（`Command rejected: An
-> interface whose trunk encapsulation is Auto can not be configured to
-> trunk mode` というエラー）。ISL と dot1q のどちらのタグ方式を使うか先に
-> 決める必要があるため、その場合は先に `switchport trunk encapsulation
-> dot1q` を実行してから `switchport mode trunk` を設定します。
-> 「トランクモードにできない原因は？」という形で本試験にも出題されるため、
-> 押さえておきましょう。
+> **注意（機種による違い）**: 機種によっては、`switchport mode trunk` の前に
+> `switchport trunk encapsulation dot1q` が必要です。まずこの 1 点だけ
+> 押さえてください。
+
+該当するのは、ISL（Inter-Switch Link、Cisco 独自の古いトランク方式。現在は
+業界標準の 802.1Q が主流）もサポートする機種です。Catalyst 3560/3750 などの
+従来 IOS 機が該当し、3650/3850 などの IOS-XE 機や 2960 のような dot1q 専用
+スイッチは該当しません。
+
+該当機種では、ポートの trunk encapsulation が既定で `negotiate`（auto）に
+なっています。つまり ISL と dot1q のどちらのタグ方式を使うかがまだ決まって
+いません。この状態で `switchport mode trunk` を実行すると、次のように
+拒否されます。
+
+```
+Switch(config-if)# switchport mode trunk
+Command rejected: An interface whose trunk encapsulation is "Auto" can not be configured to "trunk" mode.
+```
+
+そのため、先に `switchport trunk encapsulation dot1q` でタグ方式を固定して
+から `switchport mode trunk` を設定します。「トランクモードにできない
+原因は？」という形で本試験にも出題されるため、押さえておきましょう。
 
 ### サブインターフェースの作成
 
@@ -217,7 +229,7 @@ SVI に割り当てた IP アドレスが、その VLAN の**デフォルトゲ�
 
 ### SVI が up/up になる 3 条件
 
-ここが今日の山場です。時間をかけて構いません。
+ここがこの Exercise の山場です。時間をかけて構いません。
 
 SVI はサブインターフェースと違って物理リンクの上に直接乗っているわけではないため、
 「なぜ up にならないのか」がわかりにくいポイントです。SVI が up/up になるには、
@@ -255,9 +267,18 @@ Router-on-a-Stick のような「1 本のリンクに全 VLAN が集中する」
 ```
 Switch# show ip route
 ...
-C    192.168.10.0/24 is directly connected, Vlan10
-C    192.168.20.0/24 is directly connected, Vlan20
+      192.168.10.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.10.0/24 is directly connected, Vlan10
+L        192.168.10.1/32 is directly connected, Vlan10
+      192.168.20.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.20.0/24 is directly connected, Vlan20
+L        192.168.20.1/32 is directly connected, Vlan20
 ```
+
+`C`（connected）はそのインターフェースが属するサブネットそのもの、
+`L`（local）はそのインターフェースに設定した IP アドレス 1 つだけを表す
+`/32` の経路です。IOS 15 以降では、C 経路には必ずこの L 経路が対になって
+表示されます。
 
 > 💼 **実務では**: `show ip route` に自分の VLAN の C（直接接続）経路が並んで
 > いるかを確認するのは、保守現場で「どこまでは生きていて、どこから壊れて
@@ -338,7 +359,8 @@ L3 スイッチを使う場合の使い分けとしては、**端末を収容す
 > **注意**: トランクに設定したポート（例: Fa0/24）は `show vlan brief` の
 > どの VLAN 行にも表示されません（表示されるのはアクセスポートに割り当てられた
 > ポートのみです）。トランクの状態を確認したいときは `show interfaces trunk`
-> を使う、と覚えておきましょう。exhibit の読解問題として本試験にも出題されます。
+> を使う、と覚えておきましょう。本試験では、show コマンドの出力画面
+> （exhibit と呼ばれる添付資料）を読み取らせる形式でも出題されます。
 
 ### 典型的な障害パターン
 
@@ -422,6 +444,6 @@ L3 スイッチを使う場合の使い分けとしては、**端末を収容す
 
 ## 次のステップ
 
-本日のラボ課題「[Exercise08] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
+この Exercise のラボ課題「[Exercise08] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
 L3 スイッチ + SVI」に進み、Router-on-a-Stick と L3 スイッチの両方式で
 VLAN10・VLAN20 間の疎通を実際に構築・比較してください。

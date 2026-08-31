@@ -138,7 +138,7 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
 4. PC-Kei の [Desktop] → Web Browser から `http://192.168.30.100` にアクセスし、
    デフォルトページが表示されることを確認します（土台の検証完了）
 
-## 手順 4: 経理 VLAN → サーバの拡張 ACL 作成と適用（30 分・本日のメイン）
+## 手順 4: 経理 VLAN → サーバの拡張 ACL 作成と適用（30 分・この Exercise のメイン）
 
 1. 経理 VLAN から SRV への HTTP のみを許可する名前付き拡張 ACL を作成します。
 
@@ -231,6 +231,8 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
    R1(config)# crypto key generate rsa
    How many bits in the modulus [512]: 1024
    ← これは対話プロンプトです。512 は既定値なので、ここでは 1024 と入力して Enter
+   ← SSHv2 を有効にするには 768 ビット以上が必要です（512 のままでは有効化できません）
+   R1(config)# ip ssh version 2
    R1(config)# username admin secret Cisco12345
    R1(config)# line vty 0 4
    R1(config-line)# transport input ssh
@@ -316,7 +318,7 @@ Router-on-a-Stick は、1 本の物理インターフェースの中にサブイ
 | PC-Kei から HTTP も失敗する | ACL の記述順序（プロトコル/送信元/宛先/ポート）、`eq 80` の誤記、末尾 deny が permit より先に書かれていないか |
 | PC-Kei から ping が成功してしまう | `deny ip any any` が抜けていないか（暗黙 deny 頼みでも動作はするが要件通りか確認）、ACL が正しいインターフェース・方向に適用されているか |
 | PC-Adm からも SSH が拒否される | `access-class` の名前と ACL 名の綴り違い、`permit host` のアドレス誤り、`login local` の設定漏れ |
-| PC-Eig から SSH が成功してしまう | `access-class MGMT-VTY in` が正しい line vty に適用されているか、`show ip interface` ではなく `show line` 系で確認が必要な点に注意 |
+| PC-Eig から SSH が成功してしまう | `access-class MGMT-VTY in` が正しい line vty に適用されているか。VTY への適用状況は `show ip interface` にも `show line` にも出ないため、`show running-config \| section line vty` で確認する。実際に一致したかどうかは `show access-lists` のヒットカウンタで確認する |
 | ヒットカウンタが 0 のまま増えない | 想定した通信を実際に発生させたか、`clear access-list counters` 直後で正しいか、ACL の適用インターフェースが違っていないか |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を

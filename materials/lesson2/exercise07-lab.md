@@ -15,7 +15,7 @@
 
 ![Exercise 7 トポロジ図](../images/exercise07-topology.png)
 
-※ この図は手順6・7完了後の最終状態（ネイティブ VLAN 99、許可 VLAN 10,20）を
+※ この図は手順6・7完了後の最終状態（ネイティブ VLAN 99、許可 VLAN 10,20,99）を
 示しています。手順4・5の時点ではネイティブ VLAN は既定の 1、許可 VLAN は
 既定の 1-4094 のままです。
 
@@ -174,12 +174,19 @@
 ## 手順 7: ネイティブ VLAN 不一致の演習（25 分）
 
 1. 両スイッチで VLAN99 を作成する（`vlan 99` → `name NATIVE` → `exit`）
-2. SW1 の Fa0/24 のみ、ネイティブ VLAN を VLAN99 に変更する
+2. SW1 の Fa0/24 のみ、ネイティブ VLAN を VLAN99 に変更する。あわせて、
+   手順 6 で `10,20` に絞り込んだ許可 VLAN リストへ VLAN99 を追加する
 
    ```
    SW1(config)# interface fastEthernet 0/24
    SW1(config-if)# switchport trunk native vlan 99
+   SW1(config-if)# switchport trunk allowed vlan add 99
    ```
+
+   > ネイティブ VLAN は、そのトランクの許可 VLAN リストにも含めておくのが
+   > 設計上の原則です。許可リストから外れていると、タグなしで流れる
+   > ネイティブ VLAN のフレームがトランクを通れず、`show interfaces trunk` の
+   > 表示と実際の転送内容が食い違って切り分けを難しくします。
 
 3. SW2 側は既定のまま（ネイティブ VLAN = VLAN1）にしておく
 4. 両スイッチで CDP が有効であることを確認し（既定で有効）、しばらく待つ。
@@ -210,7 +217,8 @@
 
 7. しばらく待ち、`%CDP-4-NATIVE_VLAN_MISMATCH` の警告が再発しなくなること、
    `show interfaces trunk` の Native VLAN が両スイッチとも 99 で揃っている
-   ことを確認する
+   ことを確認する。あわせて SW1 の Allowed VLANs が `10,20,99` になっていること
+   （ネイティブ VLAN が許可リストに含まれていること）も確認する
 
 ## 手順 8: DTP 無効化と最終確認（20 分）
 

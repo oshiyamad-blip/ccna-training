@@ -1,14 +1,14 @@
 # Exercise 12 小テスト: OSPFv2（シングルエリア）
 
 > 運用: 設問部分を小テスト課題の本文（またはドキュメント）に掲載。
-> 「解答・解説」は講師用フォルダに保管し、**翌日 9:00** に受講者へ公開する。
+> 「解答・解説」は講師用フォルダに保管し、**次の Exercise の開始時**に受講者へ公開する。
 > ルール: 10 問 / 30 分 / 教材参照なし。解答はコメントに「Q1: A」形式で提出。
 
 ---
 
-## ウォームアップ（朝の想起クイズ）
+## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: 前日の Exercise 11
+> 教材を見ずに、まず自力で思い出してください（分散学習: 直前の Exercise 11
 > 「ルーティングの基礎と静的ルート」の範囲から出題）。
 
 **W1.** （Exercise 11）`show ip route` の出力で、ルータに直接接続されたネットワークを
@@ -117,7 +117,7 @@ GigabitEthernet インターフェース（1000 Mbps）の既定コストはい�
 
 ---
 
-## 解答・解説（翌日公開・講師用）
+## 解答・解説（次の Exercise の開始時に公開・講師用）
 
 | 問 | 解答 | 解説 |
 |---|---|---|
@@ -132,4 +132,4 @@ GigabitEthernet インターフェース（1000 Mbps）の既定コストはい�
 | Q9 | A | passive-interface は Hello の送信（＝ネイバー形成）だけを止め、ネットワークの広告自体は継続する |
 | Q10 | 例 | エリア ID 不一致（`show ip ospf interface` / `show running-config`）、Hello/Dead タイマー不一致（`show ip ospf interface`）、サブネット不一致（`show ip interface brief` や `show running-config`）、Router ID 重複（`show ip protocols` や `show ip ospf`）、認証不一致（`show running-config`）、該当 IF が passive 設定になっている（`show ip protocols` の Passive Interface 欄や `show ip ospf interface`）などから最低 4 つ、原因と確認コマンドが正しく対応していれば正解。※ MTU 不一致は「ネイバーが現れない」原因ではなく「現れるが ExStart/Exchange で FULL にならない」原因なので、本問の正解には含めない |
 
-**採点**: 1 問 10 点、正答率 70% 未満は翌朝再テスト。Q10 は趣旨が合っていれば 10 点。
+**採点**: 1 問 10 点、正答率 70% 未満は次の Exercise の冒頭で再テスト。Q10 は趣旨が合っていれば 10 点。

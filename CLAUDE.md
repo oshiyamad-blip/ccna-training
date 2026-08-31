@@ -18,7 +18,7 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
 |---|---|
 | `00`〜`07-*.md` | 設計ドキュメント（実現可能性調査 / カリキュラム / Backlog構成 / PTマニュアル / ガイダンス / 講師ガイド / ローリング運用 / 試験対策フェーズ） |
 | `PROJECT-BACKLOG.md` | **開発側の課題管理台帳**。作業のたびに状態を更新してコミットする |
-| `materials/` | 教材本体。`weekN/dayNN-{lecture,lab,quiz}.md`（Exercise 1〜20 × 3種）+ `exercise00-setup.md` + `templates/` |
+| `materials/` | 教材本体。`lessonN/exerciseNN-{lecture,lab,quiz}.md`（Exercise 1〜20 × 3種）+ LESSON0 の `lesson0/pN-{lecture,work,quiz}.md` + `exercise00-setup.md` + `templates/` |
 | `samples/` | Exercise 1 のフォーマット基準（教材執筆時はこれに合わせる） |
 | `scripts/` | Backlog API / Claude API の運用スクリプト（Node 18+）。`ai-grade.mjs` のみ `scripts/` で `npm install` が必要 |
 
@@ -53,8 +53,10 @@ mood-cinema の `claude/ccna-training-feasibility-hsopen` ブランチにあり�
 
 - 運用モデル A: 共有「CCNA-教材」プロジェクト + 受講者ごとの「CCNA-氏名」プロジェクト
 - 入学のたびに `scripts/create-backlog-issues.mjs --project <KEY> --start <日付>` を実行
-  （LESSON0 プレコース 15 + 本編 Exercise1〜20 の 60 + 試験対策フェーズ Exercise21〜25 の 8
-  = 計83課題を投入。`--skip-precourse` 指定時は LESSON0 を除き Exercise00 環境構築を追加して69課題）
+  （LESSON0 プレコース 15 + 本編 Exercise1〜20 の 60 + 試験対策フェーズ Exercise21〜25 の 10
+  = 計 85 課題を投入。さらに既定では継続率・合格率の運営課題 7 件が加わり **計 92 課題**
+  （`--skip-ops` で運営課題を省略可）。`--skip-precourse` 指定時は LESSON0 を除き
+  Exercise00 環境構築を追加して 71 課題／運営課題込みで 78 課題）
 - 講師は兼務 2 名（当番制）。採点は `grade-quiz.mjs`（選択式）/ `ai-grade.mjs`（AI一次採点）
 - **自習型モデル**: 一斉講義は行わない。受講者は `01_教材`（Exercise 別テキスト）を自分で読んで
   学び、講師は提出物・質問のレビュー（確認・フィードバック・採点・進捗フォロー）を担う。

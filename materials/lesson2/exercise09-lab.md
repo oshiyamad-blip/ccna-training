@@ -34,7 +34,7 @@ LACP で EtherChannel 化（Port-channel 1、トランク）します（図に�
 
 ### IP アドレス表
 
-| 機器 | インタフェース | IP アドレス | サブネットマスク |
+| 機器 | インターフェース | IP アドレス | サブネットマスク |
 |---|---|---|---|
 | PC1 | NIC | 192.168.10.11 | 255.255.255.0 |
 | PC2 | NIC | 192.168.10.12 | 255.255.255.0 |
@@ -97,7 +97,7 @@ LACP で EtherChannel 化（Port-channel 1、トランク）します（図に�
    SW1(config-if)# switchport mode trunk
    ```
 
-   （他のスイッチ・インタフェースも同様に設定する。この時点では EtherChannel
+   （他のスイッチ・インターフェースも同様に設定する。この時点では EtherChannel
    用の Fa0/1-2 はまだ設定しない）
 
 2. PC1 の [Desktop] → **Command Prompt** から、PC2 への疎通を確認する
@@ -120,8 +120,11 @@ LACP で EtherChannel 化（Port-channel 1、トランク）します（図に�
 2. 出力の **Root ID** と **Bridge ID** を 3 台とも記録し、次を確認する
    - どのスイッチの Bridge ID が Root ID と一致しているか（＝ルートブリッジ）
    - 各スイッチの各ポートの **Role**（Root / Desg / Altn）と **Sts**（ステート）
-3. 3 台のうち、非ルートブリッジのスイッチでは 1 つのポートが **Blocking**
-   （802.1D）または **Altn/Discarding**（RSTP 表記）になっているはずである。
+3. 3 台をトライアングル状に接続したこの構成では、**トポロジ全体でちょうど 1 つの
+   ポートだけ**が **Blocking**（802.1D）または **Altn/Discarding**（RSTP 表記）に
+   なります。非ルートブリッジ 2 台のうち**どちらか 1 台の 1 ポートだけ**が
+   ブロッキングされ、もう 1 台のポートはすべて転送状態のままです（非ルート
+   スイッチごとに 1 つずつブロックされるわけではない点に注意してください）。
    どのスイッチのどのポートがブロッキングされているか記録する
 4. 記録した Bridge ID を比較し、最も小さい MAC アドレスを持つスイッチが
    デフォルトでルートブリッジになっていることを確認する
@@ -193,7 +196,7 @@ LACP で EtherChannel 化（Port-channel 1、トランク）します（図に�
    SW2(config-if-range)# channel-group 1 mode active
    ```
 
-3. 両スイッチの論理インタフェース `Port-channel 1` をトランクポートとして
+3. 両スイッチの論理インターフェース `Port-channel 1` をトランクポートとして
    設定する
 
    ```
@@ -263,9 +266,9 @@ LACP で EtherChannel 化（Port-channel 1、トランク）します（図に�
 |---|---|
 | PC1-PC2 間で ping が通らない | 3 本のトランクリンクの `switchport mode trunk` 設定漏れ、VLAN10 の作成漏れ、アクセスポートの VLAN 割り当てミス |
 | ルートブリッジが想定と違う | `root primary` を実行したスイッチ・VLAN 番号の指定を間違えていないか。`show spanning-tree vlan 10` で Bridge ID を再確認する |
-| `channel-group` を投入すると片側のポートが err-disable になる | SW1・SW2 双方の speed / duplex / トランク設定・許可 VLAN が一致しているか確認する |
+| `channel-group` を投入すると片側のポートが err-disabled になる | SW1・SW2 双方の speed / duplex / トランク設定・許可 VLAN が一致しているか確認する |
 | `show etherchannel summary` で `(P)` にならず個別ポートのまま | 両スイッチのモードが `active`（または `passive` との組み合わせ）になっているか、`on` と `active` を混在させていないか確認する |
-| PortFast を設定したポートがすぐ err-disable になる | そのポートにスイッチ・ハブなど BPDU を送出する機器が接続されていないか確認する（BPDU Guard が正しく動作している証拠でもある） |
+| PortFast を設定したポートがすぐ err-disabled になる | そのポートにスイッチ・ハブなど BPDU を送出する機器が接続されていないか確認する（BPDU Guard が正しく動作している証拠でもある） |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

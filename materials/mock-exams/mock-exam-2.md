@@ -1,7 +1,7 @@
 # CCNA 模試②
 
 > 配置先: 04_講師用。設問部のみ実施日に配布 / 100問・120分・教材参照なし / 解答はコメントに Q1: A 形式
-> 複数選択問題は全正解で得点（部分点なし）
+> 複数選択問題（問題文末尾に「（2つ選べ）」の指定があるもの）は解答欄に「A,C」のようにカンマ区切り（スペースなし）で記載し、全正解で得点（部分点なし）とする。
 
 この模試は6つのドメインを本試験同様に連続した通し番号（Q1〜Q100）で構成し、ドメインの境目を意識させずに総合力を測るものです。
 
@@ -14,8 +14,8 @@
 - D. コリジョンドメイン6、ブロードキャストドメイン2
 
 **Q2.** `PC1 --- R1 --- R2 --- PC2` という経路で通信している。R1とR2の間のリンク上でキャプチャしたフレームの宛先MACアドレスとして正しいものはどれか。
-- A. R1のインタフェースのMACアドレス
-- B. R2のインタフェースのMACアドレス
+- A. R1のインターフェースのMACアドレス
+- B. R2のインターフェースのMACアドレス
 - C. PC1のMACアドレス
 - D. PC2のMACアドレス
 
@@ -107,7 +107,7 @@ Serial0/0/0        [up/up]
 Vlan1              [administratively down/down]
     unassigned
 ```
-- A. インタフェースがダウンしているため
+- A. インターフェースがダウンしているため
 - B. IPv6がグローバルに有効化されていないため
 - C. show コマンドの表示範囲外であるため
 - D. リンクローカルアドレスは自動生成されるが、GUAは静的設定やSLAACで別途構成する必要があり、Serial0/0/0には設定されていないため
@@ -123,7 +123,7 @@ Vlan1              [administratively down/down]
 R1# ping fe80::212:34ff:fe56:789a
 ```
 - A. 送信元アドレスの入力を求められる
-- B. 出力インタフェース名の入力を求められる（`Output Interface:`）
+- B. 出力インターフェース名の入力を求められる（`Output Interface:`）
 - C. 即座に疎通確認が行われ、結果がそのまま表示される
 - D. リンクローカルアドレス宛のpingはサポートされておらずエラーになる
 
@@ -153,7 +153,7 @@ Vlan    Mac Address       Type        Ports
 - C. ② → ① → ③ → ④
 - D. ① → ② → ④ → ③
 
-**Q17.** あるPCで次の `netstat` の出力が得られた。この出力から読み取れる内容として正しいものを2つ選べ。
+**Q17.** あるPCで次の `netstat` の出力が得られた。この出力から読み取れる内容として正しいものはどれか。（2つ選べ）
 ```
 C:\> netstat -n
   Proto  Local Address        Foreign Address      State
@@ -178,7 +178,7 @@ GigabitEthernet0/1 is up, line protocol is up
 - C. ケーブル不良によるリンクダウン
 - D. PoEの電力不足
 
-**Q19.** Auto-MDIXに対応していない旧世代の機器同士を接続する場合、クロスケーブルが必要になる組み合わせを2つ選べ。
+**Q19.** Auto-MDIXに対応していない旧世代の機器同士を接続する場合、クロスケーブルが必要になる組み合わせはどれか。（2つ選べ）
 - A. PC — L2スイッチ
 - B. L2スイッチ — ルータ
 - C. ルータ — ルータ
@@ -201,16 +201,16 @@ PoE規格と最大給電電力（PSE側）の組み合わせとして正しい�
 **Q21.** あるスイッチで次のコマンドを実行した。
 
 ```
-SW1# show vlan brief
+SW1# show interfaces status
 
-VLAN Name                             Status    Ports
----- -------------------------------- --------- -------------------------------
-1    default                          active    Fa0/1, Fa0/2
-10   SALES                            active    Fa0/3, Fa0/4
-30   VLAN0030                         inactive  Fa0/9, Fa0/10
+Port      Name               Status       Vlan       Duplex  Speed Type
+Fa0/1                        connected    1          a-full   a-100 10/100BaseTX
+Fa0/3                        connected    10         a-full   a-100 10/100BaseTX
+Fa0/9                        inactive     30         a-full   a-100 10/100BaseTX
+Fa0/10                       inactive     30         a-full   a-100 10/100BaseTX
 ```
 
-Fa0/9・Fa0/10 が通信できない原因と、復旧のために行うべき操作の組み合わせとして最も適切なものはどれか。
+なお、同じスイッチで `show vlan brief` を実行しても VLAN 30 の行は表示されない。Fa0/9・Fa0/10 が通信できない原因と、復旧のために行うべき操作の組み合わせとして最も適切なものはどれか。
 - A. VLAN 30 が `no vlan 30` などで削除されたため、割り当て済みのポートが非アクティブになっている。`vlan 30` を再作成すれば通信が復旧する
 - B. VLAN 30 が自動作成された直後の状態であり、特に対処は不要である
 - C. Fa0/9、Fa0/10 が物理的にリンクダウンしているため、ケーブルを交換する必要がある
@@ -267,7 +267,7 @@ VLAN30 が「active in management domain」には含まれているのに、最�
 **Q25.** SW1 の Gi0/1 に `switchport mode trunk` を設定し、対向の SW2 の Gi0/1 は既定のまま（`dynamic auto`）にしてある。この 2 台の間のトランクの成立状況として正しいものはどれか。
 - A. トランクが成立する
 - B. トランクは成立せず、両方ともアクセスポートのままになる
-- C. DTP の不整合により両ポートが err-disable になる
+- C. DTP の不整合により両ポートが err-disabled になる
 - D. SW2 側だけトランクになり、SW1 はアクセスポートのままになる
 
 **Q26.** SW1 のログに次のメッセージが出力された。
@@ -297,10 +297,10 @@ Vlan10            192.168.10.1     up        up
 Vlan20            192.168.20.1     up        up
 
 L3SW# show ip route
-Codes: L - local, C - connected, S - static
-Gateway of last resort is not set
+Default gateway is not set
 
-L3SW#
+Host               Gateway           Last Use    Total Uses  Interface
+ICMP redirect cache is empty
 ```
 
 VLAN10 の PC から自分のデフォルトゲートウェイ（192.168.10.1）への ping は成功するが、VLAN20 の PC への ping は失敗する。原因として最も可能性が高いものはどれか。
@@ -309,7 +309,7 @@ VLAN10 の PC から自分のデフォルトゲートウェイ（192.168.10.1）
 - C. VLAN20 に所属するポートがすべてダウンしている
 - D. グローバルコンフィギュレーションで `ip routing` が有効化されていない
 
-**Q29.** Router-on-a-Stick 構成で、ネイティブ VLAN 用のサブインタフェースに次の設定を行った。
+**Q29.** Router-on-a-Stick 構成で、ネイティブ VLAN 用のサブインターフェースに次の設定を行った。
 
 ```
 Router(config)# interface gigabitEthernet0/0.1
@@ -318,7 +318,7 @@ Router(config-subif)# ip address 192.168.1.1 255.255.255.0
 ```
 
 `native` キーワードを付与する理由として正しいものはどれか。
-- A. このサブインタフェースがトランクのネイティブ VLAN に対応することを明示し、タグなしフレームを正しく処理させるため
+- A. このサブインターフェースがトランクのネイティブ VLAN に対応することを明示し、タグなしフレームを正しく処理させるため
 - B. VLAN1 をエクステンデッドレンジ VLAN として扱うため
 - C. ルータ側で DTP を有効化するため
 - D. VLAN1 を音声 VLAN として使用するため
@@ -352,10 +352,10 @@ L3SW1(config-if)# ip address 10.1.1.1 255.255.255.252
 L3SW1(config-if)# no shutdown
 ```
 
-このインタフェースの説明として正しいものはどれか。
+このインターフェースの説明として正しいものはどれか。
 - A. VLAN に所属し、トランクポートとして動作する
 - B. SVI として機能し、複数 VLAN 分のデフォルトゲートウェイになる
-- C. VLAN に依存しない、ルータの物理インタフェースと同様に扱われるルーテッドポートである
+- C. VLAN に依存しない、ルータの物理インターフェースと同様に扱われるルーテッドポートである
 - D. アクセスポートとして自動的に VLAN1 に割り当てられる
 
 **Q32.** 次のトポロジで、SWroot はすでにルートブリッジに選出されている。
@@ -405,18 +405,18 @@ VLAN0010
 
 ```
 SW1# show etherchannel summary
-Flags: D - down  P - bundled in port-channel  I - stand-alone  S - suspended
-       U - in use  f - failed to allocate aggregator
+Flags: D - down  P - bundled in port-channel  I - stand-alone
+       s - suspended  S - Layer2  U - in use
 
 Group  Port-channel  Protocol   Ports
 ------+-------------+-----------+-----------------------------------------
-1      Po1(SU)          LACP    Fa0/1(P)  Fa0/2(I)
+1      Po1(SU)          LACP    Fa0/1(P)  Fa0/2(s)
 ```
 
-Fa0/2 が `(I)`（スタンドアロン）と表示され、EtherChannel にバンドルされていない。考えられる原因として適切なものを2つ選べ。
+Fa0/2 が `(s)`（サスペンド）と表示され、EtherChannel にバンドルされていない。考えられる原因として適切なものはどれか。（2つ選べ）
 - A. Fa0/1 と Fa0/2 で回線速度（speed）の設定が一致していないため
 - B. Fa0/1 と Fa0/2 でデュプレックスの設定が一致していないため
-- C. Po1 インタフェースが `shutdown` されているため
+- C. Po1 インターフェースが `shutdown` されているため
 - D. LACP ではなく PAgP を使用しているため
 
 **Q36.** L3 スイッチで L3 EtherChannel を構成したい。次の設定の空欄に入るべきコマンドはどれか。
@@ -436,11 +436,11 @@ L3SW(config-if)# ip address 10.5.5.1 255.255.255.252
 - C. `encapsulation dot1q 5`
 - D. `no switchport`
 
-**Q37.** WLC 上で VLAN30 に所属する無線クライアントを収容する WLAN を作成したい。事前に用意しておく必要があるインタフェース種別はどれか。
-- A. dynamic インタフェース
-- B. management インタフェース
-- C. virtual インタフェース
-- D. native インタフェース
+**Q37.** WLC 上で VLAN30 に所属する無線クライアントを収容する WLAN を作成したい。事前に用意しておく必要があるインターフェース種別はどれか。
+- A. dynamic インターフェース
+- B. management インターフェース
+- C. virtual インターフェース
+- D. native インターフェース
 
 **Q38.** WAN 回線越しの支店に AP を設置する。本社の WLC との CAPWAP 接続が切れても、支店内の無線クライアント同士の通信をローカルスイッチングで継続させたい場合に設定すべき AP モードはどれか。
 - A. Local
@@ -463,13 +463,13 @@ Version :
 Cisco IOS Software, C2960 Software...
 ```
 
-この出力から読み取れないものを2つ選べ。
+この出力から読み取れないものはどれか。（2つ選べ）
 - A. 隣接機器の IP アドレス
 - B. 隣接機器の VTP モード
 - C. 隣接機器の機種(プラットフォーム)
-- D. 隣接機器のインタフェースの MAC アドレス
+- D. 隣接機器のインターフェースの MAC アドレス
 
-**Q40.** ある企業が無線 LAN を WPA2-Personal から WPA3-Personal へ移行することにした。その主な理由として正しいものを2つ選べ。
+**Q40.** ある企業が無線 LAN を WPA2-Personal から WPA3-Personal へ移行することにした。その主な理由として正しいものはどれか。（2つ選べ）
 - A. PSK の鍵交換方式を 4-way ハンドシェイクから SAE(Simultaneous Authentication of Equals) に置き換えるため
 - B. SAE の採用により、辞書攻撃への耐性と前方秘匿性(Forward Secrecy)が向上するため
 - C. 暗号化方式を TKIP から CCMP(AES) に変更するため
@@ -487,7 +487,7 @@ interface GigabitEthernet0/0.20
 ```
 
 VLAN20の端末はゲートウェイに到達できるが、VLAN10の端末はゲートウェイ(192.168.10.1)に到達できない。原因として最も適切なものはどれか。
-- A. VLAN10のサブインタフェースに`encapsulation dot1q`コマンドが設定されておらず、タグ付きフレームをVLAN10として処理できていない
+- A. VLAN10のサブインターフェースに`encapsulation dot1q`コマンドが設定されておらず、タグ付きフレームをVLAN10として処理できていない
 - B. VLAN10のサブネットマスクがVLAN20と異なっている
 - C. スイッチ側のポートがトランクになっていない
 - D. ネイティブVLANの不一致が発生している
@@ -532,21 +532,14 @@ SW2側のGi1/0/1には`switchport`設定のまま(アクセスポート、VLAN1�
 - C. SW2側のGi1/0/1にも `no switchport` を実行してからIPアドレスを付与する
 - D. SW2側で `ip routing` を無効化する
 
-**Q46.** `show ip route 10.20.30.0` を実行したところ、次のように表示された。
+**Q46.** R1は宛先ネットワーク `10.20.30.0/24` について、次の2つの経路情報を別々の情報源から受け取っている。
 
-```
-Routing entry for 10.20.30.0/24
-  Known via "static", distance 1, metric 0
-  Routing Descriptor Blocks:
-  * 10.1.1.2
+| 情報源 | ネクストホップ | AD値 | メトリック |
+|---|---|---|---|
+| 静的ルート | 10.1.1.2 | 1 | 0 |
+| RIP | 10.1.1.6 | 120 | 2 |
 
-Routing entry for 10.20.30.0/24
-  Known via "rip", distance 120, metric 2
-  Routing Descriptor Blocks:
-  * 10.1.1.6, from 10.1.1.6, 00:00:12 ago
-```
-
-同一プレフィックス長で複数の経路情報が存在するとき、ルーティングテーブルに実際に登録されるのはどちらか。
+もし両方が候補として存在した場合、ルーティングテーブルに実際に登録されるのはどちらか。
 - A. RIP経由の経路。メトリックがより小さいため
 - B. 両経路が等コストロードバランシングされる
 - C. 後から学習された経路が優先される
@@ -629,7 +622,7 @@ Neighbor ID     Pri   State           Address
 - C. この出力だけではR4の役割は判定できない
 - D. R4はDROTHERである
 
-**Q54.** `router-id`コマンドは未使用。ルータには次のインタフェースが稼働している。
+**Q54.** `router-id`コマンドは未使用。ルータには次のインターフェースが稼働している。
 
 ```
 Loopback0             1.1.1.1
@@ -669,7 +662,7 @@ Gi0/0        1    0     10.0.12.1     1     P2P    1/1
 Gi0/2        1    0     192.168.10.1  1     DR     0/0
 ```
 
-Gi0/2は端末を収容するLAN側インタフェースである。この出力とOSPFの仕様から判断できることとして正しいものはどれか。
+Gi0/2は端末を収容するLAN側インターフェースであり、passive-interfaceに設定されている。この出力とOSPFの仕様から判断できることとして正しいものはどれか。
 - A. Gi0/2はpassive-interfaceに設定されており、192.168.10.0/24はOSPFで広告されない
 - B. Gi0/2はOSPFプロセスに参加していない
 - C. Gi0/2のエリア設定が誤っている
@@ -690,7 +683,7 @@ Routing Protocol is "ospf 1"
 
 この出力から読み取れることとして正しいものはどれか。
 - A. 192.168.10.0/24はOSPFに参加しているが、GigabitEthernet0/2経由でのネイバー形成は行われない
-- B. GigabitEthernet0/2はOSPFに一切参加していないインタフェースである
+- B. GigabitEthernet0/2はOSPFに一切参加していないインターフェースである
 - C. Router ID 4.4.4.4はGigabitEthernet0/2のIPアドレスから決定された
 - D. 10.0.12.0/24はネイバーが存在しないため経路として広告されない
 
@@ -710,7 +703,7 @@ Neighbor ID     Pri   State           Address
 最も疑うべき原因はどれか。
 - A. MTUの不一致
 - B. エリアIDの不一致
-- C. Hello/Deadタイマーの不一致
+- C. Helloが片方向にしか届いていない（ACLによる224.0.0.5の片方向遮断、L2側のマルチキャスト遮断、単方向リンクなど）
 - D. 認証パスワードの不一致
 
 **Q61.** R1-R2間のバックボーンリンク(10.0.12.0/30、R1側IP: 10.0.12.1)でOSPFネイバーが全く形成されない。R1の設定抜粋は次のとおり。
@@ -721,7 +714,7 @@ router ospf 1
  network 192.168.1.0 0.0.0.255 area 0
 ```
 
-`show ip ospf interface brief` を確認すると、Gi0/0(10.0.12.1)がOSPFインタフェース一覧に表示されていない。原因として正しいものはどれか。
+`show ip ospf interface brief` を確認すると、Gi0/0(10.0.12.1)がOSPFインターフェース一覧に表示されていない。原因として正しいものはどれか。
 - A. Gi0/0がpassive-interfaceに設定されている
 - B. area 0の記述が誤っている
 - C. Hello/Deadタイマーが不一致である
@@ -834,7 +827,7 @@ SSHクライアントから接続を試みると `% Password required, but none 
 - C. stratumの値が大きい`10.1.1.2`の方が基準時刻源に近いため優先的に選ばれる
 - D. 両方とも`reach`が0でないため、すでに同期が完了している
 
-**Q73.** ネットワーク監視システム（NMS）がSNMPでルータを定期的にポーリングしているが、ある日を境にインタフェース障害の通知（Trap）だけが届かなくなった。ポーリングによる情報取得（Get）は引き続き成功している。この状況から最も疑われる原因を2つ選べ。
+**Q73.** ネットワーク監視システム（NMS）がSNMPでルータを定期的にポーリングしているが、ある日を境にインターフェース障害の通知（Trap）だけが届かなくなった。ポーリングによる情報取得（Get）は引き続き成功している。この状況から最も疑われる原因はどれか。（2つ選べ）
 - A. ルータの`snmp-server community`が削除された
 - B. NMS側でTrapを受信するUDP 162宛の通信がファイアウォールでブロックされた
 - C. ルータの`snmp-server host`設定が失われた
@@ -871,7 +864,7 @@ Syslog logging: enabled
 - C. MACフラッディング
 - D. VLANホッピング
 
-**Q78.** ノートPC ──（有線LAN）── アクセススイッチ ── RADIUSサーバ、という構成で802.1Xポートベース認証を導入した。ポートは認証が完了するまで通常のトラフィックを許可しない。この構成において、アクセススイッチが果たす役割の説明として正しいものを2つ選べ。
+**Q78.** ノートPC ──（有線LAN）── アクセススイッチ ── RADIUSサーバ、という構成で802.1Xポートベース認証を導入した。ポートは認証が完了するまで通常のトラフィックを許可しない。この構成において、アクセススイッチが果たす役割の説明として正しいものはどれか。（2つ選べ）
 - A. 認証が完了するまで、そのポート経由の通常のトラフィックを制限するオーセンティケータとして機能する
 - B. サプリカントとRADIUSサーバの間でEAPメッセージを中継するオーセンティケータとして機能する
 - C. パスワード等の認証情報を保持し、認証の可否を最終的に判定する認証サーバとして機能する
@@ -880,7 +873,7 @@ Syslog logging: enabled
 **Q79.** TACACS+サーバでAAAを構成したルータで、次の3つの事象が発生した。
 
 ```
-① あるオペレータがユーザー名とパスワードを入力し、ログインに成功した
+① あるオペレータがユーザ名とパスワードを入力し、ログインに成功した
 ② そのオペレータが `configure terminal` を実行しようとしたところ、
    ルータから "Command authorization failed" と表示され拒否された
 ③ ログイン後にオペレータが実行したコマンド操作の記録が、
@@ -915,14 +908,14 @@ enable secret 9 $9$k3hN...(省略)...
 - C. `login quiet-mode access-class <管理用ACL>` を設定し、管理サブネットからのアクセスをブロック対象から除外しておく
 - D. `service password-encryption` を設定し、パスワードを難読化しておく
 
-**Q83.** 拡張ACL `SALES-TO-SRV` をルータのin方向に適用し、経理VLANからサーバへのHTTP通信のみを許可する設計にしたはずだが、経理VLANのユーザーから「サーバのWebページが開けない」と報告があった。`show access-lists SALES-TO-SRV` の出力は次のとおり。
+**Q83.** 拡張ACL `SALES-TO-SRV` をルータのin方向に適用し、経理VLANからサーバへのHTTP通信のみを許可する設計にしたはずだが、経理VLANのユーザから「サーバのWebページが開けない」と報告があった。`show access-lists SALES-TO-SRV` の出力は次のとおり。
 ```
 Extended IP access list SALES-TO-SRV
     10 permit tcp 192.168.10.0 0.0.0.255 host 192.168.30.100 eq 80 (0 matches)
     20 deny ip any any log (48 matches)
 ```
 この出力から読み取れる最も可能性の高い原因はどれか。
-- A. ACLがそもそもインタフェースに適用されていない
+- A. ACLがそもそもインターフェースに適用されていない
 - B. hit counterは参考情報であり、実際の通信可否とは無関係である
 - C. deny any logの48 matchesは正常な動作であり対応不要である
 - D. 経理VLANからの通信が10行目の条件に一致せず、20行目のdeny any logで破棄されている。送信元/宛先アドレスやポート指定に誤りがないか確認すべき
@@ -973,7 +966,7 @@ Security Violation Count    : 1
 - C. Security Violation Countが1であることから、まだ違反は発生していない
 - D. 許可数を超えるMACアドレスを検出しerr-disabledに遷移した状態であり、`shutdown`→`no shutdown`または`errdisable recovery`の設定で復旧させる必要がある
 
-**Q88.** 攻撃者が偽の大量のDHCPDISCOVERメッセージをアクセスポートから送りつけ、DHCPサーバのアドレスプールを枯渇させようとしている（DHCP枯渇攻撃）。このポートに対してDHCPスヌーピングと併せて設定すべきものを2つ選べ。
+**Q88.** 攻撃者が偽の大量のDHCPDISCOVERメッセージをアクセスポートから送りつけ、DHCPサーバのアドレスプールを枯渇させようとしている（DHCP枯渇攻撃）。このポートに対してDHCPスヌーピングと併せて設定すべきものはどれか。（2つ選べ）
 - A. `ip dhcp snooping limit rate <pps>`
 - B. `switchport port-security maximum 1`（適切な違反モードとあわせて設定）
 - C. `ip dhcp snooping trust`
@@ -985,7 +978,7 @@ Security Violation Count    : 1
 - C. ポートセキュリティのmaximumを2以上に増やせば解決する
 - D. サーバ側のポートを`ip dhcp snooping trust`に設定すれば自動的に解決する
 
-**Q90.** 拠点間VPNルータ間のWANリンクをパケットキャプチャしたところ、IPヘッダのプロトコル番号フィールドが50となっているパケットが継続的に観測された。プロトコル番号50はESP（Encapsulating Security Payload）を示す。ESPに関する説明として正しいものを2つ選べ。
+**Q90.** 拠点間VPNルータ間のWANリンクをパケットキャプチャしたところ、IPヘッダのプロトコル番号フィールドが50となっているパケットが継続的に観測された。プロトコル番号50はESP（Encapsulating Security Payload）を示す。ESPに関する説明として正しいものはどれか。（2つ選べ）
 - A. ESPはペイロードを暗号化し、機密性を提供する
 - B. ESPはデータの完全性（改ざん検知）も提供できる
 - C. ESPは暗号化を提供せず、認証機能のみを持つ
@@ -1019,19 +1012,19 @@ curl -X POST https://dnac.example.com/dna/intent/api/v1/network-device \
   -d '{"ipAddress":["10.10.1.20"],"deviceType":"switch"}'
 ```
 
-サーバーからステータスコード201が返された。この結果の解釈として最も適切なものはどれか。
+サーバからステータスコード201が返された。この結果の解釈として最も適切なものはどれか。
 
 - A. リクエストは受理されず、リソースは作成されなかった
 - B. 新しいリソース（デバイス登録タスク）が正常に作成された
 - C. 認証情報が無効だったため拒否された
-- D. サーバー内部でエラーが発生した
+- D. サーバ内部でエラーが発生した
 
 **Q93.** 自動化スクリプトがCatalyst CenterのREST APIを定期的に呼び出しており、稼働開始から正常に動作していたが、およそ1時間後を境に、それ以降のすべてのリクエストでステータスコード401が返るようになった。リクエストのURIやメソッドは一切変更していない。この現象の原因として最も可能性が高いものはどれか。
 
 - A. リクエストしたリソースが存在しない
 - B. HTTPメソッドをGETからPOSTに変更してしまった
 - C. 認証トークンの有効期限が切れた
-- D. サーバー側でリソースの作成に成功した
+- D. サーバ側でリソースの作成に成功した
 
 **Q94.** 以下は、ある構成管理ツールで使われるコードの抜粋である。
 
@@ -1051,7 +1044,7 @@ curl -X POST https://dnac.example.com/dna/intent/api/v1/network-device \
 
 - A. HCLで記述されたTerraformの構成ファイルであり、宣言的にインフラを定義する
 - B. 対象機器に専用エージェントを事前インストールしておく必要がある
-- C. Pullモデルで動作し、対象機器が定期的にサーバーへ設定を取得しに行く
+- C. Pullモデルで動作し、対象機器が定期的にサーバへ設定を取得しに行く
 - D. YAMLで記述されたAnsible Playbookであり、対象ホストへPushモデルで設定を配布する
 
 **Q95.** 以下のコードに関する記述として最も適切なものはどれか。
@@ -1068,7 +1061,7 @@ resource "aws_instance" "web" {
 - C. このコードはPullモデルで動作し、エージェントが定期的に取得しに行く
 - D. このコードは南向きインターフェースを介して機器を直接制御する
 
-**Q96.** 大規模データセンターに、Spineスイッチ2台・Leafスイッチ4台からなるSpine-Leafファブリックが構築されている。全LeafスイッチはすべてのSpineスイッチとL3リンクで接続され、OSPFによりIP到達性が確保されている。その上でLeaf1とLeaf4の間にVXLANトンネルが構成されており、異なるラックにある2台のサーバーが同一L2セグメントにあるかのように通信している。
+**Q96.** 大規模データセンターに、Spineスイッチ2台・Leafスイッチ4台からなるSpine-Leafファブリックが構築されている。全LeafスイッチはすべてのSpineスイッチとL3リンクで接続され、OSPFによりIP到達性が確保されている。その上でLeaf1とLeaf4の間にVXLANトンネルが構成されており、異なるラックにある2台のサーバが同一L2セグメントにあるかのように通信している。
 
 この記述において、OSPFによるIP到達性の確保とVXLANトンネルは、それぞれアンダーレイ・オーバーレイのどちらに分類されるか。
 
@@ -1130,7 +1123,7 @@ resource "aws_instance" "web" {
 | 問 | 解答 | 解説（1〜2文。関連する研修Exerciseを明記） |
 |---|---|---|
 | Q1 | A | 直接接続の5台は各ポート1コリジョンドメイン、ハブ配下の3台+ハブ接続ポートは共有media上のため合わせて1コリジョンドメイン。ルータが無いのでブロードキャストドメインは1。（→ Exercise1） |
-| Q2 | B | L2ヘッダはホップごとに書き換わるため、R1-R2間では宛先MACは次ホップであるR2のインタフェースを指す。IPアドレス（宛先PC2）は変わらない。（→ Exercise1） |
+| Q2 | B | L2ヘッダはホップごとに書き換わるため、R1-R2間では宛先MACは次ホップであるR2のインターフェースを指す。IPアドレス（宛先PC2）は変わらない。（→ Exercise1） |
 | Q3 | C | CRCエラーの急増はL1（ケーブル不良・デュプレックスミスマッチなど）を示す典型的な症状で、Status/Protocolがupでも通信品質は劣化する。（→ Exercise1） |
 | Q4 | D | `password` のみで `login` が設定されていないと、VTY回線は認証を要求せずそのまま接続を許可してしまう。（→ Exercise2） |
 | Q5 | A | RSA鍵の名前にはホスト名とドメイン名が使われるため、ホスト名は設定済みでも `ip domain-name` が未設定だとこのエラーになる。（→ Exercise2） |
@@ -1140,8 +1133,8 @@ resource "aws_instance" "web" {
 | Q9 | A | 2^6−2=62≥45を満たす最小のホスト部ビット数は6のため、プレフィックス長は32−6=/26。/27（2^5−2=30）では45台を収容できない。（→ Exercise3） |
 | Q10 | B | 営業部（/26）は198.51.100.0〜.63を占有するため、次の開発部（/27、必要32ブロック）は隙間なく続く198.51.100.64から割り当てる。（→ Exercise3） |
 | Q11 | C | /27（ブロックサイズ32）の境界は…64・96…であり、`.94` は `.64`ネットワーク、`.97` は `.96`ネットワークに属する異なるサブネットのため、ルータでの中継が必要。（→ Exercise3） |
-| Q12 | D | リンクローカルは有効なインタフェースに必ず自動生成されるが、GUAは静的設定やSLAACで別途構成しない限り付与されない。Serial0/0/0はリンクローカルのみが表示されている。（→ Exercise4） |
-| Q13 | A | MAC `00:90:27` と `11:62:34` の間に `fffe` を挿入し `0090:27ff:fe11:6234`、先頭バイトのU/Lビットを反転（00→02）して `0290:27ff:fe11:6234` をインタフェースIDとし、プレフィックスと結合する。（→ Exercise4） |
+| Q12 | D | リンクローカルは有効なインターフェースに必ず自動生成されるが、GUAは静的設定やSLAACで別途構成しない限り付与されない。Serial0/0/0はリンクローカルのみが表示されている。（→ Exercise4） |
+| Q13 | A | MAC `00:90:27` と `11:62:34` の間に `fffe` を挿入し `0090:27ff:fe11:6234`、先頭バイトのU/Lビットを反転（00→02）して `0290:27ff:fe11:6234` をインターフェースIDとし、プレフィックスと結合する。（→ Exercise4） |
 | Q14 | B | リンクローカルアドレスは複数のリンクで同じ値になり得るため、Cisco IOSのpingは宛先がリンクローカルの場合 `Output Interface:` の入力を対話的に要求する。（→ Exercise4） |
 | Q15 | C | 宛先MACがMACアドレステーブルにない（unknown unicast）ため、受信ポート（Gi0/4）を除く全ポート、つまりGi0/1〜Gi0/3へフラッディングされる。（→ Exercise5） |
 | Q16 | A | TCPの3ウェイハンドシェイクはSYN→SYN/ACK→ACKの順で完了し、その直後にHTTPのGETリクエストが送信される。この順序は常に固定であり入れ替わらない。（→ Exercise5） |
@@ -1149,52 +1142,52 @@ resource "aws_instance" "web" {
 | Q18 | B | half-duplex側でlate collisionが増加しているのは、対向がfull固定・自側がautoで半二重にフォールバックした典型的なデュプレックスミスマッチの症状。リンク自体はupのまま。（→ Exercise5） |
 | Q19 | C,D | ストレート/クロスの判断は異種機器か同種機器かで決まる。ルータ同士・スイッチ同士はいずれも同種機器の組み合わせのためクロスケーブルが必要（PC-スイッチ、スイッチ-ルータは異種のためストレート）。（→ Exercise5） |
 | Q20 | A | PoE規格ごとの最大給電電力は802.3af＝15.4W、802.3at（PoE+）＝30W、802.3bt Type3/4（PoE++）＝60〜90W。Gi0/2の25.5Wの給電には802.3af（15.4W）では不足し802.3at（30W）が最低限必要という点とも整合する。（→ Exercise5） |
-| Q21 | A | `show vlan brief` で inactive と表示されるのは、割り当て済みの VLAN を `no vlan` 等で削除した場合が代表例。`VLAN0030` という自動生成名は以前 IOS が自動作成したことを示す。復旧には該当 VLAN の再作成が必要。(→ Exercise6) |
+| Q21 | A | `show interfaces status` の Status 列が `inactive` になるのは、そのポートに割り当てられている VLAN がスイッチ上に存在しないときで、`no vlan 30` などで VLAN を削除した場合が代表例。`show vlan brief` に VLAN 30 の行が無いことも削除を裏づける。Duplex/Speed がネゴシエート済みでリンク自体は上がっているため物理障害ではない。復旧には該当 VLAN の再作成が必要。(→ Exercise6) |
 | Q22 | B | Access Mode VLAN(データVLAN)が10、Voice VLANが20と表示されているため、`switchport access vlan 10` と `switchport voice vlan 20` が設定されている。(→ Exercise6) |
 | Q23 | C | ノーマルレンジは1〜1005、エクステンデッドレンジは1006〜4094。VLAN4000はエクステンデッドレンジに該当する。(→ Exercise6) |
 | Q24 | D | 「Vlans allowed and active in management domain」は許可・存在・activeなVLANの一覧で、そこからさらにSTPでブロッキングされているVLANは「spanning tree forwarding」の一覧から外れる。(→ Exercise7) |
 | Q25 | A | `trunk`(静的)対`dynamic auto`(受け身)の組み合わせはトランクが成立する。成立しないのは`auto`同士のみ。(→ Exercise7) |
 | Q26 | B | `%CDP-4-NATIVE_VLAN_MISMATCH`はトランク両端のネイティブVLAN不一致で出力される。両端を同じネイティブVLANに揃えるのが対処。(→ Exercise7) |
 | Q27 | C | ダブルタギングは外側にネイティブVLANタグ、内側に標的VLANタグを付与する手法で、最初のスイッチが外側タグのみ剥がすため片方向のみで成立する。Aはスイッチスプーフィングの説明。(→ Exercise7) |
-| Q28 | D | 自分のSVIへのpingはL3スイッチ自身のIPスタックが応答するためip routing無効でも成功するが、VLAN間の転送にはip routingの有効化が必須。show ip routeにC経路が一切現れていない点も手がかり。(→ Exercise8) |
-| Q29 | A | ネイティブVLAN用のサブインタフェースには`encapsulation dot1q <ID> native`を指定し、タグなしフレームをそのVLANとして処理させる。(→ Exercise8) |
-| Q30 | B | Statusが「administratively down」はそのインタフェースに`shutdown`が設定されている(=`no shutdown`が入っていない)ことを示す。VLAN自体は存在しポートもactiveなので他の条件は満たされている。(→ Exercise8) |
-| Q31 | C | `no switchport`を実行した物理ポートはVLANに依存しないルーテッドポートとなり、物理インタフェースに直接IPアドレスを割り当てる。(→ Exercise8) |
+| Q28 | D | 自分のSVIへのpingはL3スイッチ自身のIPスタックが応答するため`ip routing`が無効でも成功するが、VLAN間の転送には`ip routing`の有効化が必須。`ip routing`が無効なスイッチでは`show ip route`がルーティングテーブルではなく「Default gateway is not set」で始まる表示になり、直接接続経路(C)が1行も出ない。この出力自体が決定的な手がかりになる。(→ Exercise8) |
+| Q29 | A | ネイティブVLAN用のサブインターフェースには`encapsulation dot1q <ID> native`を指定し、タグなしフレームをそのVLANとして処理させる。(→ Exercise8) |
+| Q30 | B | Statusが「administratively down」はそのインターフェースに`shutdown`が設定されている(=`no shutdown`が入っていない)ことを示す。VLAN自体は存在しポートもactiveなので他の条件は満たされている。(→ Exercise8) |
+| Q31 | C | `no switchport`を実行した物理ポートはVLANに依存しないルーテッドポートとなり、物理インターフェースに直接IPアドレスを割り当てる。(→ Exercise8) |
 | Q32 | D | SW-Aから見てSWroot直結はコスト100、SW-B経由はSW-Bの最小パスコスト19に自リンクのコスト4を加えた23。コストが小さいSW-B経由がルートポートとなり、直結ポートは非指定(ブロッキング)になる。(→ Exercise9) |
 | Q33 | A | Root IDのアドレス(0011.2233.4455)とBridge IDのアドレス(00aa.bbcc.ddee)が異なるためSW2はルートブリッジではない。Root IDのPortフィールドが自身のGi0/1を指しており、これがルートポート。(→ Exercise9) |
 | Q34 | A | 802.1D STPのポート状態遷移は常にBlocking→Listening→Learning→Forwardingの順で進む。間接障害の場合はBlockingからの遷移開始がMax Age(20秒)のタイムアウト待ちとなる点が直接障害（即座に遷移開始）との違いだが、遷移後の状態順序自体は変わらない。収束時間は合計でMax Age(20秒)+Forward Delay×2(15秒×2)＝約50秒。(→ Exercise9) |
-| Q35 | A,B | EtherChannelにバンドルされるには速度・デュプレックス・モード(access/trunk)・許可VLANが全ポートで一致している必要があり、速度不一致・デュプレックス不一致はいずれもスタンドアロン(I)のまま扱われる典型的な原因。Po1がshutdownならFa0/1も含め全ポートがdown表示になるはずでこの出力とは矛盾し（C誤り）、実際にLACPが使用されている（D誤り）。(→ Exercise9) |
-| Q36 | D | L3 EtherChannelは論理インタフェース側にも`no switchport`を設定し、直接IPアドレスを割り当てる。L2 EtherChannelとの違いはswitchportの有無のみ。(→ Exercise9) |
-| Q37 | A | クライアントを収容するVLANに対応するのはdynamicインタフェースで、WLAN作成前にController > Interfacesで用意しておく。(→ Exercise10) |
+| Q35 | A,B | EtherChannelにバンドルされるには速度・デュプレックス・モード(access/trunk)・許可VLANが全ポートで一致している必要があり、これらの設定不一致があるポートは`(s)`(suspended)として個別に一時停止される。なお`(I)`(stand-alone)は対向からLACP PDUを受信できていない場合に付くフラグであり、設定不一致とは区別する。Po1がshutdownならFa0/1も含め全ポートがdown表示になるはずでこの出力とは矛盾し（C誤り）、実際にLACPが使用されている（D誤り）。(→ Exercise9) |
+| Q36 | D | L3 EtherChannelは論理インターフェース側にも`no switchport`を設定し、直接IPアドレスを割り当てる。L2 EtherChannelとの違いはswitchportの有無のみ。(→ Exercise9) |
+| Q37 | A | クライアントを収容するVLANに対応するのはdynamicインターフェースで、WLAN作成前にController > Interfacesで用意しておく。(→ Exercise10) |
 | Q38 | B | FlexConnectモードはWAN越し拠点向けで、WLCとの接続が切れてもローカルスイッチングによりその拠点内の通信を継続できる。(→ Exercise10) |
-| Q39 | B,D | `show cdp neighbors detail`ではIPアドレス・プラットフォーム・IOSバージョン・接続ポートなどが確認できるが、隣接機器のVTPモード（Client/Server/Transparent）や、個々のインタフェースのMACアドレス（表示されるEntry addressはIPアドレスのみ）はCDPの通知情報に含まれない。(→ Exercise10) |
+| Q39 | B,D | `show cdp neighbors detail`ではIPアドレス・プラットフォーム・IOSバージョン・接続ポートなどが確認できるが、隣接機器のVTPモード（Client/Server/Transparent）や、個々のインターフェースのMACアドレス（表示されるEntry addressはIPアドレスのみ）はCDPの通知情報に含まれない。(→ Exercise10) |
 | Q40 | A,B | WPA3-PersonalはPSKの鍵交換をSAE(Simultaneous Authentication of Equals)に置き換え、通信を傍受しても総当たりされにくい辞書攻撃耐性と、セッション鍵が漏えいしても過去の通信に影響しない前方秘匿性を実現する。TKIP→CCMP(AES)化はWPA2の時点で既に行われており（C誤り）、802.1X/EAP必須化はWPA3-Enterpriseの話（D誤り）。(→ Exercise10) |
-| Q41 | A | サブインタフェースは`encapsulation dot1q <VLAN-ID>`が設定されて初めてそのVLANのタグ付きフレームを扱えるようになる。VLAN10側にこの設定がなければ通信が成立しない。(→ Exercise8) |
+| Q41 | A | サブインターフェースは`encapsulation dot1q <VLAN-ID>`が設定されて初めてそのVLANのタグ付きフレームを扱えるようになる。VLAN10側にこの設定がなければ通信が成立しない。(→ Exercise8) |
 | Q42 | C | ISLもサポートする機種ではトランクencapsulationが既定で`negotiate`(auto)になっており、先に`switchport trunk encapsulation dot1q`で方式を固定しないと`switchport mode trunk`が拒否される。(→ Exercise8) |
 | Q43 | D | `show vlan brief`にはアクセスポートのみが表示され、トランクポートは表示されない。トランクの状態確認には`show interfaces trunk`を使う。(→ Exercise8) |
 | Q44 | A | SVIがup/upになるには「対応VLANの存在」「そのVLANに所属するポートが1つ以上up」「no shutdown」の3条件が必要で、所属ポートが1つもないため2つ目の条件を満たしていない。(→ Exercise8) |
 | Q45 | C | ルーテッドポート同士でL3直結リンクを組む場合、対向側にも`no switchport`を実行してVLANから切り離してからでないとIPアドレスを付与できない。(→ Exercise8) |
-| Q46 | D | 同一プレフィックス長で複数の情報源から経路がある場合はADで比較され、静的ルートのAD 1がRIPのAD 120より小さいため静的ルートが優先される。(→ Exercise11) |
+| Q46 | D | 同一プレフィックス長で複数の情報源から経路がある場合はADで比較され、静的ルートのAD 1がRIPのAD 120より小さいため静的ルートが優先される。なお実機の`show ip route <network>`では採用された経路しか表示されないため、この設問は「両方が候補として存在した場合」を仮定して比較の考え方を問うている。(→ Exercise11) |
 | Q47 | B | ネクストホップ指定の静的ルートは、ネクストホップへの到達性を再帰ルックアップで確認しており、その到達性が失われると経路情報そのものがルーティングテーブルから自動的に外れる。(→ Exercise11) |
 | Q48 | C | フローティングスタティックのADは主経路(この場合EIGRP内部のAD 90)より大きい値にする必要があり、選択肢の中でAD 90より大きいのは95のみ。(→ Exercise11) |
 | Q49 | D | ホストルート(`255.255.255.255`)を追加すれば、ロンゲストマッチにより`192.168.40.50`宛のみがR2経由となり、他のホストは既存の`/24`経路のままR1経由を維持できる。(→ Exercise11) |
-| Q50 | A | イーサネットのようなマルチアクセス媒体で出力インタフェースのみを指定するとネクストホップが特定できず、宛先ごとにプロキシARPへ依存する非効率な処理が発生する。ネクストホップIPの指定または完全指定に変更するのが正しい対処。(→ Exercise11) |
+| Q50 | A | イーサネットのようなマルチアクセス媒体で出力インターフェースのみを指定するとネクストホップが特定できず、宛先ごとにプロキシARPへ依存する非効率な処理が発生する。ネクストホップIPの指定または完全指定に変更するのが正しい対処。(→ Exercise11) |
 | Q51 | B | `::/0`はIPv4の`0.0.0.0/0`に相当するIPv6のデフォルトルートで、静的ルートのADは1。`[1/0]`の1がAD、0がメトリックを表す。(→ Exercise11) |
 | Q52 | C | R2に設定されている静的ルートの宛先が誤って`10.3.3.0/24`になっており、本来必要な`10.1.1.0/24`宛の戻り経路が存在しないため、往路のみ通り復路が失敗する非対称ルーティングになっている。(→ Exercise11) |
 | Q53 | D | DRとBDRはセグメント上の全ルータとFULLになるが、DROTHER同士は2-Wayで停止する。R4はBDR(2.2.2.2)とはFULLだが別のDROTHER(3.3.3.3)とは2-Wayのため、R4自身もDROTHERと判定できる。(→ Exercise12) |
-| Q54 | A | Router IDは明示指定がなければ稼働中のループバックインタフェースのうち最も高いIPアドレスが採用される。Loopback0(1.1.1.1)とLoopback1(2.2.2.2)のうち大きい2.2.2.2が選ばれ、物理インタフェースは優先順位が下がるため使われない。(→ Exercise12) |
+| Q54 | A | Router IDは明示指定がなければ稼働中のループバックインターフェースのうち最も高いIPアドレスが採用される。Loopback0(1.1.1.1)とLoopback1(2.2.2.2)のうち大きい2.2.2.2が選ばれ、物理インターフェースは優先順位が下がるため使われない。(→ Exercise12) |
 | Q55 | B | `/29`のサブネットマスクは255.255.255.248であり、255.255.255.255から引き算するとワイルドカードマスクは0.0.0.7になる。(→ Exercise12) |
 | Q56 | C | 既定の参照帯域幅ではGigabitEthernetとFastEthernetのコストがともに1になるため経路①の総コストは1+1=2。Serial回線は既定コスト64のため経路②は64+1=65となり、より小さい経路①が選ばれる。(→ Exercise12) |
-| Q57 | D | passive-interfaceはHelloパケットの送信(ネイバー形成)のみを止め、そのインタフェースが属するネットワークの広告自体はLSAに含まれ続ける。出力のNbrs F/Cが0/0でネイバーがいないことがpassive設定を示唆する。(→ Exercise12) |
-| Q58 | A | Passive Interface(s)に列挙されたインタフェースはHello送信を停止しネイバーを作らないが、Routing for NetworksにあるネットワークはOSPFに参加しており広告され続ける。(→ Exercise12・Exercise13) |
-| Q59 | B | プライオリティを0に設定したインタフェースは、Router IDの大小に関わらずDR/BDRの選出対象から除外され常にDROTHERとなる。(→ Exercise12) |
-| Q60 | C | Initで停滞するのはHello/Deadタイマーの不一致が典型的な原因。MTU不一致はExstart/Exchangeで停滞する原因であり、Initとは区別する必要がある。(→ Exercise13) |
-| Q61 | D | `network`文のネットワークアドレスが`10.0.12.4`となっており、Gi0/0の実際のアドレス`10.0.12.1`と一致しないため、そのインタフェースはOSPFに参加できずインタフェース一覧にも表示されない。(→ Exercise13) |
+| Q57 | D | passive-interfaceはHelloパケットの送信(ネイバー形成)のみを止め、そのインターフェースが属するネットワークの広告自体はLSAに含まれ続ける。出力でもGi0/2はOSPFのインターフェース一覧に載っておりPID・Areaが割り当てられている(＝OSPFに参加している)一方、Nbrs F/Cは0/0でネイバーを作っていないことが読み取れる。(→ Exercise12) |
+| Q58 | A | Passive Interface(s)に列挙されたインターフェースはHello送信を停止しネイバーを作らないが、Routing for NetworksにあるネットワークはOSPFに参加しており広告され続ける。(→ Exercise12・Exercise13) |
+| Q59 | B | プライオリティを0に設定したインターフェースは、Router IDの大小に関わらずDR/BDRの選出対象から除外され常にDROTHERとなる。(→ Exercise12) |
+| Q60 | C | INITは「相手のHelloは受信できているが、そのHelloのネイバーリストに自分のRouter IDが載っていない」＝Helloが片方向にしか届いていない状態を示す。エリアID・Hello/Deadタイマー・認証の不一致ではHello自体が破棄されネイバーの行そのものが表示されず、MTU不一致はExStart/Exchangeで停滞するため、いずれもINIT停滞の説明にはならない。(→ Exercise13) |
+| Q61 | D | `network`文のネットワークアドレスが`10.0.12.4`となっており、Gi0/0の実際のアドレス`10.0.12.1`と一致しないため、そのインターフェースはOSPFに参加できずインターフェース一覧にも表示されない。(→ Exercise13) |
 | Q62 | A | `default-information originate`は既定では実行元ルータ自身のルーティングテーブルにデフォルトルートが存在する場合のみ広告される。この例では静的デフォルトルートも`always`キーワードもないため広告されない。(→ Exercise13) |
 | Q63 | B | HSRPのプリエンプトは既定で無効なためR1が先に起動していればActiveのまま維持されるが、R2にはプリエンプトが設定されているため、後から起動してもR1より高いプライオリティを活かして自動的にActiveを奪い返す。(→ Exercise13) |
 | Q64 | C | 複数のルータが同時にトラフィックを転送し、クライアントごとに異なる仮想MACアドレスが割り当てられるのはGLBPの特徴で、AVGが複数のAVFへ負荷を分散させることで実現される。(→ Exercise13) |
 | Q65 | B | HSRPはプリエンプトが有効でない限り、後からプライオリティが逆転しても現在のActiveからStandbyへ自動的に交代しない。R2にpreemptが設定されていないため、プライオリティで上回ってもR1がActiveのまま残る。(→ Exercise13) |
-| Q66 | B | `overload`付きのPATでは外部インタフェース（GigabitEthernet0/1）のアドレス203.0.113.1がポート番号と組み合わせてinside globalとして使われる。192.168.10.100はinside local、192.168.10.1はそのインタフェース自身のアドレスであり変換後アドレスではない。（→ Exercise14） |
+| Q66 | B | `overload`付きのPATでは外部インターフェース（GigabitEthernet0/1）のアドレス203.0.113.1がポート番号と組み合わせてinside globalとして使われる。192.168.10.100はinside local、192.168.10.1はそのインターフェース自身のアドレスであり変換後アドレスではない。（→ Exercise14） |
 | Q67 | D | allocated 100%はプールの全アドレスが使用中であることを示し、missesはこの状態で変換要求に失敗した回数。対処にはプールの拡張、またはポート番号で多重化できるoverload（PAT）への変更が有効。（→ Exercise14） |
 | Q68 | A | `show ip dhcp conflict`は、DHCPサーバがアドレス割り当て前後の検査（ping等）で検出したアドレス重複の履歴を表示する専用コマンド。`show ip dhcp binding`は現在配布中のリース一覧、`show ip dhcp pool`はプールの使用状況を表示するだけで、重複検出の履歴そのものは確認できない。（→ Exercise15） |
 | Q69 | C | .11と.12から始まっており.1〜.10が欠番のため、`ip dhcp excluded-address`等でその範囲が除外設定されている可能性が高い。Typeが Automatic なので動的リースであり静的割り当てではない。（→ Exercise15） |
@@ -1207,7 +1200,7 @@ resource "aws_instance" "web" {
 | Q76 | A | 正規のアクセス権を持つ人物による脅威は内部脅威（Insider Threat）で、悪意の有無を問わず誤操作も含まれ、境界防御だけでは防げない点が特徴。（→ Exercise16） |
 | Q77 | B | 偽のARP応答でゲートウェイになりすまし通信を自分経由に迂回させるのはARPスプーフィング（ARPポイズニング）で、代表的なMITM攻撃の手口。（→ Exercise16, Exercise18） |
 | Q78 | A,B | 802.1Xでは、認証が通るまでポートを制限しつつ端末とRADIUSサーバの間でEAPメッセージを仲介するスイッチ／APがオーセンティケータ。端末側ソフトはサプリカント（D誤り）、認証情報を検証するのはRADIUSサーバ＝認証サーバ（C誤り）であり、スイッチ自身はどちらでもない。（→ Exercise16） |
-| Q79 | A | ①はユーザー名/パスワードでのログイン成功＝認証、②はログイン後の権限（コマンド実行可否）の判定＝認可、③は操作記録の送信＝アカウンティングに対応する。「何をすることを許すか」を決める認可（Authorization）で②が拒否されている点が本問の核心。（→ Exercise16） |
+| Q79 | A | ①はユーザ名/パスワードでのログイン成功＝認証、②はログイン後の権限（コマンド実行可否）の判定＝認可、③は操作記録の送信＝アカウンティングに対応する。「何をすることを許すか」を決める認可（Authorization）で②が拒否されている点が本問の核心。（→ Exercise16） |
 | Q80 | A | MFAは「異なる種類」の要素を2つ以上組み合わせて成立する。パスワードも秘密の質問もどちらも「知識」要素であり種類が同じため、数が2つでもMFAには該当しない。（→ Exercise16） |
 | Q81 | B | Type 9はscryptによる強いハッシュ方式であり、平文復元は現実的に困難。Type 7（service password-encryptionによる難読化）とは強度が大きく異なる点に注意。（→ Exercise16） |
 | Q82 | C | `login quiet-mode access-class`で管理サブネットをクワイエットモードの対象から除外しておけば、ブルートフォース対策を有効にしたまま管理者自身の締め出しを防げる。（→ Exercise16） |
@@ -1215,7 +1208,7 @@ resource "aws_instance" "web" {
 | Q84 | A | 4つの連続する/24（192.168.4.0〜7.0）をまとめるワイルドカードマスクは、対応する/22のサブネットマスク255.255.252.0を255.255.255.255から引いた0.0.3.255。（→ Exercise17） |
 | Q85 | B | 拡張ACLの構文順序は「プロトコル→送信元→宛先→ポート」。このACEは送信元にサーバVLAN、宛先に社内端末を指定してしまっており、社内端末発（送信元=社内端末）のTelnetには一致しないため素通りしてしまう。（→ Exercise17） |
 | Q86 | C | `access-class`は回線（line）単位の設定であり自動継承されない。VTY 0〜4にしか設定していなければVTY 5〜15は無制限のままとなり、想定外の送信元からもSSH接続できてしまう。（→ Exercise17） |
-| Q87 | D | Port StatusがSecure-shutdownは、違反によりerr-disabledへ遷移した状態を示す。復旧には該当インタフェースで`shutdown`→`no shutdown`を行うか、`errdisable recovery`で自動復旧を設定する。（→ Exercise18） |
+| Q87 | D | Port StatusがSecure-shutdownは、違反によりerr-disabledへ遷移した状態を示す。復旧には該当インターフェースで`shutdown`→`no shutdown`を行うか、`errdisable recovery`で自動復旧を設定する。（→ Exercise18） |
 | Q88 | A,B | `ip dhcp snooping limit rate`はuntrustedポートから届くDHCPパケットのレート（pps）を制限し、大量の偽リクエストによるプール枯渇を防ぐ。port-securityで許可MACアドレス数を制限すれば、送信元MACを変えながら大量送信する攻撃も抑制できる。trust設定（C）は上流の正規サーバ側ポートに使う設定であり攻撃者が接続されたアクセスポートには不適切、DAIのtrust（D）もARP検証用で本件のDHCP枯渇対策とは別の話。（→ Exercise18） |
 | Q89 | B | DAIはDHCPスヌーピングバインディングテーブルと照合してARPの正当性を判定するため、DHCPを使わない静的IPホストは情報が存在せず弾かれる。個別にARP ACL（`ip arp inspection filter`）で許可する必要がある。（→ Exercise18） |
 | Q90 | A,B | ESPは暗号化によるペイロードの機密性保護に加え、認証データによる完全性（改ざん検知）も提供できる。暗号化を提供せず認証機能のみを持つのはAH（プロトコル番号51）の説明であり（C誤り）、プロトコル番号50はESPでありGRE（プロトコル番号47）ではない（D誤り）。（→ Exercise18） |
@@ -1280,10 +1273,10 @@ R2# show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address       Interface
 10.0.0.1          1   FULL/BDR        00:00:34    10.1.12.1     GigabitEthernet0/0
-10.0.0.3          1   EXSTART/DR      00:00:31    10.1.23.3     GigabitEthernet0/1
+10.0.0.3          1   ExStart/DR      00:00:31    10.1.23.3     GigabitEthernet0/1
 ```
 
-（数分間、繰り返し観察しても `10.0.0.3` の State は EXSTART と EXCHANGE の間を
+（数分間、繰り返し観察しても `10.0.0.3` の State は ExStart と EXCHANGE の間を
 行き来するだけで FULL に到達しません。）
 
 ```
@@ -1320,8 +1313,8 @@ GigabitEthernet0/0 is up, line protocol is up
   MTU 1400 bytes, BW 1000000 Kbit/sec, DLY 10 usec,
 ```
 
-**S1.** この出力から読み取れる状態として正しいものを **2 つ選べ**。
-- A. R2 と R3 のネイバーは検出されているが、EXSTART で停滞し FULL に到達していない
+**S1.** この出力から読み取れる状態として正しいものはどれか。（2つ選べ）
+- A. R2 と R3 のネイバーは検出されているが、ExStart で停滞し FULL に到達していない
 - B. R2 と R3 の間ではネイバーがそもそも 1 つも検出されていない
 - C. R1 のルーティングテーブルに R3 配下の LAN（`192.0.2.0/24`）が学習されていない
 - D. R1 と R2 のネイバーも同時に Down しており、区間全体で隣接が形成されていない
@@ -1339,9 +1332,9 @@ GigabitEthernet0/0 is up, line protocol is up
 - D. `R3(config)# router ospf 1` → `R3(config-router)# router-id 10.0.0.2`
 
 **S4.** S3 の対処を正しく行った後に予測される結果として最も適切なものはどれか。
-- A. R2–R3 のネイバーが EXSTART から EXCHANGE・Loading を経て FULL へ遷移し、R1 が
+- A. R2–R3 のネイバーが ExStart から EXCHANGE・Loading を経て FULL へ遷移し、R1 が
   `192.0.2.0/24` を `via 10.1.12.2` で学習して LAN への ping が通るようになる
-- B. MTU を揃えても状態は EXSTART のままで、追加で全ルータの Router ID を振り直す必要がある
+- B. MTU を揃えても状態は ExStart のままで、追加で全ルータの Router ID を振り直す必要がある
 - C. ネイバーは FULL になるが、`192.0.2.0/24` は R3 側で passive のため永久に広告されない
 - D. R1–R2 間のネイバーが一度 Down し、区間全体の再構築に約 50 秒かかる
 
@@ -1349,7 +1342,7 @@ GigabitEthernet0/0 is up, line protocol is up
 
 | 問 | 解答 | 解説（→ Exercise） |
 |---|---|---|
-| S1 | A, C | `show ip ospf neighbor` に `10.0.0.3` が EXSTART で表示されている＝ネイバー自体は検出済みで、FULL 手前で停滞している（A 正・B 誤）。EXSTART/EXCHANGE 停滞では LSDB 同期が完了せず R3 の LSA が伝播しないため、R3 発の経路（`192.0.2.0/24`、`10.0.0.3/32`）が R1 に載らない。一方 R2 の直結である `10.1.23.0/30` は R2 自身の LSA に含まれ R1 に学習される点も出力と整合（C 正）。R1–R2 は FULL/BDR で正常（D 誤）。（→ Exercise12・Exercise13） |
-| S2 | B | ネイバーが「現れるが FULL にならず EXSTART/EXCHANGE で停滞」するのは MTU 不一致の典型症状。`show interfaces` で R2 Gi0/1＝1500、R3 Gi0/0＝1400 と食い違っている。タイマー／エリア ID 不一致や passive 誤設定は「ネイバーがそもそも現れない（表示されない／Init 止まり）」原因であり、EXSTART 停滞とは切り分けられる。（→ Exercise12・Exercise13） |
+| S1 | A,C | `show ip ospf neighbor` に `10.0.0.3` が ExStart で表示されている＝ネイバー自体は検出済みで、FULL 手前で停滞している（A 正・B 誤）。ExStart/EXCHANGE 停滞では LSDB 同期が完了せず R3 の LSA が伝播しないため、R3 発の経路（`192.0.2.0/24`、`10.0.0.3/32`）が R1 に載らない。一方 R2 の直結である `10.1.23.0/30` は R2 自身の LSA に含まれ R1 に学習される点も出力と整合（C 正）。R1–R2 は FULL/BDR で正常（D 誤）。（→ Exercise12・Exercise13） |
+| S2 | B | ネイバーが「現れるが FULL にならず ExStart/EXCHANGE で停滞」するのは MTU 不一致の典型症状。`show interfaces` で R2 Gi0/1＝1500、R3 Gi0/0＝1400 と食い違っている。タイマー／エリア ID 不一致や passive 誤設定は「ネイバーがそもそも一覧に現れない」原因であり、ExStart 停滞とは切り分けられる。（→ Exercise12・Exercise13） |
 | S3 | C | 対処は両端の MTU を一致させること。R3 Gi0/0 の MTU を 1500 に戻せば DBD 交換が完了し隣接が進む。passive 設定（A）はかえって Hello を止めネイバーを消す誤り、hello-interval 変更（B）は不要な不一致を作り込む誤り、Router ID を R2 と同一値（D）にするのは重複を招く誤り。（→ Exercise12・Exercise13） |
-| S4 | A | MTU を揃えると停滞が解消し、EXSTART→EXCHANGE→Loading→FULL と進む。FULL 到達後は R3 の LSA が伝播し、R1 が `192.0.2.0/24` を `via 10.1.12.2`（R1 の唯一の OSPF ネクストホップ）で学習して LAN へ疎通する。Router ID の振り直し（B）や passive（C）は不要・無関係で、正常な R1–R2 隣接は Down しない（D）。（→ Exercise12・Exercise13） |
+| S4 | A | MTU を揃えると停滞が解消し、ExStart→EXCHANGE→Loading→FULL と進む。FULL 到達後は R3 の LSA が伝播し、R1 が `192.0.2.0/24` を `via 10.1.12.2`（R1 の唯一の OSPF ネクストホップ）で学習して LAN へ疎通する。Router ID の振り直し（B）や passive（C）は不要・無関係で、正常な R1–R2 隣接は Down しない（D）。（→ Exercise12・Exercise13） |

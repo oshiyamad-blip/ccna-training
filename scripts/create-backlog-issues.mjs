@@ -13,16 +13,16 @@
 //               課題名に [名前] プレフィックス、マイルストーン名に「名前-」が付き、
 //               受講者ごとに独立した課題セット・マイルストーンが作られる。
 //               受講者ごとにプロジェクトを分ける運用（推奨）では指定不要。
-//   --assignee  課題の担当者のユーザー ID（数値、省略可）
+//   --assignee  課題の担当者のユーザ ID（数値、省略可）
 //   --skip-precourse  LESSON0「ITベーシック」プレコースを省略する（IT経験者向け）
-//   --skip-ops  継続率・合格率の運営課題（週次伴走・KPI・キックオフ等）を省略する。
+//   --skip-ops  継続率・合格率の運営課題（LESSON伴走・KPI・キックオフ等）を省略する。
 //               既定では作成する（10-retention-and-pass-rate.md に対応）
 //   --dry-run   API を呼ばず作成予定の内容を表示する
 //
 // ローリング型（受講者が随時入学）の運用では、受講者の入学ごとに本スクリプトを
 // その受講者の開始日で 1 回実行する。種別・カテゴリーは既存があれば再利用される（冪等）。
 //
-// 必要権限: API キーのユーザーがプロジェクト管理者であること（種別等の作成に必要）。
+// 必要権限: API キーのユーザがプロジェクト管理者であること（種別等の作成に必要）。
 // Node.js 18 以上（fetch 内蔵）で動作。依存パッケージなし。
 
 import {
@@ -46,7 +46,7 @@ const DRY_RUN = args.includes('--dry-run')
 // IT経験者には --skip-precourse を指定すると Exercise1 から開始し、Exercise00（環境構築）課題を別途作成する
 const SKIP_PRE = args.includes('--skip-precourse')
 const OFFSET = SKIP_PRE ? 0 : 5 // 本編 Exercise1 の開始が LESSON0 のぶん後ろにずれる
-// 既定で継続率・合格率の運営課題（週次伴走・KPI・キックオフ等）も作成する。
+// 既定で継続率・合格率の運営課題（LESSON伴走・KPI・キックオフ等）も作成する。
 // 運営タスクを別管理する純粋な学習者専用プロジェクトでは --skip-ops で省略できる。
 const SKIP_OPS = args.includes('--skip-ops')
 
@@ -233,7 +233,7 @@ async function main() {
       '',
       '## 提出物',
       '- ping 成功のスクリーンショットをコメントに貼る',
-      '- exercise00_氏名.pkt をこの課題に添付する',
+      '- exercise00_setup_氏名.pkt をこの課題に添付する',
       '',
       '## 完了条件',
       '- [ ] NetAcad アカウントでログインできる',
@@ -265,11 +265,11 @@ async function main() {
   for (const d of DAYS) {
     const dd = String(d.day).padStart(2, '0')
     const dueDate = addBusinessDays(START, OFFSET + d.day - 1)
-    const quizType = d.weeklyTest ? '週次テスト' : '小テスト'
+    const quizType = d.weeklyTest ? 'LESSONまとめテスト' : '小テスト'
     const quizTitle = d.finalTest
-      ? `${summaryPrefix}[Exercise${dd}] 修了テスト: 全範囲（60問/120分）`
+      ? `${summaryPrefix}[Exercise${dd}] 修了テスト: 全範囲（60問/90分）`
       : d.weeklyTest
-        ? `${summaryPrefix}[Exercise${dd}] 週次テスト: ${d.quiz}`
+        ? `${summaryPrefix}[Exercise${dd}] LESSONまとめテスト: ${d.quiz}`
         : `${summaryPrefix}[Exercise${dd}] 小テスト: ${d.quiz}`
 
     const issues = [

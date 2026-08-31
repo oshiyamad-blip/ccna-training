@@ -9,11 +9,11 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
 | ファイル / ディレクトリ | 内容 |
 |---|---|
 | [`00-feasibility.md`](./00-feasibility.md) | 実現可能性調査の結果（リサーチレポート） |
-| [`01-curriculum.md`](./01-curriculum.md) | 20 日間のカリキュラム表（日次テーマ・ラボ・小テスト） |
+| [`01-curriculum.md`](./01-curriculum.md) | 20 Exercise のカリキュラム表（Exercise 別テーマ・ラボ・小テスト） |
 | [`02-backlog-design.md`](./02-backlog-design.md) | Backlog プロジェクト構成設計（種別・カテゴリー・マイルストーン・課題テンプレート・ドキュメント構成・小テスト運用） |
 | [`03-packet-tracer-manual.md`](./03-packet-tracer-manual.md) | 仮想環境（Cisco Packet Tracer）導入・操作マニュアル（受講者配布用） |
 | [`04-guidance.md`](./04-guidance.md) | 受講者向けガイダンス「研修の進め方」（Backlog `00_ガイダンス` 用） |
-| [`05-instructor-guide.md`](./05-instructor-guide.md) | 講師用運用ガイド（開講前チェックリスト・日次運用・採点基準。受講者非公開） |
+| [`05-instructor-guide.md`](./05-instructor-guide.md) | 講師用運用ガイド（開講前チェックリスト・Exercise ごとの運用・採点基準。受講者非公開） |
 | [`06-rolling-operations.md`](./06-rolling-operations.md) | ローリング型運用ガイド（随時入学・卒業のプロジェクト構成、入学/卒業手順、負荷目安) |
 | [`07-exam-phase.md`](./07-exam-phase.md) | 試験対策フェーズ（Exercise 21〜）。模試サイクルで合格まで伴走する設計（自習期間なし） |
 | [`09-security-privacy.md`](./09-security-privacy.md) | セキュリティ・プライバシー運用ガイド（個人データの棚卸し・アクセス権・保存/削除・AI採点告知・シークレット管理） |
@@ -43,7 +43,7 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
    node scripts/upload-wiki.mjs --project CCNA --dry-run
    ```
 
-   小テスト（解答・解説を含む）は既定で投入対象外です。設問部分のみ毎日、
+   小テスト（解答・解説を含む）は既定で投入対象外です。設問部分のみ Exercise ごとに、
    小テスト課題の本文へ貼る運用にしてください（詳細は `05-instructor-guide.md`）。
 
 5. 研修開始後の採点は `scripts/grade-quiz.mjs` で支援できます（コメント解答の自動採点）

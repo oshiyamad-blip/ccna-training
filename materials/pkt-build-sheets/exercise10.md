@@ -5,7 +5,7 @@
   IP 設定まで済ませ、R1・SW1・WLC-3504 は**ホスト名すら設定していない工場出荷状態**で保存する。
   `pkt-build-spec.md` の exercise10 行「WLC+AP+クライアント配置・有線側配線済み。WLAN構築が本題」の
   指定どおり、手順1〜14 の IOS 設定・WLC セットアップウィザード・WLC GUI 設定（ダイナミック
-  インタフェース／WLAN／セキュリティ）・無線 NIC への交換・SSID 接続は**すべて受講者が行う**。
+  インターフェース／WLAN／セキュリティ）・無線 NIC への交換・SSID 接続は**すべて受講者が行う**。
 - **保存ファイル名**: `exercise10_start.pkt`
 
 > 参考画像: `materials/images/exercise10-topology.svg` を確認済み。結線（R1 Gi0/0 ─ SW1 Gi0/1
@@ -26,11 +26,10 @@
 | ワイヤレス LAN コントローラ | WLC-3504 | 1 | WLC-3504 |
 | Lightweight AP | LAP-PT | 1 | LAP |
 | PC（管理用・有線） | PC-PT | 1 | 管理用PC |
-| ノート PC（無線） | Laptop-PT（標準の有線モジュールで配置。無線モジュール
-  `PT-LAPTOP-NM-1W` への差し替えは手順11 で受講者が行うため、開始時点では**差し替えない**） | 2 | ノートPC1, ノートPC2 |
+| ノート PC（無線） | Laptop-PT（標準の有線モジュールで配置。無線モジュール `PT-LAPTOP-NM-1W` への差し替えは手順11 で受講者が行うため、開始時点では**差し替えない**） | 2 | ノートPC1, ノートPC2 |
 
 - R1（2911）は既定で GigabitEthernet0/0・0/1・0/2 を持ち、ラボが使う `interface
-  gigabitEthernet 0/0` とサブインタフェース `0/0.100`・`0/0.10` にそのまま合致する。
+  gigabitEthernet 0/0` とサブインターフェース `0/0.100`・`0/0.10` にそのまま合致する。
   追加モジュールの装着は不要。
 - SW1（2960）は Fa0/1・Fa0/24・Gi0/1・Gi0/2 を使用するため、標準の 2960（FastEthernet
   0/1-24 + GigabitEthernet 0/1-2）で足りる。`power inline auto` は Packet Tracer の
@@ -59,7 +58,7 @@
 - ルータ・スイッチ・PC・WLC・AP はいずれも異種機器接続のため、Packet Tracer の
   「自動選択（稲妻アイコン）」でストレートケーブルが選ばれる。リンクが赤くなった場合は
   上表のとおり手動でストレートケーブルを選び直すこと。
-- 配線直後は R1・SW1・WLC-3504 とも未設定（VLAN1・トランク未設定・R1 インタフェースは
+- 配線直後は R1・SW1・WLC-3504 とも未設定（VLAN1・トランク未設定・R1 インターフェースは
   管理上ダウンの初期状態）のため、リンクの物理層（緑/赤の状態表示）は Packet Tracer の
   ケーブル挿抜アニメーションが終われば緑になる（IOS 側の `no shutdown` 未実施でも物理リンク
   灯自体は多くの場合点灯する。R1 Gi0/0 のリンクランプが暗いままの場合は、初期状態としては
@@ -86,7 +85,7 @@
 で保存する。
 
 - **R1**: `hostname` 未設定（`Router>` のまま）。GigabitEthernet0/0 は初期状態（管理上
-  シャットダウン）。サブインタフェース `0/0.100`・`0/0.10`、DHCP プール（`VLAN100-MGMT`・
+  シャットダウン）。サブインターフェース `0/0.100`・`0/0.10`、DHCP プール（`VLAN100-MGMT`・
   `VLAN10-CLIENT`、オプション43 を含む）はすべて未投入。手順4 で受講者が入力する。
 - **SW1**: `hostname` 未設定（`Switch>` のまま）。VLAN10・VLAN100 は未作成、Fa0/1・Fa0/24
   はアクセスポート化未実施（VLAN1 のまま）、Gi0/1・Gi0/2 のトランク化・ネイティブ VLAN
@@ -198,7 +197,7 @@ copy running-config startup-config
 ```
 [CLI タブ・初回セットアップウィザード]
 System Name:                              WLC1
-管理者ユーザー名 / パスワード:              admin / Cisco123
+管理者ユーザ名 / パスワード:              admin / Cisco123
 Management Interface IP Address:          192.168.100.2
 Management Interface Netmask:             255.255.255.0
 Management Interface Default Router:      192.168.100.1
@@ -207,7 +206,7 @@ DHCP Server IP Address:                   192.168.100.1
 
 [Web GUI: https://192.168.100.2 にログイン後]
 
-Controller > Interfaces > New（ダイナミックインタフェース）
+Controller > Interfaces > New（ダイナミックインターフェース）
   Interface Name:   client-vlan10
   VLAN Identifier:  10
   IP Address:       192.168.10.2

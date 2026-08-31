@@ -17,35 +17,36 @@
    違いを比較できる
 5. HSRP の状態遷移・プライオリティ・プリエンプトの動作を理解し、基本設定ができる
 
-> **本日の範囲**: Exercise12 のシングルエリア基礎を前提に、本日はOSPFの**応用と切り分け**
-> （MTU 不一致等のトラブルシュート・`default-information originate` によるデフォルト
-> ルート配布・外部経路の E1/E2）を扱います。
+> **この Exercise の範囲**: Exercise12 のシングルエリア基礎を前提に、ここでは
+> OSPF の**応用と切り分け**（MTU 不一致等のトラブルシュート・
+> `default-information originate` によるデフォルトルート配布・外部経路の E1/E2）を
+> 扱います。
 
 ---
 
-## ウォームアップ（朝の想起クイズ）
+## ウォームアップ（想起クイズ）
 
 > 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 6「VLAN の基礎」 /
 > Exercise 10「無線 LAN と検出プロトコル」 / Exercise 12「OSPFv2（シングルエリア）」 の
 > 範囲から出題）。
 
-**W1.** （Exercise 6）スイッチにおける VLAN の通常範囲（Normal Range）と拡張範囲
-（Extended Range）の番号帯はそれぞれ何番から何番か。
+**W1.** （Exercise 6）スイッチにおける**標準範囲 VLAN** と**拡張範囲 VLAN** の
+番号帯は、それぞれ何番から何番か。
 
 **W2.** （Exercise 10）CDP の既定のアドバタイズ間隔（Hello）とホールドタイムは
 何秒か。また、業界標準の検出プロトコルの名称と、それを規定する IEEE 規格番号は
 何か。
 
 **W3.** （Exercise 12）OSPF のインターフェースコストを求める既定の計算式と、
-Cisco IOS における既定の基準帯域幅（reference bandwidth）はいくらか。
+Cisco IOS における既定の参照帯域幅（reference bandwidth）はいくらか。
 
 <details><summary>解答</summary>
 
-- W1: 通常範囲は 1〜1005、拡張範囲は 1006〜4094
+- W1: 標準範囲 VLAN は 1〜1005、拡張範囲 VLAN は 1006〜4094
 - W2: CDP は既定で Hello 60 秒・ホールドタイム 180 秒。業界標準は LLDP
   （IEEE 802.1AB）
-- W3: コスト = 基準帯域幅 ÷ インターフェース帯域幅。Cisco IOS の既定の
-  基準帯域幅は 10^8（100Mbps）
+- W3: コスト = 参照帯域幅 ÷ インターフェース帯域幅。Cisco IOS の既定の
+  参照帯域幅は 10^8（100 Mbps）
 
 </details>
 
@@ -68,7 +69,11 @@ Exercise12 で学んだ OSPF のネイバー確立条件と状態遷移を、ト
 | Hello / Dead タイマー | 送信間隔と失効時間 |
 | 認証 | 設定している場合、方式・パスワードが一致 |
 | スタブフラグ | スタブエリアの設定が一致していること |
-| ネットワークタイプ | broadcast / point-to-point など |
+
+これは Exercise12 で学んだ一致必須項目のうち、**MTU を除いた 5 項目**です。
+MTU も一致していないと完全な隣接（FULL）には進めませんが、失敗の現れ方が
+ほかと違う（ネイバー自体は表示され、ExStart / Exchange で止まる）ため、
+この Exercise では後の章で別立てに扱います。
 
 一方で **Router ID は一致条件ではなく、ドメイン内で一意（重複なし）であることが
 求められます**。Router ID は次の優先順位で決定されます。
@@ -80,16 +85,32 @@ Exercise12 で学んだ OSPF のネイバー確立条件と状態遷移を、ト
 Router ID が重複していると、ネイバーが不安定になったり正しく成立しなかったりする
 原因になります。
 
-表の**ネットワークタイプ**は、そのリンク上で DR/BDR を選出するかどうかなど、
-OSPF の動作モードを決める設定です。Exercise12 で扱った DR/BDR は broadcast 型の
-リンクでの話でしたが、point-to-point 型のリンクでは DR/BDR の選出自体を
-行いません。片方が broadcast、もう片方が point-to-point のまま向かい合って
-接続されていると、この設定が一致せずネイバーが正しく成立しません。
+### ネットワークタイプは「一致必須項目」ではない
+
+**ネットワークタイプ**（broadcast / point-to-point など）は、そのリンク上で
+DR/BDR を選出するかどうかなど、OSPF の動作モードを決める設定です。Exercise12 で
+扱った DR/BDR は broadcast 型のリンクでの話で、point-to-point 型のリンクでは
+DR/BDR の選出自体を行いません。
+
+ネットワークタイプは Hello パケットに載る値ではないため、**上の一致必須項目には
+含まれません**。broadcast と point-to-point は、どちらも既定タイマーが
+Hello 10 秒 / Dead 40 秒で同じです。そのため片側だけタイプが違っていても Hello は
+破棄されず、**ネイバーは Full まで到達します**。ただし、タイプによって生成される
+LSA の表現は食い違います。その結果 SPF 計算の双方向性チェックに通らず、
+**「ネイバーは Full なのに、その先の経路がルーティングテーブルに載らない」**
+という症状になります。MTU 不一致とは別の、もう 1 つの「ネイバーは現れるが期待
+どおりに動かない」型の失敗モードです。
+
+一方、NBMA や point-to-multipoint の既定タイマーは **30 秒 / 120 秒**で、
+broadcast / point-to-point の **10 秒 / 40 秒**とは異なります。この 2 つを
+向かい合わせにすると、**タイマーが一致しないためネイバー自体が成立しません**。
+ただしこの場合の直接の原因はネットワークタイプそのものではなく、そこから決まる
+Hello / Dead タイマーの不一致です。
 
 ### 状態遷移のおさらい
 
 ```
-Down → Init → 2-Way → Exstart → Exchange → Loading → Full
+Down → Init → 2-Way → ExStart → Exchange → Loading → Full
 ```
 
 | 状態 | 意味 |
@@ -97,7 +118,7 @@ Down → Init → 2-Way → Exstart → Exchange → Loading → Full
 | Down | ネイバー情報がまだない初期状態 |
 | Init | 相手から Hello を受信したが、自分の Router ID が相手の Hello にまだ載っていない |
 | 2-Way | 相手の Hello に自分の Router ID が載っている（双方向疎通を確認） |
-| Exstart | DBD 交換のマスタ／スレーブ関係を決定する |
+| ExStart | DBD 交換のマスタ／スレーブ関係を決定する |
 | Exchange | DBD（LSDB の要約情報）を交換する |
 | Loading | LSR/LSU で不足している LSA の詳細をやり取りする |
 | Full | LSDB の同期が完了した状態 |
@@ -111,7 +132,7 @@ DROTHER**（＝DR でも BDR でもない一般ルータ。`show ip ospf neighbo
 
 Full まで到達するには、**両インターフェースの MTU（最大転送単位）が一致している**
 必要があります。MTU が不一致だと DBD 交換（Exchange 状態相当のパケット）を
-正しく完了できず、**Exstart または Exchange で状態が停滞**します。
+正しく完了できず、**ExStart または Exchange で状態が停滞**します。
 
 ### 確認コマンド
 
@@ -119,7 +140,7 @@ Full まで到達するには、**両インターフェースの MTU（最大転
 - `show ip ospf interface brief` — インターフェースが OSPF プロセスに
   参加しているか確認する
 
-> **試験のポイント**: OSPF の状態遷移の順序（Down→Init→2-Way→Exstart→Exchange→
+> **試験のポイント**: OSPF の状態遷移の順序（Down→Init→2-Way→ExStart→Exchange→
 > Loading→Full）は頻出です。あわせて「DROTHER 同士は 2-Way で正常停止」という
 > 点も覚えておきましょう。
 
@@ -128,7 +149,6 @@ Full まで到達するには、**両インターフェースの MTU（最大転
 実務でも試験でも、「なぜネイバーが Full にならないのか」を状態別に切り分ける力が
 問われます。個々の組み合わせを丸暗記するのではなく、「今どの状態で止まっている
 か」から「どの一致条件が壊れていそうか」を逆算する考え方をここで身につけます。
-原因と状態の対応を整理します。
 
 ### 状態別の典型的な原因
 
@@ -137,9 +157,10 @@ Full まで到達するには、**両インターフェースの MTU（最大転
 | Down のまま（ネイバーが全く現れない） | 物理／データリンク断、または `network` コマンド漏れでインターフェースが OSPF に入っていない |
 | Init で停滞（2-Way に進めない） | 片方向 Hello（一方向のみ Hello が届く。例: 片側インターフェースの受信 ACL が OSPF マルチキャスト `224.0.0.5` を遮断、単方向リンク障害など） |
 | ネイバー自体が成立しない（現れない） | サブネット／マスク不一致、エリア ID 不一致、認証不一致、**Hello／Dead タイマー不一致**（設定が一致しない Hello は相手に破棄され、隣接そのものが形成されないため、Init にすら進まずネイバーは表示されません） |
-| Exstart／Exchange で停滞 | MTU 不一致（DBD 交換が完了しない） |
+| ExStart／Exchange で停滞 | MTU 不一致（DBD 交換が完了しない） |
 | ネイバーが全く現れない（Hello 自体が出ていない） | `passive-interface` の誤設定（バックボーン LAN 側に誤って設定しやすい） |
-| ネイバーが成立しない／不安定 | ネットワークタイプ不一致（broadcast と point-to-point の組み合わせなど）、Router ID 重複 |
+| ネイバーが成立しない／不安定 | Router ID 重複 |
+| Full になるのに経路がテーブルに載らない | ネットワークタイプ不一致（片側 broadcast・片側 point-to-point など。LSA の表現が食い違い、SPF の双方向性チェックに通らない） |
 
 ### Hello / Dead タイマーの既定値
 
@@ -162,10 +183,20 @@ Full まで到達するには、**両インターフェースの MTU（最大転
 インターフェースに設定するのが本来の使い方ですが、**誤ってバックボーン側（ルータ間
 リンク）に設定してしまうと、そこでネイバーが一切現れなくなります**。
 
+`network` 文の漏れも `passive-interface` の誤設定も、現れる症状は「ネイバーが
+できない」で同じに見えます。しかし `show` コマンドの出力では、次のようにはっきり
+区別できます。
+
+| 原因 | `show ip ospf interface brief` での見え方 | 決め手になる確認 |
+|---|---|---|
+| `network` 文の漏れ | そのインターフェースの行が**一覧に出ない**（OSPF に参加していないため） | `show ip protocols` の Routing for Networks に該当ネットワークが無い |
+| `passive-interface` の誤設定 | 行は**一覧に出る**（State は `DR`、Nbrs は `0/0` のまま） | `show ip protocols` の Passive Interface(s) 欄に該当インターフェースが並ぶ |
+
 > **試験のポイント**: `network` コマンド漏れや `passive-interface` の誤設定によって
-> ネイバーができないケースを特定させる問題が頻出です。「State が表示されず、
-> `show ip ospf interface brief` にそのインターフェース自体が出ない／Hello が
-> 出ていない」ことに気づけるかがポイントです。
+> ネイバーができないケースを特定させる問題が頻出です。「そもそも OSPF に入って
+> いない（一覧に出ない）」のか「OSPF には入っているが Hello を出していない
+> （一覧には出るがネイバーが 0）」のかを、上の表のとおり読み分けられるかが
+> ポイントです。
 
 ここまでの内容を、状態遷移の流れに沿って整理すると次のようになります。
 
@@ -290,14 +321,23 @@ Router(config-router)# default-information originate metric-type 1
 
 ### 関連知識: EIGRP
 
-OSPF と並んで名前を目にする IGP に **EIGRP（Enhanced Interior Gateway
-Routing Protocol）** があります。Cisco が開発したプロトコルで（現在は仕様が
+**IGP（Interior Gateway Protocol／内部ゲートウェイプロトコル）** とは、1 つの組織が
+管理するネットワークの**内側**で経路情報を交換するルーティングプロトコルの総称です。
+OSPF はその代表格にあたります。対になるのが、組織と組織の**間**で経路を交換する
+EGP で、インターネットで使われる BGP がその代表です。
+
+その IGP の中で、OSPF と並んで名前を目にするのが **EIGRP（Enhanced Interior
+Gateway Routing Protocol）** です。Cisco が開発したプロトコルで（現在は仕様が
 公開されています）、**DUAL** というアルゴリズムで経路を計算し、管理距離（AD）は
 **既定で 90**（OSPF の 110 より優先）です。CCNA 200-301 の出題の中心は OSPF
 ですが、Cisco 機器主体の現場では実務で目にすることがあるため、名前と特徴だけ
 押さえておけば十分です（本コースではこれ以上深入りしません）。
 
 ## 4. FHRP の目的と 3 方式の比較（HSRP / VRRP / GLBP）
+
+ここまでの 3 章は「ルータ同士がどう経路を配り合うか」という話でした。この章では
+視点を変え、**LAN 上の端末から見た出口（デフォルトゲートウェイ）をどう冗長化するか**
+という、ルータ 1 台の故障に備える仕組みを扱います。
 
 ### FHRP とは何か、何を解決するのか
 
@@ -318,16 +358,16 @@ FHRP が解決する課題は、デフォルトゲートウェイが 1 台のル
 
 | 項目 | HSRP | VRRP | GLBP |
 |---|---|---|---|
-| 標準化 | シスコ独自 | 業界標準（RFC 5798） | シスコ独自 |
+| 標準化 | Cisco 独自 | 業界標準（RFC 5798） | Cisco 独自 |
 | 役割の呼び方 | Active / Standby | Master / Backup | AVG（Active Virtual Gateway）/ AVF（Active Virtual Forwarder） |
 | 転送するルータ数 | Active の 1 台のみ | Master の 1 台のみ | 複数台で同時に転送可能（負荷分散） |
 | プリエンプト既定 | 無効 | 有効 | 無効（AVG のプリエンプトは既定で無効） |
 
-- **HSRP**（Hot Standby Router Protocol）: シスコ独自方式。Active / Standby の
+- **HSRP**（Hot Standby Router Protocol）: Cisco 独自方式。Active / Standby の
   1 台構成で、Active のみが転送を行う
 - **VRRP**（Virtual Router Redundancy Protocol）: 業界標準（RFC 5798）で、
   マルチベンダ環境でも利用できる。Master / Backup で構成される
-- **GLBP**（Gateway Load Balancing Protocol）: シスコ独自方式。**AVG** が
+- **GLBP**（Gateway Load Balancing Protocol）: Cisco 独自方式。**AVG** が
   複数の **AVF** に対して負荷を分散させる点が HSRP・VRRP と最も異なる特徴で、
   複数台のルータが**同時に**転送を行える（ロードバランシング）
 
@@ -350,7 +390,7 @@ VRRP は HSRP と発想がほぼ同じ（1 台が転送し、残りは待機）�
 
 ### GLBP をもう一歩詳しく
 
-GLBP（シスコ独自）の最大の特徴は、冗長化に**負荷分散**を組み合わせられる点です。
+GLBP（Cisco 独自）の最大の特徴は、冗長化に**負荷分散**を組み合わせられる点です。
 これを実現しているのが AVG と AVF の役割分担です。
 
 - **AVG（Active Virtual Gateway）**: グループ内で 1 台だけ選出される「司令塔」。
@@ -369,11 +409,13 @@ GLBP では待機役も転送に参加できるため、機器と帯域を無駄
 
 > **試験のポイント**: HSRP・VRRP・GLBP の違い（独自方式か標準か、
 > Active-Standby 構成か負荷分散が可能か、プリエンプトの既定値）を比較させる
-> 問題が頻出です。GLBP だけが複数台同時転送に対応する点を押さえましょう。
+> 問題が頻出です。**1 つのグループ内で**複数台が同時に転送できるのは GLBP だけ、
+> という点を押さえましょう（HSRP・VRRP でもグループを複数作れば機器単位の
+> 負荷分散はできます）。
 
 ### 使い分けの要点
 
-- シンプルな冗長化で、機器がすべてシスコ製 → **HSRP**
+- シンプルな冗長化で、機器がすべて Cisco 製 → **HSRP**
 - 他社製ルータと混在する環境で標準プロトコルが必要 → **VRRP**
 - 冗長化に加えて複数ルータへの負荷分散も行いたい → **GLBP**
 
@@ -413,9 +455,9 @@ Router(config-if)# standby 1 priority 110
 
 ### プリエンプトは既定で無効
 
-**プリエンプト（preempt、`standby <グループ番号> preempt`）**とは、より高い
-プライオリティを持つルータが後から Active に復帰した際に、そのときの Active
-ルータから座を強制的に奪い返す動作のことです。この機能は**既定で無効**です。
+**プリエンプト（preempt、`standby <グループ番号> preempt`）**とは、Active の座を
+強制的に奪い返す動作のことです。より高いプライオリティを持つルータが後から
+復帰したとき、そのときの Active ルータから役割を取り戻します。この機能は**既定で無効**です。
 有効にしていないと、後から復旧した高プライオリティのルータが存在しても、
 **Active の座を自動的に奪い返すことはありません**（先に Active になったルータが
 そのまま Active であり続けます）。
@@ -484,16 +526,17 @@ Router(config-if)# standby 1 track GigabitEthernet0/1 20
 ## 6. まとめ
 
 - OSPF ネイバーが Full に至るには、エリア ID・サブネット・タイマー・認証・
-  スタブフラグ・ネットワークタイプの一致と、MTU の一致（Exstart/Exchange 停滞の
-  典型原因）が必要
+  スタブフラグの一致と、MTU の一致（ExStart/Exchange 停滞の典型原因）が必要。
+  ネットワークタイプは一致必須項目ではなく、不一致でもネイバーは Full になるが
+  経路がテーブルに載らない、という別の失敗モードになる
 - ネイバー不成立の切り分けは、下位層（物理／IP 疎通）→ OSPF への参加
   （`network` 漏れ・`passive-interface` 誤設定）→ タイマー／サブネット／エリア／
   認証／MTU の一致確認、という順で進める
 - `default-information originate` で ASBR からデフォルトルートを OSPF ドメインへ
   配布できる。自身にデフォルトルートが無い場合は `always` が必要。受信側では
   `O*E2` として表示される
-- FHRP はデフォルトゲートウェイの単一障害点を排除する仕組み。HSRP（シスコ独自・
-  Active/Standby）、VRRP（標準・Master/Backup）、GLBP（シスコ独自・複数台同時
+- FHRP はデフォルトゲートウェイの単一障害点を排除する仕組み。HSRP（Cisco 独自・
+  Active/Standby）、VRRP（標準・Master/Backup）、GLBP（Cisco 独自・複数台同時
   転送）の 3 方式がある
 - HSRP のプライオリティ既定値は 100、Active は高プライオリティ（同値は高 IP）で
   選出される。プリエンプトは既定で無効
@@ -502,7 +545,7 @@ Router(config-if)# standby 1 track GigabitEthernet0/1 20
 
 ## 確認問題（自己チェック・解答は末尾）
 
-1. OSPF のネイバーが Exstart または Exchange で停滞している場合、まず疑うべき
+1. OSPF のネイバーが ExStart または Exchange で停滞している場合、まず疑うべき
    原因は何か。
 2. `passive-interface` をルータ間のバックボーンリンクに誤って設定してしまうと、
    ネイバーの状態はどのように観測されるか。
@@ -514,7 +557,7 @@ Router(config-if)# standby 1 track GigabitEthernet0/1 20
 
 <details><summary>解答</summary>
 
-1. MTU の不一致。DBD 交換が完了できず Exstart／Exchange で状態が停滞する
+1. MTU の不一致。DBD 交換が完了できず ExStart／Exchange で状態が停滞する
 2. Hello パケットがそのインターフェースから送出されなくなるため、ネイバーが
    一切現れない（`show ip ospf interface brief` にそのインターフェースが
    OSPF 有効として出るが、ネイバーは表示されない）
@@ -527,7 +570,7 @@ Router(config-if)# standby 1 track GigabitEthernet0/1 20
 
 ## 次のステップ
 
-本日のラボ課題「[Exercise13] ラボ: OSPF トラブルシューティングと HSRP による
+この Exercise のラボ課題「[Exercise13] ラボ: OSPF トラブルシューティングと HSRP による
 デフォルトゲートウェイ冗長化」に進み、意図的に組み込まれた OSPF の障害を
 切り分けて全区間の疎通を回復させたうえで、HSRP によるゲートウェイ冗長化と
 フェイルオーバーの動作を実際に確認してください。

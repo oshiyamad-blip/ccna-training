@@ -148,7 +148,7 @@
    **確認**: `Reply from 192.168.10.12 ...` と表示され、同一 VLAN 10 内で
    疎通することを確認する
 
-   > 補足: 1 パケット目は ARP（あて先の MAC アドレスを調べる問い合わせ）の解決待ちで
+   > 補足: 1 パケット目は ARP（宛先の MAC アドレスを調べる問い合わせ）の解決待ちで
    > `Request timed out.` と表示されることがあります。2 パケット目以降が
    > `Reply from ...` になっていれば、同一 VLAN 内の疎通としては成功です。
 
@@ -220,8 +220,8 @@ SW1# copy running-config startup-config
 |---|---|
 | 同一 VLAN 内で ping の 1 パケット目だけ `Request timed out.` になる | ARP 解決に伴う一時的なものです。2 パケット目以降が `Reply from ...` になっていれば問題ありません |
 | 同一 VLAN 内なのに ping が通らない | PC の IP アドレス・サブネットマスクの入力ミス、リンクが緑になっているか |
-| `show vlan brief` にポートが表示されない、または inactive | 対象 VLAN が正しく作成されているか、`switchport access vlan` の番号にタイプミスがないか |
-| `interface range` の入力でエラーになる | `fastEthernet 0/1 - 2` のように、ポート番号とハイフンの前後に半角スペースが入っているか確認する |
+| `show vlan brief` のどの VLAN 行にもポートが表示されない | 対象 VLAN が正しく作成されているか、`switchport access vlan` の番号にタイプミスがないかを確認する。VLAN を削除してしまった場合は、その VLAN 行ごと出力から消え、`show interfaces status` で該当ポートが `inactive` と表示される |
+| `interface range` の入力でエラーになる | 表記は `fastEthernet 0/1 - 2`（ハイフンの前後にスペースあり）でも `fastEthernet 0/1-2`（スペースなし）でも受け付けられます。インターフェース名のつづり、開始・終了のポート番号の順序（小さい番号が先）を確認する |
 | PC1→PC3 で ping が通ってしまう | ポートの VLAN 割り当てを取り違えていないか `show vlan brief` で再確認する |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を

@@ -90,7 +90,7 @@
     <text class="hdr" x="1240" y="328">サブ設定</text>
     <text class="prompt" x="1240" y="370" font-size="13.5">Router(config-if)#</text>
     <text class="prompt" x="1240" y="392" font-size="13.5">Router(config-line)#</text>
-    <text class="desc" x="1240" y="424">個別インタフェース／</text>
+    <text class="desc" x="1240" y="424">個別インターフェース／</text>
     <text class="desc" x="1240" y="440">回線の設定</text>
   </g>
 

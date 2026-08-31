@@ -90,7 +90,7 @@ Part1（開始ファイルの状態）のみを結線する。
 
 ホスト名すら設定しない工場出荷状態（`Router>`）で保存する。`GigabitEthernet0/0` も
 `no shutdown` していない administratively down のままにすること。物理インターフェースの
-有効化（`no shutdown`）とサブインターフェース作成は手順3（本日の本題）で受講者が行う。
+有効化（`no shutdown`）とサブインターフェース作成は手順3（この Exercise の本題）で受講者が行う。
 
 ### SW1
 

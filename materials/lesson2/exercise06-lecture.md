@@ -15,7 +15,7 @@
 
 ---
 
-## ウォームアップ（朝の想起クイズ）
+## ウォームアップ（想起クイズ）
 
 > 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 3「IPv4 アドレッシングとサブネット化」 / Exercise 5「TCP / UDP・スイッチング動作・物理層」 の範囲から出題）。
 
@@ -42,7 +42,7 @@
 フレームが届く範囲）になります。
 
 VLAN を使わないスイッチでは、全ポートが 1 つの巨大なブロードキャストドメインを
-形成します。この状態では、ある端末が送信した ARP 要求（あて先の MAC アドレスを調べるための問い合わせ）や
+形成します。この状態では、ある端末が送信した ARP 要求（宛先の MAC アドレスを調べるための問い合わせ）や
 DHCP Discover（IP アドレスを自動的に割り当ててもらうための要求）などの
 ブロードキャストフレームが、スイッチに接続された**すべての端末**に届いてしまいます。
 端末数が増えるほど不要なブロードキャストが増え、ネットワーク全体の性能が低下します。
@@ -86,7 +86,7 @@ VLAN 1 は**デフォルト VLAN**と呼ばれ、次の特徴があります。
 - **名前を変更できない**
 - 工場出荷状態のスイッチでは、CDP（Cisco Discovery Protocol。隣接する Cisco 機器
   同士が互いの情報を自動的にやり取りする仕組み）や DTP（Dynamic Trunking Protocol。
-  トランクリンクのモードを自動でネゴシエーションする仕組みで、詳細は第 4 節で
+  トランクリンクのモードを自動でネゴシエーションする仕組みで、詳細は Exercise 7 で
   扱います）などの管理系トラフィックの一部がデフォルトで VLAN 1 を流れる
 
 ### VLAN の用途による分類
@@ -160,7 +160,7 @@ Switch(config-vlan)# exit
 - `name <名前>` は任意ですが、`VLAN0010` のような自動生成名のままにせず、
   部署名や用途がわかる名前を付けるのが管理上のベストプラクティスです
 
-> ここが今日の山場です。VLAN の情報がどこに保存されるかは、これまでの
+> ここがこの Exercise の山場です。VLAN の情報がどこに保存されるかは、これまでの
 > `running-config` / `startup-config` の感覚と少しずれるところなので、
 > 焦らず時間をかけて確認して構いません。
 
@@ -170,6 +170,14 @@ Switch(config-vlan)# exit
 **`vlan.dat`** というファイルに、フラッシュメモリ（電源を切ってもデータが消えない
 記憶装置）上へ保存されます。つまり VLAN 情報は
 `running-config` / `startup-config` とは**別に管理**されている点に注意が必要です。
+
+> **例外**: VLAN の定義が `vlan.dat` にしか現れない、とは限りません。スイッチが
+> **VTP transparent モード**（VLAN 情報の自動同期に参加しない動作モード。
+> VTP そのものは Exercise 7 で扱います）で動作している場合、VLAN の定義は
+> `vlan.dat` に加えて `running-config` にも書き込まれます。また、**拡張範囲 VLAN
+> （1006〜4094）は `vlan.dat` ではなく `running-config` 側で管理**されます。
+> この 2 つのケースでは、`show running-config` の中にも `vlan 10` のような
+> VLAN 定義が現れます。
 
 > 💼 **実務では**: 保守作業で `show running-config` を確認しても VLAN 定義が
 > 消えずに残っていて「なぜ」と戸惑うことがありますが、原因はこの `vlan.dat` に
@@ -185,8 +193,16 @@ Switch(config)# no vlan 10
 ```
 
 VLAN を削除する際に注意したいのは、**その VLAN をポートに割り当てたまま削除すると、
-該当ポートが非アクティブ（inactive）状態になる**ことです。ポートは物理的には
-アップしていても、フレームを転送できない状態になります。
+該当ポートが通信できない状態になる**ことです。このとき、確認コマンドごとに
+見え方が変わる点に注意してください。
+
+- `show vlan brief`: 削除した VLAN の**行そのものが一覧から消えます**（その
+  VLAN に割り当てていたポートも、どの VLAN 行にも表示されなくなります）
+- `show interfaces status`: 該当ポートの Status 列が **`inactive`** と表示されます
+
+ポートは物理的にはアップしていても、フレームを転送できない状態になります。
+復旧するには、削除した VLAN を作り直すか、ポートを別の有効な VLAN に
+割り当て直します。
 
 ### 設定例
 
@@ -290,12 +306,14 @@ Switch(config-if)# shutdown
 
 | コマンド | 確認できる内容 |
 |---|---|
-| `show vlan brief` | VLAN 番号・名前・状態（active/inactive）・所属ポートの一覧 |
+| `show vlan brief` | VLAN 番号・名前・状態（`active` / `act/unsup` など）・所属ポートの一覧 |
+| `show interfaces status` | 各ポートの状態（`connected` / `notconnect` / `inactive` など）・所属 VLAN・速度 |
 | `show interfaces <IF> switchport` | 該当ポートの動作モード（access/trunk）、アクセス VLAN・音声 VLAN の設定値 |
 | `show vlan id <ID>` | 特定 VLAN の詳細情報 |
 | `show mac address-table` | 学習した MAC アドレスが、どの VLAN・どのポートに紐づいているか |
 
-`show vlan brief` の出力イメージは次のとおりです。
+`show vlan brief` の出力イメージは次のとおりです（実機ではポートの台数分だけ
+Ports 列が折り返して続きます。ここでは VLAN 1 のポート一覧を一部省略しています）。
 
 ```
 Switch# show vlan brief
@@ -303,9 +321,35 @@ Switch# show vlan brief
 VLAN Name                             Status    Ports
 ---- -------------------------------- --------- -------------------------------
 1    default                          active    Fa0/5, Fa0/6, Fa0/7, Fa0/8
+                                                Fa0/9, Fa0/10, Fa0/11, Fa0/12
 10   SALES                            active    Fa0/1, Fa0/2
 20   IT                               active    Fa0/3, Fa0/4
 1002 fddi-default                     act/unsup
+1003 token-ring-default               act/unsup
+1004 fddinet-default                  act/unsup
+1005 trnet-default                    act/unsup
+```
+
+Status 列に現れる代表的な値は次のとおりです。
+
+| 値 | 意味 |
+|---|---|
+| `active` | 正常に使用できる状態 |
+| `act/unsup` | VLAN は存在するが、この機種ではサポートされない（1002〜1005 の予約 VLAN） |
+| `suspended` | 管理者が `state suspend` で一時停止した状態。フレームは転送されない |
+| `act/lshut` | `shutdown vlan` により、その VLAN のフレーム転送が停止されている状態 |
+
+`inactive` という値は、`show vlan brief` の Status 列には現れません。ポートが
+`inactive` かどうかは `show interfaces status` で確認します。こちらの出力例は
+次のとおりです（VLAN 40 を削除したために Fa0/8 が `inactive` になっている状態）。
+
+```
+Switch# show interfaces status
+
+Port      Name               Status       Vlan       Duplex  Speed Type
+Fa0/1                        connected    10           full    100 10/100BaseTX
+Fa0/8                        inactive     40           auto   auto 10/100BaseTX
+Fa0/9                        notconnect   1            auto   auto 10/100BaseTX
 ```
 
 ### よくある障害と切り分け方
@@ -313,7 +357,7 @@ VLAN Name                             Status    Ports
 | 症状 | 原因の候補 |
 |---|---|
 | 意図した端末同士で ping が通らない | ポートが別の VLAN に割り当てられている |
-| ポートが `show vlan brief` で inactive と表示され通信できない | 割り当て済みの VLAN を `no vlan` で削除した（または VLAN が suspend/shutdown 状態） |
+| ポートが `show vlan brief` のどの VLAN 行にも表示されず通信できない（`show interfaces status` では inactive） | 割り当て済みの VLAN を `no vlan` で削除した（VLAN が suspended / act/lshut 状態の場合も通信できない） |
 | `switchport mode access` を設定したはずなのに動作が不安定 | 実際には dynamic auto/desirable のまま残っている（DTP による意図しないネゴシエーション） |
 | 同一 VLAN 内なのに ping が通らない | 端末側の IP アドレス・サブネットマスクが VLAN のサブネットと一致していない |
 
@@ -325,6 +369,8 @@ L3 機器によるルーティングを別途構成する必要があります�
 障害切り分けの基本的な考え方は次の順序です。
 
 1. `show vlan brief` で、対象ポートが期待する VLAN に入っているか確認する
+   （どの VLAN 行にも見当たらない場合は、`show interfaces status` でそのポートが
+   `inactive` になっていないかを確認する）
 2. `show interfaces <IF> switchport` で、モードが access になっているか、
    アクセス VLAN の番号が正しいか確認する
 3. 端末側の IP アドレス・サブネットマスクが、その VLAN に割り当てたサブネットと
@@ -333,11 +379,13 @@ L3 機器によるルーティングを別途構成する必要があります�
    期待値を見直す
 
 > **試験のポイント**: `show vlan brief` の出力を見せて「どのポートがどの VLAN に
-> 所属しているか」「なぜこのポートが inactive なのか」を問う問題が頻出です。
-> inactive の代表的な原因は、**割り当て済みの VLAN を `no vlan` で削除したこと**
-> です（VLAN が suspend/shutdown 状態の場合も同様に inactive になります）。
+> 所属しているか」を問う問題や、「なぜこのポートが `inactive` なのか」を問う問題が
+> 頻出です。`inactive` の代表的な原因は、**割り当て済みの VLAN を `no vlan` で
+> 削除したこと**です（VLAN が `suspended` / `act/lshut` の場合も通信できません）。
+> 出力の読み分けも狙われます。**削除された VLAN は `show vlan brief` から行ごと
+> 消え、ポートが `inactive` と表示されるのは `show interfaces status`** です。
 > 存在しない VLAN 番号をアクセスポートに割り当てた場合は、第 4 節のとおり IOS が
-> 自動的に VLAN を作成するため inactive にはならない点に注意してください。
+> 自動的に VLAN を作成するため `inactive` にはならない点にも注意してください。
 
 ## まとめ
 
@@ -349,8 +397,9 @@ L3 機器によるルーティングを別途構成する必要があります�
   `running-config` とは別管理
 - アクセスポートには `switchport mode access` → `switchport access vlan <ID>`
   の順で設定する。データ VLAN は 1 ポートにつき 1 つのみ
-- `show vlan brief` を中心とした確認コマンドで、ポートの所属や inactive の原因を
-  切り分けられるようにする
+- `show vlan brief` を中心とした確認コマンドで、ポートの所属や通信できない原因を
+  切り分けられるようにする。割り当て済みの VLAN を削除すると、その VLAN 行は
+  `show vlan brief` から消え、ポートは `show interfaces status` で `inactive` になる
 
 ---
 
@@ -375,7 +424,7 @@ L3 機器によるルーティングを別途構成する必要があります�
 
 ## 次のステップ
 
-本日のラボ課題「[Exercise06] ラボ: 1 台のスイッチに 2 つの VLAN を構成し、
+この Exercise のラボ課題「[Exercise06] ラボ: 1 台のスイッチに 2 つの VLAN を構成し、
 ブロードキャストドメインの分離を検証する」に進み、講義で学んだ VLAN の作成・
 アクセスポートへの割り当て・`show vlan brief` による確認を、Packet Tracer 上で
 実際に手を動かして確認してください。

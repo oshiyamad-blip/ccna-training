@@ -1,7 +1,7 @@
 # Exercise 13 小テスト: OSPF 応用と FHRP
 
 > 運用: 設問部分を小テスト課題の本文（またはドキュメント）に掲載。
-> 「解答・解説」は講師用フォルダに保管し、**翌日 9:00** に受講者へ公開する。
+> 「解答・解説」は講師用フォルダに保管し、**次の Exercise の開始時**に受講者へ公開する。
 > ルール: 10 問 / 30 分 / 教材参照なし。解答はコメントに「Q1: A」形式で提出。
 > 配点: 各 10 点（合計 100 点）。
 
@@ -19,12 +19,12 @@
 
 **Q2.** OSPF のネイバー状態遷移として正しい順序はどれか。
 
-- A. Down→2-Way→Init→Exstart→Exchange→Loading→Full
-- B. Down→Init→Exstart→2-Way→Exchange→Loading→Full
-- C. Down→Init→2-Way→Exstart→Exchange→Loading→Full
-- D. Down→Init→2-Way→Exchange→Exstart→Loading→Full
+- A. Down→2-Way→Init→ExStart→Exchange→Loading→Full
+- B. Down→Init→ExStart→2-Way→Exchange→Loading→Full
+- C. Down→Init→2-Way→ExStart→Exchange→Loading→Full
+- D. Down→Init→2-Way→Exchange→ExStart→Loading→Full
 
-**Q3.** OSPF ネイバーが Exstart または Exchange の状態で停滞している場合、
+**Q3.** OSPF ネイバーが ExStart または Exchange の状態で停滞している場合、
 最も疑うべき原因はどれか。
 
 - A. Hello / Dead タイマー不一致
@@ -70,7 +70,7 @@
 **Q8.** HSRP・VRRP・GLBP の説明として正しいものはどれか。
 
 - A. HSRP は業界標準プロトコルであり、複数ベンダ環境で利用できる
-- B. VRRP はシスコ独自プロトコルであり、Active / Standby で動作する
+- B. VRRP は Cisco 独自プロトコルであり、Active / Standby で動作する
 - C. GLBP は複数のルータが同時にトラフィックを転送する負荷分散が可能である
 - D. HSRP・VRRP・GLBP はいずれもプリエンプトが既定で有効である
 
@@ -92,18 +92,18 @@
 
 ---
 
-## 解答・解説（翌日公開・講師用）
+## 解答・解説（次の Exercise の開始時に公開・講師用）
 
 | 問 | 解答 | 解説 |
 |---|---|---|
 | Q1 | A | エリア ID と Hello/Dead タイマーは一致が必須。Router ID は一致条件ではなく、ドメイン内での一意性が必須。MTU も一致が必要だが、選択肢の組み合わせとしては A が正しい |
-| Q2 | C | Down→Init→2-Way→Exstart→Exchange→Loading→Full の順。2-Way は双方向疎通の確認、Exstart は DBD 交換の主従関係決定、Full で LSDB 同期完了 |
-| Q3 | D | MTU 不一致は DBD 交換を完了できず、Exstart または Exchange で停滞する典型原因。Hello/Dead タイマー不一致は、設定が一致しない Hello が相手に破棄されるためネイバーがそもそも成立しない（現れない）原因であり、Init 停滞とは異なる |
+| Q2 | C | Down→Init→2-Way→ExStart→Exchange→Loading→Full の順。2-Way は双方向疎通の確認、ExStart は DBD 交換の主従関係決定、Full で LSDB 同期完了 |
+| Q3 | D | MTU 不一致は DBD 交換を完了できず、ExStart または Exchange で停滞する典型原因。Hello/Dead タイマー不一致は、設定が一致しない Hello が相手に破棄されるためネイバーがそもそも成立しない（現れない）原因であり、Init 停滞とは異なる |
 | Q4 | B | Hello/Dead タイマー不一致は Hello パケットが相手に破棄されるため、ネイバーがそもそも成立しない（現れない）典型原因。ブロードキャスト/P2P の既定値は Hello 10 秒・Dead 40 秒（NBMA は Hello 30 秒・Dead 120 秒） |
 | Q5 | A | `show ip protocols` で `network` 文の対象ネットワークと Passive Interface の一覧を確認でき、`show ip ospf interface brief` でインターフェースが OSPF プロセスに参加しているかを確認できる |
 | Q6 | D | `always` キーワードを付けると、自身にデフォルトルートが存在しなくても常に広告する。`always` なしの `default-information originate` は自身にデフォルトルートが存在する場合のみ広告する |
 | Q7 | B | FHRP は複数ルータで仮想 IP / 仮想 MAC を共有し、デフォルトゲートウェイの単一障害点（Single Point of Failure）を排除する仕組み |
-| Q8 | C | GLBP は AVG（Active Virtual Gateway）が複数の AVF（Active Virtual Forwarder）に負荷を分散させ、複数台のルータが同時に転送できる点が HSRP・VRRP と異なる。HSRP・GLBP はシスコ独自、VRRP が業界標準（RFC 5798）で、HSRP のプリエンプトは既定で無効 |
+| Q8 | C | GLBP は AVG（Active Virtual Gateway）が複数の AVF（Active Virtual Forwarder）に負荷を分散させ、複数台のルータが同時に転送できる点が HSRP・VRRP と異なる。HSRP・GLBP は Cisco 独自、VRRP が業界標準（RFC 5798）で、HSRP のプリエンプトは既定で無効 |
 | Q9 | A | HSRP のプライオリティ既定値は 100（範囲 0〜255）。値が高いルータが Active になり、同値の場合は IP アドレスが大きい方が優先される |
 | Q10 | B | HSRP v1 の仮想 MAC アドレスは `0000.0C07.ACXX`（XX はグループ番号を 16 進数 2 桁で表したもの）。グループ番号 10 は 16 進で `0A` になるため `0000.0C07.AC0A`。A は 10 進の「10」をそのまま置いた誤り、C は HSRP v2 の形式（`0000.0C9F.FXXX`）との混同、D は VRRP の仮想 MAC 形式（`0000.5E00.01XX`）との混同 |
-**採点**: 各 10 点（合計 100 点）。70 点未満は翌朝再テスト。
+**採点**: 各 10 点（合計 100 点）。70 点未満は次の Exercise の冒頭で再テスト。

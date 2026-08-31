@@ -2,7 +2,7 @@
 
 - **対象ラボ**: `materials/lesson1/exercise05-lab.md`（MAC アドレステーブルと ARP の観察、デュプレックス不一致の障害切り分け）
 - **作り込みレベル**: **A（配線済み・IP済み）** — 機器配置・全ケーブル・PC の IP 設定まで済ませ、SW1/SW2 は
-  ホスト名すら設定していない初期状態（`Switch>` のまま）で保存する。本日のテーマ（MAC/ARP 観察、
+  ホスト名すら設定していない初期状態（`Switch>` のまま）で保存する。この Exercise のテーマ（MAC/ARP 観察、
   duplex/speed 障害切り分け）はすべて受講者が行う。
 - **保存ファイル名**: `exercise05_start.pkt`
 

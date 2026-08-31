@@ -5,7 +5,7 @@
 
 ## ゴール
 
-これまで 19 日間で学んだ技術をすべて 1 つのネットワークに統合し、次の
+Exercise 1 から 19 までで学んだ技術をすべて 1 つのネットワークに統合し、次の
 **6 つの要件**をすべて満たす小規模企業ネットワークをゼロから構築します。
 
 1. 2 つの業務 VLAN（営業・経理）が、**HSRP で冗長化された既定ゲートウェイ**
@@ -282,9 +282,9 @@ R1(config-router)# exit
 ## 手順 7: DHCP サーバの構成と PC の設定（15 分）
 
 R1・R2 の両方を DHCP サーバとして構成し、冗長化します。ただし DHCP は
-サーバ間でリース情報を共有しないため、両ルータに**同一の配布範囲**を
-設定すると、それぞれが独立に空き先頭アドレスから払い出してしまい、
-同一 IP アドレスが 2 台の PC に重複割当されるおそれがあります。これを
+サーバ間でリース情報を共有しません。そのため両ルータに**同一の配布範囲**を
+設定すると、それぞれが独立に空き先頭アドレスから払い出してしまいます。
+その結果、同一 IP アドレスが 2 台の PC に重複割当されるおそれがあります。これを
 避けるため、配布範囲を上位/下位で分割する**スプリットスコープ**を
 採用します。R1 が `.4`〜`.128` を、R2 が `.129`〜`.254` を担当するように
 `excluded-address` を非対称に設定してください（`default-router` には
@@ -366,27 +366,41 @@ R1(config)# access-list 1 permit 192.168.0.0 0.0.255.255
 R1(config)# ip nat inside source list 1 interface GigabitEthernet0/2 overload
 ```
 
-## 手順 9: 拡張 ACL による経理 VLAN の制限（15 分・本日のメイン）
+## 手順 9: 拡張 ACL による経理 VLAN の制限（15 分・この Exercise のメイン）
 
-> ここが本日の山場です。ACL の書き方自体はこれまでの復習ですが、HSRP の
-> 冗長構成と組み合わさることで「なぜ同じ ACL を R1・R2 の 2 台に設定する
+> **ここがこの Exercise の山場です。** ACL の書き方自体はこれまでの復習ですが、
+> HSRP の冗長構成と組み合わさることで「なぜ同じ ACL を R1・R2 の 2 台に設定する
 > 必要があるのか」を考える必要があります。焦らず、時間をかけて構いません。
 
 経理 VLAN（VLAN20）からサーバへの通信を **HTTP のみ**に制限する名前付き
 拡張 ACL を作成します。拡張 ACL は「送信元にできるだけ近いインターフェース」
 に適用する原則に従い、R1 の Gi0/0.20（経理 VLAN の入口）に適用します。
-1 行目の `permit udp ... eq 67` は、経理 VLAN の DHCP DISCOVER/REQUEST
-（ブロードキャスト、宛先 UDP67）が ACL によって遮断され、リースの取得・
-更新に失敗することを防ぐためのものです。2 行目の `permit udp any host
-224.0.0.2 eq 1985` は HSRP（v1）のハローパケット（宛先マルチキャスト
-224.0.0.2 / UDP1985）を許可するためのものです。この Gi0/0.20 は R1・R2
-間で HSRP group 20 を張っており、末尾の `deny ip any any` が相手ルータの
-ハローまで落とすと両系が Active になって仮想 IP/MAC が重複するため、
-明示的に許可しておく必要があります。
+1 行目と 2 行目は DHCP のための許可です。DHCP は取得時と更新時で宛先が
+変わるため、2 行に分けて許可します。
+
+- 1 行目 `permit udp any host 255.255.255.255 eq 67`: アドレスをまだ持って
+  いない PC が送る DISCOVER と、その直後の REQUEST を許可します。これらは
+  送信元 0.0.0.0 / 宛先 255.255.255.255 の**ブロードキャスト**です。
+- 2 行目 `permit udp 192.168.20.0 0.0.0.255 any eq 67`: リース期間の半分
+  （T1）を過ぎた PC が送る**更新（renew）の REQUEST** を許可します。更新の
+  REQUEST は、すでに持っているアドレスを送信元として、リースをくれた DHCP
+  サーバ（ここでは R1 の 192.168.20.2、または R2 の 192.168.20.3）宛の
+  **ユニキャスト**で送られます。1 行目のブロードキャスト許可だけでは
+  この更新が末尾の `deny ip any any` に当たって落ちます。実際にはリース期間の
+  87.5%（T2）を過ぎるとブロードキャストでの再要求（REBINDING）に切り替わるため
+  最終的にはアドレスを維持できますが、更新が一度失敗して余計な待ち時間が発生する
+  ため、この 1 行で正常に更新できるようにしておきます。
+
+3 行目の `permit udp any host 224.0.0.2 eq 1985` は HSRP（v1）のハロー
+パケット（宛先マルチキャスト 224.0.0.2 / UDP1985）を許可するためのものです。
+この Gi0/0.20 は R1・R2 間で HSRP group 20 を張っています。末尾の
+`deny ip any any` が相手ルータのハローまで落とすと、両系が Active になって
+仮想 IP/MAC が重複します。そのため明示的に許可しておく必要があります。
 
 ```
 R1(config)# ip access-list extended KEIRI-TO-SRV
 R1(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
+R1(config-ext-nacl)# permit udp 192.168.20.0 0.0.0.255 any eq 67
 R1(config-ext-nacl)# permit udp any host 224.0.0.2 eq 1985
 R1(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R1(config-ext-nacl)# deny ip any any log
@@ -399,15 +413,16 @@ R1(config-subif)# exit
 `deny ip any any log` は暗黙の deny と同じ効果ですが、明示的に書くことで
 `show access-lists` のヒットカウンタから拒否された通信を後で確認できます。
 
-この設定は R1 が HSRP Active のときには要件4（経理 VLAN は HTTP のみ許可）
-を満たしますが、DHCP は R1・R2 の両系で冗長化している一方 ACL は R1 側にしか
-無いため、HSRP フェイルオーバーで R2 が Active になった間は経理 VLAN の
-通信が無制限に R2 経由で通ってしまいます。冗長構成でも要件4を維持するため、
-同一 ACL を R2 の Gi0/0.20 にも適用してください。
+この設定は、R1 が HSRP Active のときには要件4（経理 VLAN は HTTP のみ許可）
+を満たします。しかし ACL は R1 側にしかありません。そのため HSRP フェイル
+オーバーで R2 が Active になっている間は、経理 VLAN の通信が無制限に R2 経由で
+通ってしまいます。冗長構成でも要件4を維持するため、同一 ACL を R2 の
+Gi0/0.20 にも適用してください。
 
 ```
 R2(config)# ip access-list extended KEIRI-TO-SRV
 R2(config-ext-nacl)# permit udp any host 255.255.255.255 eq 67
+R2(config-ext-nacl)# permit udp 192.168.20.0 0.0.0.255 any eq 67
 R2(config-ext-nacl)# permit udp any host 224.0.0.2 eq 1985
 R2(config-ext-nacl)# permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
 R2(config-ext-nacl)# deny ip any any log
@@ -565,7 +580,8 @@ R2# copy running-config startup-config
 | インターネットへの ping が全て失敗する（営業 VLAN も） | R1 の `ip route 0.0.0.0 0.0.0.0 203.0.113.2`、`ip nat inside`/`outside` の付け忘れ、`access-list 1` の範囲誤り |
 | 経理 VLAN から HTTP も失敗する | ACL の記述順序、`eq 80` の誤記、ACL の適用インターフェース（R1・R2 双方の Gi0/0.20）・方向（in）の誤り |
 | 経理 VLAN が DHCP でアドレスを取得できない（ACL 適用後） | ACL 先頭の `permit udp any host 255.255.255.255 eq 67` の記述漏れ（DHCP DISCOVER/REQUEST が deny されている） |
-| PC がリンクダウンしてしまう | ポートセキュリティの `maximum` を超える MAC アドレスが学習されていないか（`violation shutdown` により errdisable 状態になっている可能性） |
+| 経理 VLAN のアドレス更新が一度失敗する（ACL 適用後） | 更新（renew）用の `permit udp 192.168.20.0 0.0.0.255 any eq 67` の記述漏れ。T1 の更新はサーバ宛ユニキャストのため、ブロードキャストの許可だけでは通らない（T2 のブロードキャスト再要求で復帰はする） |
+| PC がリンクダウンしてしまう | ポートセキュリティの `maximum` を超える MAC アドレスが学習されていないか（`violation shutdown` により err-disabled 状態になっている可能性） |
 | SSH で接続できない | `crypto key generate rsa` の未実行、`transport input ssh` の設定漏れ、`login local` の設定漏れ、`ip domain-name` の未設定 |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を

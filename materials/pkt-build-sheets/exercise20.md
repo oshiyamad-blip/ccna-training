@@ -75,7 +75,7 @@ Server のみ静的 IP とし、模擬インターネット側のゴール（`pi
 
 R1・R2・R-ISP・SW1・SW2 のすべてが、`hostname` すら設定していない Packet Tracer の工場出荷
 コンフィグのまま。exercise20 は総合演習であり、VLAN/トランク/Router-on-a-Stick/HSRP/OSPF/DHCP/
-NAT/拡張ACL/SSH/ポートセキュリティの**すべて**が本日の学習対象（ラボ手順1〜11）のため、
+NAT/拡張ACL/SSH/ポートセキュリティの**すべて**がこの Exercise の学習対象（ラボ手順1〜11）のため、
 IOS 設定は一切投入しない。開始ファイルに投入するのは「1. 機器リスト」の配置と「2. 結線表」の
 配線、「3. PC/サーバ設定」の値のみ。
 
@@ -243,6 +243,7 @@ access-list 1 permit 192.168.0.0 0.0.255.255
 ip nat inside source list 1 interface GigabitEthernet0/2 overload
 ip access-list extended KEIRI-TO-SRV
  permit udp any host 255.255.255.255 eq 67
+ permit udp 192.168.20.0 0.0.0.255 any eq 67
  permit udp any host 224.0.0.2 eq 1985
  permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
  deny ip any any log
@@ -315,6 +316,7 @@ ip dhcp pool VLAN20-KEIRI
  exit
 ip access-list extended KEIRI-TO-SRV
  permit udp any host 255.255.255.255 eq 67
+ permit udp 192.168.20.0 0.0.0.255 any eq 67
  permit udp any host 224.0.0.2 eq 1985
  permit tcp 192.168.20.0 0.0.0.255 host 198.51.100.8 eq 80
  deny ip any any log

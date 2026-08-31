@@ -72,6 +72,7 @@ interface GigabitEthernet0/0
 ip domain-name lab19.local
 crypto key generate rsa
 1024
+ip ssh version 2
 username admin secret Admin12345
 line vty 0 4
  login local
@@ -81,7 +82,9 @@ end
 write memory
 ```
 
-- `crypto key generate rsa` 実行後にキー長を聞かれたら **1024** を入力する
+- `crypto key generate rsa` 実行後にキー長（モジュラス）を聞かれたら **1024** を入力する
+  （SSHv2 を有効にするには 768 ビット以上が必要で、512 のままでは `ip ssh version 2` が
+  受け付けられません）
 - PC3（管理端末）から SSH で RT1 に接続できることを確認する
 
 ```
@@ -233,9 +236,10 @@ write memory
 1. 配布された機器情報 JSON のうち、`SW1` の `interfaces` 配列に含まれる
    インターフェースは何個で、それぞれの `status` キーの値は何だったか。JSON の
    該当箇所を引用して答えよ。
-2. 存在しない URL にアクセスしたとき返ってきたステータスコードは何番で、
-   どの分類（2xx/4xx/5xx）に属するか。また、認証が必要なリソースに
-   未認証でアクセスした場合は何番が返ったか。
+2. 存在しない URL にアクセスしたときに表示されたステータスコードは何番で、
+   どの分類（2xx/4xx/5xx）に属するか。また、認証が必要なリソースに未認証で
+   アクセスしたときの画面は、REST のステータスコードでは何番に相当するか
+   （Packet Tracer には数値では表示されないため、概念としての対応を答える）。
 3. 今回 GET で情報を取得し、POST 相当でデバイスを登録した。この REST 通信が
    成立するために事前に必要だったレイヤ2/レイヤ3の条件は何か、ping・tracert・
    arp の結果を根拠に説明せよ。

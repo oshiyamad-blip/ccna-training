@@ -1,7 +1,7 @@
 # Exercise 2 小テスト: Cisco IOS の基本操作とデバイス初期設定
 
 > 運用: 設問部分を小テスト課題の本文（またはドキュメント）に掲載。
-> 「解答・解説」は講師用フォルダに保管し、**翌日 9:00** に受講者へ公開する。
+> 「解答・解説」は講師用フォルダに保管し、**次の Exercise の開始時**に受講者へ公開する。
 > ルール: 10 問 / 30 分 / 教材参照なし。解答はコメントに「Q1: A」形式で提出。
 
 ---
@@ -11,7 +11,7 @@
 **Q1.** IOS のプロンプトが `Switch(config-if)#` と表示されているとき、現在のモード
 として正しいものはどれか。
 
-- A. インタフェースのサブ設定モード
+- A. インターフェースのサブ設定モード
 - B. 特権 EXEC モード
 - C. グローバル設定モード
 - D. ユーザ EXEC モード
@@ -41,7 +41,7 @@
 
 **Q5.** スイッチに管理用 IP アドレスを設定する場所として正しいものはどれか。
 
-- A. VLAN インタフェース（SVI。例: `interface vlan 1`）
+- A. VLAN インターフェース（SVI。例: `interface vlan 1`）
 - B. 任意のアクセスポート（例: `FastEthernet0/1`）
 - C. AUX ポート
 - D. `line vty 0 4`
@@ -72,7 +72,7 @@
 **Q9.** SW1 の管理 IP への `ping` は成功するが、SSH だけ接続できない
 （Connection refused 等）。最も可能性の高い原因はどれか。
 
-- A. インタフェースに `no shutdown` を実行していない
+- A. インターフェースに `no shutdown` を実行していない
 - B. `crypto key generate rsa` を実行しておらず、RSA 鍵ペアが生成されていない
 - C. デフォルトゲートウェイが未設定である
 - D. ケーブル種別（ストレート/クロス）を間違えている
@@ -83,19 +83,19 @@
 
 ---
 
-## 解答・解説（翌日公開・講師用）
+## 解答・解説（次の Exercise の開始時に公開・講師用）
 
 | 問 | 解答 | 解説 |
 |---|---|---|
-| Q1 | A | `(config-if)#` はインタフェースのサブ設定モードのプロンプト。`#` だけなら特権EXEC、`(config)#` はグローバル設定モード |
+| Q1 | A | `(config-if)#` はインターフェースのサブ設定モードのプロンプト。`#` だけなら特権EXEC、`(config)#` はグローバル設定モード |
 | Q2 | A | `configure terminal`（省略形 `conf t`）は特権EXEC→グローバル設定モードへの遷移コマンド。`end`（Ctrl+Z）はどのサブモードからでも特権EXECまで一気に戻るため、config-ifからendするとRouter#になりBは誤り。特権EXECでの`exit`はユーザEXECに戻らずセッションそのものを終了するためCは誤り。`disable`は特権EXEC→ユーザEXECの遷移コマンドでグローバル設定モードからは使えないためDも誤り |
 | Q3 | C | `enable secret` はMD5相当のハッシュで保存され、`enable password`（平文）と両方設定されていれば `enable secret` が優先される |
 | Q4 | D | SSH有効化には hostname・ip domain-name・RSA鍵生成・ローカルユーザ・`transport input ssh` がすべて必要 |
 | Q5 | A | L2スイッチは物理ポートにIPを持たず、SVI（`interface vlan`）に管理IPを設定する |
-| Q6 | B | running-configはRAM上の現在の稼働設定で揮発性。startup-configはNVRAM上で不揮発性。保存コマンドは source→destination の順で `copy running-config startup-config` が正しく、Aはこれの逆方向（`copy startup-config running-config`）で、直前の未保存の変更を破棄してしまうため誤り |
+| Q6 | B | running-configはRAM上の現在の稼働設定で揮発性。startup-configはNVRAM上で不揮発性。`copy` は source→destination の順に書くため、保存は `copy running-config startup-config` が正しい。Aはこれと向きが逆で、NVRAMの内容をRAMへ読み込む動作であり、実行中の設定はNVRAMに保存されないため誤り。なおこの向きの `copy` はrunning-configを置き換えるのではなく**マージ**（既存の設定に上書き追加）する動作で、未保存の変更が消えるわけではない（パスワード回復手順で保存済み設定を残したまま読み込めるのはこのため） |
 | Q7 | C | コンソール接続のデフォルトは9600bps・8-N-1（データ8・パリティなし・ストップ1）・フロー制御なし |
 | Q8 | D | `transport input ssh` を設定するとVTYで許可される接続プロトコルがSSHのみになり、Telnetは拒否される |
-| Q9 | B | pingが成功している時点でL1〜L3（ケーブル・IP到達性）は問題ない。SSH固有の前提はhostname→ip domain-name→`crypto key generate rsa`→ローカルユーザ→VTYの`login local`/`transport input ssh`で、どれかが欠けるとSSHのみ失敗する。RSA鍵未生成は代表的な原因。A・Dはインタフェースがdown/リンク不良になりping自体を失敗させる原因なので、pingが成功している本問には当てはまらない。Cのデフォルトゲートウェイは、管理元が別サブネットにある場合の戻り通信にのみ関係し、同一サブネット内のping可否やSSHサービスの起動可否とは無関係のため原因にならない |
+| Q9 | B | pingが成功している時点でL1〜L3（ケーブル・IP到達性）は問題ない。SSH固有の前提はhostname→ip domain-name→`crypto key generate rsa`→ローカルユーザ→VTYの`login local`/`transport input ssh`で、どれかが欠けるとSSHのみ失敗する。RSA鍵未生成は代表的な原因。A・Dはインターフェースがdown/リンク不良になりping自体を失敗させる原因なので、pingが成功している本問には当てはまらない。Cのデフォルトゲートウェイは、管理元が別サブネットにある場合の戻り通信にのみ関係し、同一サブネット内のping可否やSSHサービスの起動可否とは無関係のため原因にならない |
 | Q10 | 例 | 「`enable secret <pw>` で特権EXECパスワードをハッシュ保存する。`service password-encryption` で残る平文パスワード（enable passwordやline password）をType7で隠す。VTYは `line vty 0 4` → `transport input ssh` → `login local` でSSH接続のみ許可し、Telnetを排除する」等、3要素すべてに触れ、目的（ハッシュ化・平文の隠蔽・暗号化された接続への限定）を説明できていれば正解 |
 
-**採点**: 1 問 10 点、70 点未満は翌朝再テスト。Q10 は趣旨が合っていれば 10 点。
+**採点**: 1 問 10 点、70 点未満は次の Exercise の冒頭で再テスト。Q10 は趣旨が合っていれば 10 点。
