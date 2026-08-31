@@ -19,6 +19,19 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { DAYS } from './curriculum-data.mjs'
+
+// ページ名にテーマを含める（レビュー 2026-08: 「開くまで内容が分からない」対策）。
+// テーマ内の「/」は Wiki の階層区切りになってしまうため全角「／」へ無害化する。
+const sanitizeTitle = (s) => s.replaceAll('/', '／')
+const DAY_THEME = new Map(DAYS.map((d) => [String(d.day).padStart(2, '0'), d.theme]))
+const P_THEME = {
+  1: 'コンピュータの基礎',
+  2: '数の基礎（2進数・16進数・単位）',
+  3: 'インターネットの基礎',
+  4: '仕事のIT基礎（Backlog・Markdown・セキュリティ）',
+  5: 'ネットワークに触れる',
+}
 
 const args = process.argv.slice(2)
 function argValue(name) {
@@ -239,8 +252,10 @@ async function collectPages() {
       const raw = await readFile(join(mdDir, f), 'utf8')
       const images = extractImages(raw, mdDir)
       const weekLabel = week.replace('lesson', 'LESSON')
+      const theme = dm ? DAY_THEME.get(m[1]) : P_THEME[Number(m[1])]
+      const title = `${itemPrefix} ${KIND_LABEL[kind]}${theme ? `: ${sanitizeTitle(theme)}` : ''}`
       pages.push({
-        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${itemPrefix} ${KIND_LABEL[kind]}`,
+        name: `CCNA研修/${KIND_FOLDER[kind]}/${weekLabel}/${title}`,
         content: normalizeForBacklog(rewriteImageRefs(raw, images)),
         images,
       })

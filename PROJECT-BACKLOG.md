@@ -70,6 +70,7 @@ Backlog スペースの認証情報）が必要な 2 件のみです。
 | DEV-26 | 模試の本試験類似度＋教材対応度分析 | 500問分類。ドメイン配点は本試験と完全一致。暗記天井は平均73%（満点不可）。教材の穴8箇所・模試のSim欠落/非等価フォームを特定 |
 | DEV-27 | 継続率・合格率の施策とKPIを運用に実装 | `10-retention-and-pass-rate.md`（KPI＋施策A1〜A6/B1〜B5）新設。種別「運営」と運営課題7件＋本試験オリエン(B1)・前日リハ(B5)を投入スクリプトに追加（`--skip-ops`）。05離脱シグナル・07オリエン/前日リハ・01 LESSON3山場・04早期勝利/復帰・06ピア・週次振り返りにFeynman欄を反映 |
 | DEV-28 | 外部レビュー（2026-08 中村）対応 | フォルダ再編（ガイダンス整理・07_試験対策新設・Exercise00/PTマニュアルをLESSON0へ）、Exercise1章構成再編＋機器/プロトコル/Spine-Leaf図強化、Exercise2区切り動線、Exercise3クラスA統一・グローバルアドレス定義・プレフィックス注記、Exercise4 DHCP/DNS導入、Exercise5仮想化拡充（方式3分類・クラウド形態・IaaS/PaaS/SaaS）、週次振り返り選択式化。Exercise組み替え系は実データ確認後に判断（`reports/material-review-response-2026-08.md`） |
+| DEV-29 | 第2回外部レビュー（2026-08-26）対応 | 新規指摘のみ反映: Exercise13 VRRP/GLBP掘り下げ+EIGRP言及、Exercise14 NAT用語の2軸表、Exercise15 3部区切り+QoS拡充（DSCP値・WLC QoSプロファイル）、Exercise16 認証5要素+FW/IPS小節、Exercise18 WAN背景知識+Exercise16との流れ、Exercise5 IEEE 802.3導入、Wikiページ名にテーマ付与（検索性）。組み替え系はIMP-5へ統合（`reports/material-review-response-2026-08.md` 後半） |
 
 ## レポート
 

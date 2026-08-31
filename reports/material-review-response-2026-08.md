@@ -74,3 +74,44 @@ v2 改訂として組み替えの要否を判断する。それまでの橋渡�
 - 構成: `scripts/upload-wiki.mjs`（GUIDANCE_FILES）・`02-backlog-design.md` §6・`04-guidance.md`・`STRUCTURE.md`・各教材の配置先注記
 - 教材: `materials/lesson1/exercise01〜05-lecture.md`・`materials/images/exercise01-spineleaf.*`・`materials/templates/weekly-retro.md`・`01-curriculum.md`
 - 表記統一: exercise03/exercise04/exercise14/exercise20 lecture・exercise03-quiz（クラスA）
+
+---
+
+# 第2回レビュー対応（2026-08-26・6 ページ版）
+
+第2回レビューの 1〜4 ページは第1回（上記）と同一指摘のため対応済み。**5〜6 ページの
+新規指摘**への対応は以下のとおり。
+
+## LESSON3
+
+| 指摘 | 対応 |
+|---|---|
+| LESSON3全体・Exercise11: LESSON3（IPv4系）→LESSON2 の順の方が理解しやすいのでは | 📋 Exercise 組み替え検討（IMP-5）に統合。初回コホートの実データで判断 |
+| Exercise12/13: VRRP・GLBP をもう少し掘り下げる（GLBP は Cisco 独自） | ✅ Exercise13 §4 を拡充: VRRP（マスタ/バックアップ・プリエンプト既定有効・224.0.0.18・仮想MAC）、GLBP（AVG/AVF・3 つの負荷分散方式・複数台同時転送） |
+| Exercise13 関連で EIGRP に触れてもよい | ✅ 関連知識として短く言及（Cisco 開発・AD 90・DUAL・仕様公開済み。出題中心は OSPF） |
+| Exercise14: 内部/外部×ローカル/グローバルの説明がややこしい | ✅ レビュアー提供の整理に合わせ「誰のアドレスか × どこで通用するか」の 2 軸表＋覚え方を追加 |
+| Exercise15: ジャンル違いの詰め込み。DHCP/DNS/NTP と SNMP/Syslog/SSH… で区切る | ✅ 章構成は保ったまま「第1部=土台サービス／第2部=運用管理／第3部=QoS」の橋渡しを挿入 |
+| Exercise15: QoS は別途丁寧に。DSCP 値・WLC の QoS 操作も | ✅ §6 を拡充: CoS/DSCP 対比、代表 DSCP 値（EF=46 ほか）、信頼境界、WLC の QoS プロファイル（Platinum/Gold/Silver/Bronze） |
+
+## LESSON4
+
+| 指摘 | 対応 |
+|---|---|
+| Exercise16: 認証要素に「場所」「行動」を追加（3→5 要素） | ✅ 3 要素の表に補足として追加（試験は 3 要素中心と明記） |
+| Exercise16: ファイアウォール・IPS・DAI・RSA 鍵も扱っていた | ✅ FW（ステートフル/次世代）・IPS/IDS の小節を追加。DAI は Exercise18 §4、RSA 鍵認証は Exercise16 に既存 |
+| Exercise17: ACL は Exercise11〜13 と関連づけて学習した | 📋 Exercise 組み替え検討（IMP-5）に統合 |
+| Exercise18: Exercise16 と重なる内容があり一連の流れで | ✅ 冒頭に「Exercise16 の続編（概念→L2 実装→VPN）」の位置づけを明示 |
+| Exercise19: REST API・JSON/XML/YAML は概要を掴んでおくと良い | ✅ 既存で対応済み（XML/YAML 含む比較を Exercise19 で扱っている） |
+
+## その他（横断）
+
+| 指摘 | 対応 |
+|---|---|
+| 「LANテクノロジー」（IEEE・Ethernet・UTP/光ファイバ）が薄い | ✅ Exercise5 §4 に IEEE 802.3／規格名の読み方（1000BASE-T 等）の導入を追加。UTP カテゴリ表・光ファイバ（SM/MM）は既存 |
+| CDP/LLDP の説明があまりされていない | ✅ 既存で対応済み（Exercise10 §5 に本節あり・初出箇所には一行ガイド付き）。レビュー時点の版には未反映だった可能性 |
+| 「WANテクノロジー」の扱いがない（専用線/回線交換/パケット交換、PSTN/ISDN/DSL/FTTH） | ✅ Exercise18 の VPN 直前に「WAN 接続の背景知識（読み物）」を追加し、VPN への導線に |
+| どの LESSON/Exercise が何の内容かページを開くまで分からない（検索性） | ✅ Wiki ページ名にテーマを付与（例:「Exercise05 講義: TCP／UDP・スイッチング動作・物理層」）。`upload-wiki.mjs` で自動付与 |
+| LESSON4 は最新の出題傾向を踏まえたアップデートが最重要 | 📋 半期ごとの教材改訂サイクル（`06` §6）の重点項目として記録 |
+
+> **Wiki 再投入時の注意**: ページ名の変更（LESSON/Exercise 化＋テーマ付与）により、旧名で
+> 投入済みのページとは別ページとして作成される。旧ページを削除してから再投入すること。
