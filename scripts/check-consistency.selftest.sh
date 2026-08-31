@@ -69,9 +69,12 @@ try "ビルドシートが存在しない手順を参照" \
 try "機種にないポートをビルドシートが指定" \
   "sed -i '0,/Gi0\/2/s//Gi0\/7/' materials/pkt-build-sheets/exercise05.md" \
   "は実在しない"
-try "手順書のチェックリストから Exercise が抜ける" \
-  "sed -i '/- \\[ \\] Exercise09 — start/d' materials/pkt-build-guide.md" \
-  "進捗チェックリストにない"
+try "手順書のチェックリストから開始ファイルが抜ける" \
+  "sed -i '/- \\[ \\] Exercise17 — start/d' materials/pkt-build-guide.md" \
+  "start 一覧が"
+try "開始ファイルなしのラボから配置手順が消える" \
+  "sed -i 's|^## 手順 1: トポロジの作成（15 分）|## 手順 1: （削除）|; s|^1. Packet Tracer を起動し、新規ファイルを開く||' materials/lesson3/exercise13-lab.md && sed -i '/配置/d;/ケーブル/d;/結線/d;/稲妻/d' materials/lesson3/exercise13-lab.md" \
+  "の手順がない"
 try "3桁インターフェース名の解説が消える" \
   "sed -i 's|^### インターフェース名の桁数が機種によって違う|### （削除された見出し）|' materials/lesson4/exercise17-lecture.md" \
   "の解説がない"

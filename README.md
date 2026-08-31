@@ -50,9 +50,11 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
 
 ### ラボ用 .pkt ファイルを作るとき
 
-ラボ演習には Packet Tracer の開始ファイルが必要です（初回のみの作業）。
-作り方は `materials/pkt-build-guide.md`（作成作業手順書）に従ってください。
-1 ファイルごとの設計図は `materials/pkt-build-sheets/exerciseNN.md` です。
+受講者は各ラボで、機器の配置と結線から自分でトポロジを組みます。
+開始ファイル（`.pkt`）を用意するのは、所要時間が枠に収まらない
+**Exercise10・17・20 の 3 回だけ**です。作り方は
+`materials/pkt-build-guide.md`（作成作業手順書）、1 ファイルごとの設計図は
+`materials/pkt-build-sheets/exerciseNN.md` にあります。
 
 ### 教材を編集したとき
 

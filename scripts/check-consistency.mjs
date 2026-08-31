@@ -372,15 +372,37 @@ await check('ビルドシートのポート名が機種の実在ポートと一�
   return bad
 })
 
-await check('.pkt 作成手順書のチェックリストが全 Exercise を網羅', async () => {
+// 2026-08 決定: 開始ファイル（_start.pkt）は原則作らず、受講者が毎回組む。
+// 例外は所要時間が枠に収まらない Exercise10・17・20 の 3 回のみ。
+const START_FILE_EXERCISES = [10, 17, 20]
+
+await check('.pkt 作成手順書のチェックリストが開始ファイル対象と一致', async () => {
   const guide = join(MATERIALS, 'pkt-build-guide.md')
   if (!(await exists(guide))) return ['materials/pkt-build-guide.md がない']
   const txt = await read(guide)
+  const listed = [...txt.matchAll(/- \[ \] Exercise(\d\d) — start/g)].map((m) => Number(m[1]))
+  const want = START_FILE_EXERCISES
+  return String(listed.sort((a, b) => a - b)) === String(want)
+    ? []
+    : [`手順書の start 一覧が ${listed.join('/')}（期待 ${want.join('/')}）`]
+})
+
+await check('開始ファイルを使わないラボは自力でトポロジを組める', async () => {
+  // 開始ファイルを配らない回は、ラボ本文に機器の配置と結線の手順が要る。
+  // これが無いと受講者は「機器が無い」状態から先へ進めない。
+  const place = /を ?\*?\*?\d+ ?台\*?\*? ?配置|配置する|配置し、|ワークスペースに|デバイスボックス/
+  const cable = /ケーブル|結線|接続ツール|稲妻/
   const bad = []
   for (const d of DAYS) {
-    if (!new RegExp(`- \\[ \\] Exercise${pad(d.day)}\\b`).test(txt)) {
-      bad.push(`Exercise${pad(d.day)} が進捗チェックリストにない`)
-    }
+    if (START_FILE_EXERCISES.includes(d.day)) continue
+    const p2 = join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lab.md`)
+    if (!(await exists(p2))) continue
+    const txt = await read(p2)
+    const steps = txt.includes('## 手順') ? txt.slice(txt.indexOf('## 手順')) : txt
+    const miss = []
+    if (!place.test(steps)) miss.push('機器の配置')
+    if (!cable.test(steps)) miss.push('結線')
+    if (miss.length) bad.push(`${rel(p2)}: ${miss.join('と')}の手順がない（開始ファイルも配らない回）`)
   }
   return bad
 })

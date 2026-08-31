@@ -41,9 +41,37 @@
 
 ---
 
-## 手順 1: R1 へのコンソール接続とモード遷移確認（5 分）
+## 手順 1: トポロジの作成（15 分）
 
-1. トポロジ画面で、Exercise 1 手順 1 と同じ要領で接続ツール（稲妻アイコン）→
+1. Packet Tracer を起動し、新規ファイルを開く
+2. 次の機器を配置し、置いた直後にそれぞれ名前を付ける
+   （機器をクリック → Config タブ → Display Name）
+
+   - Router **2911** × 1 → `R1`
+   - Switch **2960** × 2 → `SW1` / `SW2`
+   - PC × 2 → `PC1` / `PC2`
+   - PC × 1 → `Admin-PC`（管理端末として使います）
+
+3. 接続ツール（稲妻アイコン）で、次のとおり結線する
+
+   | 機器A・ポート | ケーブル | 機器B・ポート |
+   |---|---|---|
+   | R1 Gi0/0 | ストレート | SW1 Fa0/24 |
+   | SW1 Fa0/1 | ストレート | PC1 Fa0 |
+   | SW1 Fa0/2 | ストレート | Admin-PC Fa0 |
+   | SW1 Fa0/23 | **クロス** | SW2 Fa0/23 |
+   | SW2 Fa0/1 | ストレート | PC2 Fa0 |
+
+4. すべてのリンクが**緑**になるまで待つ
+   （スイッチが絡む区間は STP の収束に 30 秒ほどかかります）
+
+> スイッチ同士（SW1-SW2）だけは**クロスケーブル**です。自動選択でも繋がりますが、
+> 同種の機器同士はクロス、という原則をここで手を動かして確かめておいてください。
+
+---
+## 手順 2: R1 へのコンソール接続とモード遷移確認（5 分）
+
+1. トポロジ画面で、Exercise 1 手順 2 と同じ要領で接続ツール（稲妻アイコン）→
    **ロールオーバーケーブル**を選び、Admin-PC の **RS232** ポートと R1 の
    **Console** ポートを順にクリックしてケーブルをつなぐ
 2. Admin-PC をクリックし、[Desktop] → **Terminal** を開く（設定はデフォルトの
@@ -52,7 +80,7 @@
    変わることを確認する
 4. `configure terminal` を実行し、`Router(config)#` に変わることを確認する
 
-## 手順 2: R1 の基本設定（ホスト名・enable secret・バナー）（10 分）
+## 手順 3: R1 の基本設定（ホスト名・enable secret・バナー）（10 分）
 
 ```
 Router(config)# hostname R1
@@ -61,7 +89,7 @@ R1(config)# enable password cisco456
 R1(config)# banner motd #Authorized access only#
 ```
 
-## 手順 3: R1 のコンソール保護と管理 IP（15 分）
+## 手順 4: R1 のコンソール保護と管理 IP（15 分）
 
 ```
 R1(config)# line console 0
@@ -75,7 +103,7 @@ R1(config-if)# no shutdown
 R1(config-if)# exit
 ```
 
-## 手順 4: R1 の SSH 前提条件の設定（15 分）
+## 手順 5: R1 の SSH 前提条件の設定（15 分）
 
 ```
 R1(config)# ip domain-name example.local
@@ -95,7 +123,7 @@ R1(config)# ip ssh version 2
 R1(config)# username admin privilege 15 secret adminpw
 ```
 
-## 手順 5: R1 の VTY を SSH 限定に設定（5 分）
+## 手順 6: R1 の VTY を SSH 限定に設定（5 分）
 
 ```
 R1(config)# line vty 0 4
@@ -104,7 +132,7 @@ R1(config-line)# login local
 R1(config-line)# exit
 ```
 
-## 手順 6: R1 の保存と確認（10 分）
+## 手順 7: R1 の保存と確認（10 分）
 
 ```
 R1(config)# end
@@ -118,9 +146,9 @@ R1# show ip ssh
 R1# show ip interface brief
 ```
 
-## 手順 7: SW1 の基本設定（10 分）
+## 手順 8: SW1 の基本設定（10 分）
 
-Admin-PC のロールオーバーケーブルを SW1 の Console ポートへつなぎ替え、手順 2・3 と
+Admin-PC のロールオーバーケーブルを SW1 の Console ポートへつなぎ替え、手順 3・3 と
 同様に基本設定を行います。
 
 ```
@@ -135,7 +163,7 @@ SW1(config-line)# logging synchronous
 SW1(config-line)# exit
 ```
 
-## 手順 8: SW1 の管理 IP（SVI）とデフォルトゲートウェイ（10 分）
+## 手順 9: SW1 の管理 IP（SVI）とデフォルトゲートウェイ（10 分）
 
 ```
 SW1(config)# interface vlan 1
@@ -145,7 +173,7 @@ SW1(config-if)# exit
 SW1(config)# ip default-gateway 192.168.1.1
 ```
 
-## 手順 9: SW1 の SSH 有効化（10 分）
+## 手順 10: SW1 の SSH 有効化（10 分）
 
 ```
 SW1(config)# ip domain-name example.local
@@ -163,18 +191,18 @@ SW1(config-line)# login local
 SW1(config-line)# exit
 ```
 
-## 手順 10: SW2 も同様に設定（15 分）
+## 手順 11: SW2 も同様に設定（15 分）
 
-Admin-PC のロールオーバーケーブルを SW2 の Console ポートへつなぎ替え、手順 7〜9 を
+Admin-PC のロールオーバーケーブルを SW2 の Console ポートへつなぎ替え、手順 8〜9 を
 繰り返します。ホスト名は `SW2`、管理 IP は `192.168.1.12 255.255.255.0` とし、それ
 以外のパスワード・SSH 設定は SW1 と同じ値で構いません。
 
-## 手順 11: 全機器の保存と service password-encryption の比較（10 分）
+## 手順 12: 全機器の保存と service password-encryption の比較（10 分）
 
 R1・SW1・SW2 それぞれで、コンソールケーブルをその機器の Console ポートへつなぎ替え、
 特権 EXEC モードで設定を保存します。この時点では Admin-PC にまだ IP アドレスを設定
-していないため、SSH では接続できません（Admin-PC の IP 設定は手順 12、SSH ログインは
-手順 13 で行います）。
+していないため、SSH では接続できません（Admin-PC の IP 設定は手順 13、SSH ログインは
+手順 14 で行います）。
 
 ```
 R1# copy running-config startup-config
@@ -206,7 +234,7 @@ SW1(config)# do show running-config
 `enable password` とコンソール/VTY の `password` の表示がどう変化したか、また
 `enable secret` の行に変化があったかを記録します。
 
-## 手順 12: PC の IP 設定と疎通確認（10 分）
+## 手順 13: PC の IP 設定と疎通確認（10 分）
 
 1. PC1・PC2・Admin-PC それぞれの [Desktop] → **IP Configuration** で、上記の IP
    アドレス割り当て表のとおりに IP アドレス・サブネットマスク・デフォルトゲートウェイ
@@ -220,7 +248,7 @@ ping 192.168.1.11
 ping 192.168.1.12
 ```
 
-## 手順 13: Admin-PC から SW1 へ SSH 接続（10 分）
+## 手順 14: Admin-PC から SW1 へ SSH 接続（10 分）
 
 Admin-PC の Command Prompt から次のコマンドを実行します。
 
@@ -238,7 +266,7 @@ ssh -l admin 192.168.1.11
 SW1# show ip interface brief
 ```
 
-## 手順 14: SW1 での状態確認（5 分）
+## 手順 15: SW1 での状態確認（5 分）
 
 SW1 のコンソール側（または SSH セッション）で、次のコマンドを実行し出力を記録します。
 
@@ -248,7 +276,7 @@ SW1# show mac address-table
 SW1# show version
 ```
 
-## 手順 15: Telnet が拒否されることの確認（10 分）
+## 手順 16: Telnet が拒否されることの確認（10 分）
 
 Admin-PC の Command Prompt から R1 へ Telnet 接続を試みます。
 
@@ -266,7 +294,7 @@ telnet 192.168.1.1
 1. `service password-encryption` を有効化する前と後で、`show running-config` の
    `enable password`・`line` 配下の `password`・`enable secret` の表示はそれぞれ
    どう変わったか。`enable secret` が影響を受けなかった理由は何か。
-2. 手順 15 で R1 へ Telnet（`telnet 192.168.1.1`）を試みた結果は成功したか失敗したか。
+2. 手順 16 で R1 へ Telnet（`telnet 192.168.1.1`）を試みた結果は成功したか失敗したか。
    R1・SW1・SW2 のいずれも `transport input ssh` を設定しているため、SW1 や SW2 に
    Telnet を試みても同じ結果になるはずです。その理由もあわせて述べよ。
 3. SW1 の VLAN1 インターフェースに `ip default-gateway` を設定しなかった場合、別
@@ -276,7 +304,7 @@ telnet 192.168.1.1
 ## 提出方法
 
 1. ファイルを `exercise03_氏名.pkt` の名前で保存し、Backlog のラボ課題に**添付**する
-2. 手順 6・13・14・15 の実行結果（スクリーンショット可）と、観察レポートの
+2. 手順 7・13・14・15 の実行結果（スクリーンショット可）と、観察レポートの
    3 問の解答を課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
