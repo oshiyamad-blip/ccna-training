@@ -1,6 +1,6 @@
 # Exercise 1 ラボ手順書: PT 入門 — 最小構成の作成とカプセル化の観察
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise01`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise1`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール

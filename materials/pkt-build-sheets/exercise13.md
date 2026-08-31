@@ -1,44 +1,20 @@
 # exercise13 .pktビルドシート
 
-- **対象ラボ**: `materials/lesson3/exercise13-lab.md`（OSPF トラブルシューティングと HSRP による
-  デフォルトゲートウェイ冗長化）
-- **作り込みレベル**: **C（前提設定済み）** — `pkt-build-spec.md` の exercise13 行の指定どおり、
-  「OSPF障害切り分け+HSRP。**意図的なミス入りのOSPF設定を投入済み**（手順書の障害
-  シナリオどおり）。切り分けとHSRPが本題」とする。具体的には、ラボ手順1（機器配置・
-  配線・インターフェース IP・PC IP）と手順2（OSPF プロセス起動。ここに 4 つの障害が
-  仕込まれている）までを投入済みにし、**手順3〜15（4 障害の切り分け・修正、疎通確認、
-  デフォルトルート配布、HSRP 設定、フェイルオーバー確認）はすべて受講者に残す**。
+- **対象ラボ**: `materials/lesson3/exercise13-lab.md`（静的 NAT・動的 NAT・PAT（NAT Overload）の
+  構成と変換テーブルの観察 — PC1〜PC3（内部）→ SW1 → R1（NAT 変換ルータ）→ R2（ISP 役）
+  → Srv1（外部 Web サーバ役）の直列トポロジ）
+- **作り込みレベル**: **A（配線済み・IP済み）** — `pkt-build-spec.md` の exercise13 行の指定
+  「内部/外部セグメント配線・IP済み（外部サーバは 198.51.100.8）。NAT設定が本題」のとおり。
+  具体的には、ラボ手順書の**手順1（PC/Srv1 の IP、R1・R2 のインターフェース IP・
+  `no shutdown`、R1 のデフォルトルート）までを投入済み**にし、**手順2以降（`ip nat inside`/
+  `ip nat outside` の指定、ACL、静的 NAT、動的 NAT プール、PAT/Overload）はすべて
+  未設定のまま**保存する。これがこのラボの本題（NAT 3 方式）そのものであるため。
 - **保存ファイル名**: `exercise13_start.pkt`
 
-> `materials/images/exercise13-topology.svg` は本セッションの時点で存在しなかったため、
-> 結線の確認は `exercise13-lab.md` の「完成トポロジ」節の IP アドレス表（本文 33〜44 行目）
-> のみを正として行った。作業時に画像が用意されている場合は、結線前に必ず突き合わせて
-> 確認すること。
-
----
-
-## 0. このラボ特有の設計判断（重要）
-
-Exercise13 は「意図的なミス入りの OSPF 設定」がラボの出発点そのものである。したがって
-`exercise13_start.pkt` は、他の日のような「本題部分だけ空にする」のではなく、
-**ラボ手順書の手順2に書かれているコマンドをそのままの順序・そのままの誤りで投入した
-状態**を再現する。ビルド担当者が「親切心で」誤りを直してしまうとラボが成立しなくなる
-ため、以下の 4 つの障害を**意図的に、そのまま**投入する。
-
-| # | 障害内容 | 仕込み箇所 | ラボ手順書での検出手順 |
-|---|---|---|---|
-| 1 | Hello interval 不一致（`ip ospf hello-interval 5`） | R1 の Gi0/1 | 手順3 |
-| 2 | `network` 文の漏れ（`10.0.23.0/30` が未投入） | R2 の `router ospf 10` | 手順4 |
-| 3 | `passive-interface` の誤設定（バックボーン側まで誤ってパッシブ化） | R3 の Gi0/1 | 手順5 |
-| 4 | IP MTU 不一致（`ip mtu 1400`） | R1 の Gi0/1 | 手順6（Packet Tracer では再現しないことがある旨、手順書に注記あり） |
-
-この 4 つは下記「4. 貼り付け用コンフィグ」の中に `!` コメント行（IOS が無視する
-コメント区切り行。そのまま CLI に貼っても実害はない）として明示している。
-
-HSRP（手順10〜15）は「後半・応用部分」としてレベル C の対象外とし、開始ファイルには
-一切投入しない。PC1・PC2 のデフォルトゲートウェイは HSRP 仮想 IP（`192.168.10.1`）を
-先に設定しておく（手順1で指定されている値であり、HSRP 自体が未設定でも PC 側の設定
-としては正しい。HSRP 未設定のため、この時点では PC1↔PC3 は疎通しない）。
+> 参考画像: `materials/images/exercise13-topology.svg` を確認済み。結線
+> （PC1/PC2/PC3 → SW1 Fa0/1〜Fa0/3、SW1 Fa0/24 → R1 Gi0/0、R1 Gi0/1 → R2 Gi0/1、
+> R2 Gi0/0 → Srv1 FastEthernet0）・インターフェース名・IP・inside/outside の区別は、
+> いずれも本シートおよび `exercise13-lab.md` の IP アドレス表・手順1・手順2と完全一致している。
 
 ---
 
@@ -46,161 +22,122 @@ HSRP（手順10〜15）は「後半・応用部分」としてレベル C の対
 
 | 役割 | 機器モデル | 台数 | 配置名 |
 |---|---|---|---|
-| ルータ | Cisco 2911 | 3 | R1, R2, R3 |
-| スイッチ（L2） | Cisco 2960 | 2 | SW1, SW2 |
 | PC | 汎用 PC（PC-PT） | 3 | PC1, PC2, PC3 |
+| L2 スイッチ | Cisco 2960 | 1 | SW1 |
+| ルータ（NAT 変換ルータ） | Cisco 2911 | 1 | R1 |
+| ルータ（ISP 役） | Cisco 2911 | 1 | R2 |
+| サーバ（外部 Web サーバ役） | 汎用サーバ（Server-PT） | 1 | Srv1 |
 
-- 2911 はオンボードで `GigabitEthernet0/0`〜`0/2` の 3 ポートを持つため、R3 が
-  Gi0/0・Gi0/1・Gi0/2 の 3 つを使うラボ手順書のコマンドとそのまま一致する。追加の
-  HWIC モジュールは不要（R1・R2 は Gi0/0・Gi0/1 の 2 ポートのみ使用）。
-- ラボ手順書冒頭「手順1」の機器指定（Router 2911 × 3、Switch 2960 × 2、PC × 3）と
-  一致させている。
+- 2911 はオンボードで `GigabitEthernet0/0`・`0/1` を持ち、ラボ手順書のコマンド
+  （R1 は Gi0/0 = inside・Gi0/1 = outside、R2 は Gi0/1 = R1 側 WAN・Gi0/0 = Srv1 側）と
+  インターフェース名がそのまま一致する。追加の HWIC モジュールは不要。
+- 2960 は Fa0/1〜Fa0/24 の標準構成で、PC3 台分（Fa0/1〜Fa0/3）と R1 への
+  アップリンク（Fa0/24）を賄える。L2 スイッチ設定は不要（初期状態のまま）。
+- Srv1 は Server-PT（`FastEthernet0` インターフェースを持つ標準構成）を使用。
+  Desktop タブから IP を設定するのみで、Services タブの設定は本ラボでは不要。
 
 ## 2. 結線表
 
 | 機器A・ポート | ケーブル種別 | 機器B・ポート |
 |---|---|---|
-| R1 GigabitEthernet0/0 | ストレート | SW1 FastEthernet0/1 |
-| R2 GigabitEthernet0/0 | ストレート | SW1 FastEthernet0/2 |
-| PC1 FastEthernet0 | ストレート | SW1 FastEthernet0/3 |
-| PC2 FastEthernet0 | ストレート | SW1 FastEthernet0/4 |
-| R1 GigabitEthernet0/1 | ストレート | R3 GigabitEthernet0/0 |
-| R2 GigabitEthernet0/1 | ストレート | R3 GigabitEthernet0/1 |
-| R3 GigabitEthernet0/2 | ストレート | SW2 FastEthernet0/1 |
-| PC3 FastEthernet0 | ストレート | SW2 FastEthernet0/2 |
+| PC1 FastEthernet0 | ストレート | SW1 FastEthernet0/1 |
+| PC2 FastEthernet0 | ストレート | SW1 FastEthernet0/2 |
+| PC3 FastEthernet0 | ストレート | SW1 FastEthernet0/3 |
+| SW1 FastEthernet0/24 | ストレート | R1 GigabitEthernet0/0 |
+| R1 GigabitEthernet0/1 | ストレート | R2 GigabitEthernet0/1 |
+| R2 GigabitEthernet0/0 | ストレート | Srv1 FastEthernet0 |
 
-- IP アドレス表（`exercise13-lab.md` 33〜44 行目）の「接続先」列と 1 対 1 で一致させている。
-- ルータ〜ルータ間（R1-R3、R2-R3）もギガビットポート同士だが、Packet Tracer 9.x の
-  自動 MDI-X によりストレートケーブルで結線できる。「自動選択（Automatically Choose
-  Connection Type）」でも同じ結線になるが、赤リンクになった場合は上表のとおり明示的に
-  ストレートを選び直すこと。
-- SW1 の Fa0/5〜Fa0/24、SW2 の Fa0/3〜Fa0/24 は未使用のまま空けておく。
+- 全リンクがストレートケーブルで結線可能（GigabitEthernet ポートは auto-mdix の
+  ため、ルータ同士（R1 Gi0/1 ⇔ R2 Gi0/1）でもストレートで問題ない）。Packet Tracer の
+  「自動選択（Automatically Choose Connection Type）」でも同じ結線になるが、赤リンクに
+  なった場合は上表のとおり手動でストレートを選び直すこと。
+- R1 の Gi0/0（SW1 側）が **inside**、Gi0/1（R2 側）が **outside** となる区間。
+  結線自体には inside/outside の区別は影響しないが、手順2 で受講者が設定する際に
+  取り違えないよう、配置図上でも Gi0/0=LAN 側・Gi0/1=WAN 側であることを確認しておく。
+- 全リンクが緑になるまで待ってから次に進む。
 
 ## 3. PC/サーバ設定
 
 | デバイス | IPアドレス | サブネットマスク | デフォルトGW | その他 |
 |---|---|---|---|---|
-| PC1 | 192.168.10.10 | 255.255.255.0 | 192.168.10.1 | DNS 設定不要。GW は HSRP 仮想 IP（未設定のため現時点では応答なし） |
-| PC2 | 192.168.10.11 | 255.255.255.0 | 192.168.10.1 | 同上 |
-| PC3 | 192.168.30.10 | 255.255.255.0 | 192.168.30.1 | GW は R3 Gi0/2 の物理 IP（HSRP 対象外） |
+| PC1 | 192.168.1.10 | 255.255.255.0 | 192.168.1.1 | — |
+| PC2 | 192.168.1.11 | 255.255.255.0 | 192.168.1.1 | — |
+| PC3 | 192.168.1.12 | 255.255.255.0 | 192.168.1.1 | — |
+| Srv1 | 198.51.100.8 | 255.255.255.0 | 198.51.100.1 | DNS 欄は空欄でよい（本ラボで DNS は不使用） |
 
-- Desktop > IP Configuration で Static を選択し、上記の IP / マスク / デフォルト
-  ゲートウェイまで入力済みにする（レベル C は手順1相当まで済ませる指定のため）。
-- この時点（OSPF 未修復・HSRP 未設定）では、PC1↔PC2 は SW1 経由の同一セグメント内
-  なので ping が通るが、PC1↔PC3・PC2↔PC3 は OSPF 経路がまだ無いため失敗する。これは
-  ラボ手順1の6「この時点では PC1↔PC3 の疎通はまだ確認しません」と整合する正しい状態。
+- Desktop > IP Configuration で Static を選択し、上表のとおり入力済みにする
+  （レベル A の指定どおり PC/サーバ側は投入済み）。
+- Srv1 は Web サーバとして稼働している必要はない（ping 到達性の確認のみに使用）。
+  Services タブは初期状態のままでよい。
 
 ## 4. 貼り付け用コンフィグ（事前設定）
 
-以下を各ルータの CLI にそのまま貼り付ける（`enable` → `configure terminal` から開始する
-前提。プロンプトが `Router>` の状態から `enable` を入力すること）。**ラボ手順書の手順1
-（IP アドレス設定）と手順2（OSPF 起動。障害入り）の内容をそのまま投入したものであり、
-障害を先回りして直してはいけない。**
+ラボ手順書の**手順1「基本構成」**（インターフェース IP・`no shutdown`・R1 の
+デフォルトルート）までを投入済みにする。`enable` → `configure terminal` から
+開始する前提で、以下をそのまま各ルータの CLI に貼り付ける。**`ip nat inside`/
+`ip nat outside`（手順2）、ACL・NAT プール・静的 NAT・動的 NAT・PAT（手順3〜5）は
+一切含めない**——これらが exercise13 の本題であり、受講者が入力する部分として空のまま
+残す。
 
-### R1（障害1・障害4を含む）
+### R1
 
 ```
 enable
 configure terminal
 hostname R1
-interface gigabitethernet0/0
- ip address 192.168.10.2 255.255.255.0
+interface gigabitEthernet 0/0
+ ip address 192.168.1.1 255.255.255.0
  no shutdown
  exit
-interface gigabitethernet0/1
- ip address 10.0.13.1 255.255.255.252
+interface gigabitEthernet 0/1
+ ip address 203.0.113.1 255.255.255.0
  no shutdown
  exit
-router ospf 10
- network 192.168.10.0 0.0.0.255 area 0
- network 10.0.13.0 0.0.0.3 area 0
- passive-interface gigabitethernet0/0
- exit
-interface gigabitethernet0/1
-! === 障害1: Hello interval を既定の10秒から5秒に変更（R3側は既定のまま→不一致） ===
- ip ospf hello-interval 5
-! === 障害4: IP MTUを既定の1500から1400に変更（R3側は既定のまま→不一致） ===
- ip mtu 1400
- exit
+ip route 0.0.0.0 0.0.0.0 203.0.113.2
 end
 copy running-config startup-config
 ```
 
-### R2（障害2を含む）
+### R2
 
 ```
 enable
 configure terminal
 hostname R2
-interface gigabitethernet0/0
- ip address 192.168.10.3 255.255.255.0
+interface gigabitEthernet 0/1
+ ip address 203.0.113.2 255.255.255.0
  no shutdown
  exit
-interface gigabitethernet0/1
- ip address 10.0.23.1 255.255.255.252
+interface gigabitEthernet 0/0
+ ip address 198.51.100.1 255.255.255.0
  no shutdown
- exit
-router ospf 10
- network 192.168.10.0 0.0.0.255 area 0
-! === 障害2: 10.0.23.0/30（R2-R3間リンク）向けのnetwork文を意図的に投入しない ===
- passive-interface gigabitethernet0/0
  exit
 end
 copy running-config startup-config
 ```
 
-- `network 10.0.23.0 0.0.0.3 area 0` の行は**入力しない**こと（これが障害2そのもの）。
-  誤って投入しないよう、他日のビルドシートと違いこの行はコメントとしてのみ記載している。
+- R2 には追加のルーティング設定は不要（ラボ手順書 手順1-4 のとおり、
+  `203.0.113.0/24` と `198.51.100.0/24` の両方に直接つながる connected ルートと
+  Proxy ARP により、静的・動的 NAT のグローバルアドレスへの戻り経路も揃っている）。
 
-### R3（障害3を含む）
+### SW1
 
-```
-enable
-configure terminal
-hostname R3
-interface gigabitethernet0/0
- ip address 10.0.13.2 255.255.255.252
- no shutdown
- exit
-interface gigabitethernet0/1
- ip address 10.0.23.2 255.255.255.252
- no shutdown
- exit
-interface gigabitethernet0/2
- ip address 192.168.30.1 255.255.255.0
- no shutdown
- exit
-router ospf 10
- network 10.0.13.0 0.0.0.3 area 0
- network 10.0.23.0 0.0.0.3 area 0
- network 192.168.30.0 0.0.0.255 area 0
- passive-interface gigabitethernet0/2
-! === 障害3: 本来パッシブにすべきでないバックボーン側(R2向け)まで誤ってパッシブ化 ===
- passive-interface gigabitethernet0/1
- exit
-end
-copy running-config startup-config
-```
+事前設定なし（機器は初期状態のまま。L2 スイッチとして VLAN1 のデフォルト動作で
+そのまま使用する。ラボ手順書のとおり設定不要）。
 
-### SW1・SW2
+### PC1・PC2・PC3・Srv1
 
-**事前設定なし（機器は初期状態）。**
-
-このラボはスイッチが OSPF や VLAN に関与しないため、ホスト名すら設定しない工場出荷
-状態（`Switch>`）のまま保存する。ポートはすべて既定（VLAN1・access）で、単純な L2
-中継として機能する。
-
-### PC1〜PC3
-
-IOS 設定は存在しない（PC のため）。IP 設定は「3. PC/サーバ設定」のとおり投入済み。
+IOS 設定は存在しない（PC/サーバのため）。IP 設定は「3. PC/サーバ設定」のとおり
+投入済み。
 
 ## 5. 完成コンフィグ（`_answer.pkt` 用・講師用）
 
-ラボ手順書の手順3〜15をすべて完了させた最終状態。4 つの障害はすべて修正済み（該当
-コマンドは `no ip ospf hello-interval` などで既定値に戻すため、最終 `running-config`
-には該当行自体が残らない点に注意）。R3 にデフォルトルート配布、R1・R2 に HSRP を設定し、
-手順15の復旧（R1 の Gi0/0 を `no shutdown` してプリエンプトで Active を奪還した後）の
-状態で保存する。
+このラボの手順1〜6をすべて実施した**最終状態**（手順3 の静的 NAT、手順4 の動的
+NAT はいずれも該当ステップ内で `no ip nat inside source static ...` /
+`no ip nat inside source list 1 pool DYN` により撤去済み。手順5 の PAT/Overload は
+撤去されないため最終状態でも有効。手順6 の `clear ip nat translation *` /
+`debug ip nat` / `undebug all` は running-config に影響しない一時コマンドのため
+反映不要）のコンフィグを示す（採点・質問対応の見本）。
 
 ### R1（最終状態）
 
@@ -208,30 +145,33 @@ IOS 設定は存在しない（PC のため）。IP 設定は「3. PC/サーバ�
 enable
 configure terminal
 hostname R1
-interface gigabitethernet0/0
- ip address 192.168.10.2 255.255.255.0
- standby version 2
- standby 1 ip 192.168.10.1
- standby 1 priority 110
- standby 1 preempt
+interface gigabitEthernet 0/0
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
  no shutdown
  exit
-interface gigabitethernet0/1
- ip address 10.0.13.1 255.255.255.252
+interface gigabitEthernet 0/1
+ ip address 203.0.113.1 255.255.255.0
+ ip nat outside
  no shutdown
  exit
-router ospf 10
- network 192.168.10.0 0.0.0.255 area 0
- network 10.0.13.0 0.0.0.3 area 0
- passive-interface gigabitethernet0/0
- exit
+ip route 0.0.0.0 0.0.0.0 203.0.113.2
+access-list 1 permit 192.168.1.0 0.0.0.255
+ip nat pool DYN 203.0.113.20 203.0.113.21 netmask 255.255.255.0
+ip nat inside source list 1 interface GigabitEthernet0/1 overload
 end
 copy running-config startup-config
 ```
 
-- 障害1（`ip ospf hello-interval 5`）・障害4（`ip mtu 1400`）は手順3・手順6で
-  `no ip ospf hello-interval` / `no ip mtu` により既定値へ戻し済みのため、Gi0/1 の
-  設定に上記2行は現れない。
+- `ip nat pool DYN ...` は手順4で作成したプール定義自体（`ip nat pool` 文）で、
+  手順4-8 の `no` は「ACL とプールを結び付ける」関連付け文（`ip nat inside source
+  list 1 pool DYN`）のみを撤去するため、プール定義そのものは running-config に
+  残る（未使用のまま）。これは実機・PT の挙動として正しい状態であり、意図的に
+  残している。
+- `ip nat inside source static 192.168.1.10 203.0.113.10`（手順3）は手順3-4 で
+  完全に撤去済みのため、最終状態には残らない。
+- 最終的に有効な変換方式は **PAT（手順5 の `... interface GigabitEthernet0/1
+  overload`）のみ**であることを確認する。
 
 ### R2（最終状態）
 
@@ -239,105 +179,59 @@ copy running-config startup-config
 enable
 configure terminal
 hostname R2
-interface gigabitethernet0/0
- ip address 192.168.10.3 255.255.255.0
- standby version 2
- standby 1 ip 192.168.10.1
+interface gigabitEthernet 0/1
+ ip address 203.0.113.2 255.255.255.0
  no shutdown
  exit
-interface gigabitethernet0/1
- ip address 10.0.23.1 255.255.255.252
+interface gigabitEthernet 0/0
+ ip address 198.51.100.1 255.255.255.0
  no shutdown
- exit
-router ospf 10
- network 192.168.10.0 0.0.0.255 area 0
- network 10.0.23.0 0.0.0.3 area 0
- passive-interface gigabitethernet0/0
  exit
 end
 copy running-config startup-config
 ```
 
-- 障害2は手順4で `network 10.0.23.0 0.0.0.3 area 0` を追加して解消済み。
+- R2 はラボ全体を通じて手順1以降の変更なし（ISP 役のため NAT 関連設定は一切
+  不要）。
 
-### R3（最終状態）
+### SW1
 
-```
-enable
-configure terminal
-hostname R3
-interface gigabitethernet0/0
- ip address 10.0.13.2 255.255.255.252
- no shutdown
- exit
-interface gigabitethernet0/1
- ip address 10.0.23.2 255.255.255.252
- no shutdown
- exit
-interface gigabitethernet0/2
- ip address 192.168.30.1 255.255.255.0
- no shutdown
- exit
-ip route 0.0.0.0 0.0.0.0 Null0
-router ospf 10
- network 10.0.13.0 0.0.0.3 area 0
- network 10.0.23.0 0.0.0.3 area 0
- network 192.168.30.0 0.0.0.255 area 0
- passive-interface gigabitethernet0/2
- default-information originate
- exit
-end
-copy running-config startup-config
-```
+設定変更なし（初期状態のまま）。
 
-- 障害3は手順5で `no passive-interface gigabitethernet0/1` により解消済み。
-- 手順8のデフォルトルート配布（`ip route 0.0.0.0 0.0.0.0 Null0` +
-  `default-information originate`）を追加している。
-
-### SW1・SW2（最終状態）
-
-変更なし（初期状態のまま）。VLAN・トランクともにこのラボの学習対象外。
-
-### PC1〜PC3
+### PC1・PC2・PC3・Srv1
 
 IP 設定は「3. PC/サーバ設定」のまま変更なし。
 
-### 完成状態の確認例
-
-- `R1# show ip ospf neighbor` / `R2# show ip ospf neighbor` / `R3# show ip ospf neighbor`
-  … R1-R3 間・R2-R3 間ともに State が **FULL**。
-- `R1# show ip route` に `O*E2  0.0.0.0/0 [110/1] via 10.0.13.2` が表示される。
-- `R1# show standby brief` … R1 = **Active**、R2 = **Standby**（`R2# show standby brief`
-  で確認）。仮想 IP `192.168.10.1` と仮想 MAC が表示される。
-- PC1 の Command Prompt から `ping 192.168.30.10`（PC3）が成功する。
-- R1 の Gi0/0 を `shutdown` すると R2 が数秒以内に Active へ遷移し（`R2# show standby`）、
-  連続 ping が数回失敗した後に再開する。`no shutdown` で R1 に戻すとプリエンプトにより
-  R1 が Active を奪還する。
+- 完成状態での疎通確認の想定結果（手順5 の PAT が有効な最終状態）:
+  - PC1・PC2・PC3 → Srv1（198.51.100.8）：いずれも `ping` 成功
+  - R1 の `show ip nat translations`：3 台とも Inside global が同一
+    （`203.0.113.1`、Gi0/1 のアドレス）で、`Pro` 列が `icmp`、内部・グローバル
+    双方にクエリ識別子が付与された行が表示される
+  - R1 の `show ip nat statistics`：`Dynamic mappings` の項目に
+    `Serving flags: interface`（インターフェースオーバーロード）が表示される
 
 ## 6. 組み立て後チェック
 
-- [ ] R1-SW1、R2-SW1、PC1/PC2-SW1、R1-R3、R2-R3、R3-SW2、PC3-SW2 の全リンクが緑
-      （STP 収束済み）
-- [ ] 各ルータの `show ip interface brief` で、結線したインターフェースがすべて
-      `up/up` であること（ホスト名・IP は 4. の投入内容と一致）
-- [ ] `R1# show ip ospf neighbor` … R1-R3 間のネイバーが**一切表示されない**
-      （障害1: Hello interval 不一致によりネイバーが Init にすら進まない）
-- [ ] `R2# show ip protocols` … Passive Interface に `GigabitEthernet0/0` のみが
-      表示され、`Routing for Networks` に `192.168.10.0` のみが表示される
-      （障害2: `10.0.23.0/30` の `network` 文が未投入であることを確認）
-- [ ] `R3# show ip protocols` … Passive Interface に `GigabitEthernet0/1` と
-      `GigabitEthernet0/2` の両方が表示される（障害3: 本来パッシブにすべきでない
-      `GigabitEthernet0/1` まで誤ってパッシブ化されていることを確認）
-- [ ] `R1# show ip interface GigabitEthernet0/1 | include MTU` … `1400 bytes`
-      と表示される（障害4。ラボ手順書の注記どおり、Packet Tracer のバージョンに
-      よっては MTU 不一致でも `show ip ospf neighbor` が FULL になる場合があるが、
-      それ自体は異常ではない）
-- [ ] R1・R2・R3 とも HSRP（`standby`）関連の設定は一切投入されていない
-      （`show standby brief` が何も表示しない）
-- [ ] SW1・SW2 はホスト名未設定（`Switch>` のまま）
-- [ ] PC1↔PC2（同一セグメント、SW1 内のみ）の ping は**成功**する
-- [ ] PC1↔PC3・PC2↔PC3 の ping は**失敗**する（OSPF 未修復のため経路がない） ＝
-      レベル C の狙いどおり、手順3〜9（障害切り分け・疎通確認）が本題として
-      残っていること
-- [ ] `exercise13_start.pkt` として保存し、再度開いて配線・IP・OSPF の障害入り設定が
-      保持されていることを確認
+- [ ] PC1-SW1、PC2-SW1、PC3-SW1、SW1-R1、R1-R2、R2-Srv1 の全リンクが緑
+- [ ] R1・R2 とも `hostname` が投入済み（プロンプトが `R1#`/`R2#`）で、
+      `show ip interface brief` を実行すると、IP アドレス表どおりの IPv4
+      アドレス（R1: Gi0/0=192.168.1.1、Gi0/1=203.0.113.1／R2: Gi0/1=203.0.113.2、
+      Gi0/0=198.51.100.1）が設定され、全インターフェースが `up`/`up` であることを
+      確認
+- [ ] R1 で `show ip route static` に `0.0.0.0/0 via 203.0.113.2` の
+      デフォルトルートが1件だけ表示されることを確認
+- [ ] レベル A の指定どおり、R1 の `show running-config | include nat` が
+      **何も表示しない**（`ip nat inside`/`ip nat outside`、ACL 1、NAT プール、
+      静的/動的/PAT のいずれも未投入）＝手順2以降が本題として丸ごと残っていること
+- [ ] R1 の CLI から `ping 198.51.100.8` を実行すると**成功する**（NAT 未設定
+      でも、R1 自身の送信元アドレスは connected な `203.0.113.0/24` のため、
+      手順1時点の基本疎通確認として成立する）
+- [ ] PC1（またはPC2/PC3）の Command Prompt から `ping 198.51.100.8` を実行すると
+      **失敗する**（`Request timed out.`）ことを確認 ＝ NAT 未設定のため
+      プライベートアドレスのままでは外部に到達できない、という本題着手前の
+      状態が正しく保たれていること
+- [ ] PC1・PC2・PC3・Srv1 の Desktop > IP Configuration に、3. の表のとおり
+      IP・マスク・デフォルトゲートウェイが入力済み
+- [ ] `exercise13_start.pkt` として保存し、再度開いて配線・ホスト名・インターフェース
+      IP・デフォルトルート・PC/Srv1 の IP が保持され、NAT 関連設定
+      （inside/outside・ACL・プール・静的/動的/PAT）が未投入のままであることを確認

@@ -1,6 +1,6 @@
 # Exercise 9 ラボ手順書: STP の動作観察とルートブリッジの変更、EtherChannel の構成
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise09`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise9`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール

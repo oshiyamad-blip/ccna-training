@@ -75,7 +75,7 @@ SW1# show interfaces status
 ```
 
 LAP を収容する Fa0/1 には `power inline auto`（PoE 給電）が入っています。
-**LAP は電源アダプタを持たず、スイッチから給電を受けて起動します**（Exercise 5 の PoE）。
+**LAP は電源アダプタを持たず、スイッチから給電を受けて起動します**（Exercise 2 の PoE）。
 
 ### 1-3. トランクとネイティブ VLAN を確認する（ここが無線特有の要点）
 
@@ -296,7 +296,7 @@ SW1 と R1 の設定を `erase startup-config` → 再起動で消して始め�
 WLAN の **QoS タブ**で、プロファイルを `Silver（best effort）` から
 `Platinum（voice）` に変更し、設定が反映されることを確認します。
 4 つのプロファイル（Platinum / Gold / Silver / Bronze）がそれぞれ
-どんな通信を想定しているかは、Exercise 15 の QoS で詳しく学びます。
+どんな通信を想定しているかは、Exercise 14 の QoS で詳しく学びます。
 
 ## 提出方法
 

@@ -1,6 +1,6 @@
 # Exercise 6 ラボ手順書: VLAN の作成とブロードキャストドメインの分離検証
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise06`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise6`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール

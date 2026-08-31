@@ -1,6 +1,6 @@
 # Exercise 9 講義: STP と EtherChannel
 
-> 配置先: ドキュメント `01_教材 > LESSON2 > Exercise09`
+> 配置先: ドキュメント `01_教材 > LESSON2 > Exercise9`
 > 学習時間の目安: 3.5 時間 ／ 準拠: CCNA 200-301 v1.1 ドメイン 2
 
 ## 学習目標
@@ -17,7 +17,7 @@
 
 ## ウォームアップ（想起クイズ）
 
-> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 2「Cisco IOS の基本操作とデバイス初期設定」 / Exercise 6「VLAN の基礎」 / Exercise 8「VLAN 間ルーティング」 の範囲から出題）。
+> 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 3「Cisco IOS の基本操作とデバイス初期設定」 / Exercise 6「VLAN の基礎」 / Exercise 8「VLAN 間ルーティング」 の範囲から出題）。
 
 **W1.** running-config（実行コンフィグレーション）の内容を、再起動しても消えない
 startup-config（NVRAM）に保存するコマンドは何か。
@@ -565,7 +565,7 @@ mode trunk`（または access）を設定しますが、L3 EtherChannel は `no
 
 ## 次のステップ
 
-この Exercise のラボ課題「[Exercise09] ラボ: STP の動作観察とルートブリッジの変更、EtherChannel
+この Exercise のラボ課題「[Exercise9] ラボ: STP の動作観察とルートブリッジの変更、EtherChannel
 の構成」に進み、3 台のスイッチによる冗長トライアングルでルートブリッジの選出と
 ポートのブロッキングを実際に確認し、LACP による EtherChannel の構成を体験して
 ください。

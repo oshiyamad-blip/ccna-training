@@ -72,7 +72,7 @@ Backlog の課題「[Exercise00] 環境構築」にコメントで質問して�
     ループ防止のためにそのポートを止めている状態」を指すこともあります。
     LESSON2 で学ぶので、今は「橙 = 準備中」と覚えておけば十分です
 - **保存**: `File > Save As` で `.pkt` 形式。命名規則は
-  **`exerciseNN_氏名.pkt`**（例: `exercise03_yamada.pkt`）です。
+  **`exerciseNN_氏名.pkt`**（例: `exercise04_yamada.pkt`）です。
   LESSON0 の P5 だけは `lesson0-p5_氏名.pkt` とします。
   保存したら Backlog の課題に添付して提出してください
 
@@ -135,7 +135,7 @@ STP（スイッチのループを防ぐ仕組み）など、教材で学ぶ動�
 ## 6. 研修での運用ルール
 
 1. ラボはすべて Backlog の「ラボ」課題の手順書（ドキュメント）に沿って実施する
-2. 完成ファイルは命名規則 `exerciseNN_氏名.pkt`（例: `exercise03_yamada.pkt`）で課題に添付する。LESSON0 の P5 だけは `lesson0-p5_氏名.pkt`
+2. 完成ファイルは命名規則 `exerciseNN_氏名.pkt`（例: `exercise04_yamada.pkt`）で課題に添付する。LESSON0 の P5 だけは `lesson0-p5_氏名.pkt`
 3. 検証コマンド（`show ip route` 等）の結果をコメントに貼る
 4. 30 分詰まったら自力解決をやめ、課題コメントで質問する（質問も評価対象。遠慮しない）
 5. 研修時間外の自主練習も推奨。Packet Tracer は個人利用無料なので自宅 PC にも導入可

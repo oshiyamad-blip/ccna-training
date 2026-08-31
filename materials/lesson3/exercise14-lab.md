@@ -1,14 +1,17 @@
-# Exercise 14 ラボ手順書: 静的 NAT・動的 NAT・PAT の構成と変換テーブルの観察
+# Exercise 14 ラボ手順書: DHCP リレー・NTP 同期・Syslog 収集の統合構成
 
 > 配置先: ドキュメント `02_ラボ手順書 > LESSON3 > Exercise14`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- 1 台のルータ上で静的 NAT・動的 NAT・PAT（NAT Overload）を順に構成できる
-- 内部ホストから外部（模擬インターネット上のサーバ）へ通信したときに、変換テーブルが
-  どのように生成されるかを `show ip nat translations` / `show ip nat statistics` で観察できる
-- 3 方式の違い（1 対 1 固定・動的プール割当・ポート多重化）を実機挙動として説明できる
+- R1 を 2 つのサブネット（ローカル LAN／リモート LAN）向けの DHCP サーバとして構成できる
+- 離れたサブネットの PC が、R2 の `ip helper-address`（DHCP リレー）経由でアドレスを
+  取得できることを確認できる
+- R1 を NTP マスタ、R2 を NTP クライアントとして時刻を同期させ、`show ntp status` /
+  `show ntp associations` で同期状態を確認できる
+- R1・R2 のログを Syslog サーバへ送出し、severity 付きメッセージが記録されることを
+  検証できる
 
 ## 完成トポロジ
 
@@ -18,28 +21,32 @@
 
 | 機器 | インターフェース | IP アドレス | 備考 |
 |---|---|---|---|
-| PC1 | Fa0 | 192.168.1.10/24 | GW: 192.168.1.1 |
-| PC2 | Fa0 | 192.168.1.11/24 | GW: 192.168.1.1 |
-| PC3 | Fa0 | 192.168.1.12/24 | GW: 192.168.1.1 |
-| SW1 | Fa0/1〜Fa0/3, Fa0/24 | — | L2 スイッチ、設定不要 |
-| R1 | Gi0/0 | 192.168.1.1/24 | `ip nat inside` |
-| R1 | Gi0/1 | 203.0.113.1/24 | `ip nat outside` |
-| R2 | Gi0/1 | 203.0.113.2/24 | R1 との WAN リンク |
-| R2 | Gi0/0 | 198.51.100.1/24 | Srv1 側セグメント |
-| Srv1 | FastEthernet0 | 198.51.100.8/24 | GW: 198.51.100.1、外部 Web サーバ役 |
+| PC1 | Fa0 | DHCP 取得 | LAN1 プールから 192.168.1.x を取得 |
+| PC2 | Fa0 | DHCP 取得 | LAN1 プールから 192.168.1.x を取得 |
+| Syslog サーバ | FastEthernet0 | 192.168.1.10/24（固定） | GW: 192.168.1.1、Services > SYSLOG を有効化 |
+| SW1 | Fa0/1〜Fa0/4 | — | L2 スイッチ、設定不要 |
+| R1 | Gi0/0 | 192.168.1.1/24 | `ip nat` 等は使用しない。LAN1 の DHCP デフォルトゲートウェイ |
+| R1 | Gi0/1 | 10.0.0.1/30 | R2 との WAN リンク、NTP マスタ（stratum 3） |
+| R2 | Gi0/1 | 10.0.0.2/30 | R1 との WAN リンク |
+| R2 | Gi0/0 | 192.168.2.1/24 | LAN2 の DHCP デフォルトゲートウェイ、`ip helper-address` 設定対象 |
+| SW2 | Fa0/1〜Fa0/3 | — | L2 スイッチ、設定不要 |
+| PC3 | Fa0 | DHCP 取得 | LAN2 プールから 192.168.2.x をリレー経由で取得 |
+| PC4 | Fa0 | DHCP 取得 | LAN2 プールから 192.168.2.x をリレー経由で取得 |
 
-R1 の Gi0/0 が **inside**、Gi0/1 が **outside** です。グローバルアドレスとして
-`203.0.113.0/24` 帯（演習用に静的・動的・PAT でそれぞれ別アドレスを使用）を利用します。
+R1 が DHCP サーバと NTP マスタを兼務し、R2 は DHCP リレーエージェントと NTP
+クライアントを兼務します。DHCP・NTP・Syslog のすべてのサーバ役を、ローカル LAN 側の
+Syslog サーバ（192.168.1.10）とルータ自身が分担する構成です。
 
 ---
 
-## 手順 1: 基本構成（30 分）
+## 手順 1: 基本ネットワーク構成（25 分）
 
-1. PC1〜PC3 に、それぞれ `192.168.1.10`〜`.12`、サブネットマスク `255.255.255.0`、
-   デフォルトゲートウェイ `192.168.1.1` を設定する
-2. Srv1 に `198.51.100.8`、サブネットマスク `255.255.255.0`、デフォルトゲートウェイ
-   `198.51.100.1` を設定する
-3. R1・R2 の各インターフェースに IP アドレスを設定し、`no shutdown` で有効化する
+1. トポロジ図のとおりに R1・R2・SW1・SW2・PC1〜PC4・Syslog サーバを配置し、
+   ケーブルで接続する（ルータ間・ルータ-スイッチ間はストレート、または
+   自動判定のケーブルを使用）
+2. Syslog サーバの [Desktop] → [IP Configuration] で IP を手動設定する:
+   `192.168.1.10` / `255.255.255.0` / GW `192.168.1.1`
+3. R1・R2 の各インターフェースに IP アドレスを設定し `no shutdown` する
 
    ```
    R1(config)# interface GigabitEthernet0/0
@@ -47,222 +54,210 @@ R1 の Gi0/0 が **inside**、Gi0/1 が **outside** です。グローバルア�
    R1(config-if)# no shutdown
    R1(config-if)# exit
    R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# ip address 203.0.113.1 255.255.255.0
+   R1(config-if)# ip address 10.0.0.1 255.255.255.252
    R1(config-if)# no shutdown
    ```
 
    ```
    R2(config)# interface GigabitEthernet0/1
-   R2(config-if)# ip address 203.0.113.2 255.255.255.0
+   R2(config-if)# ip address 10.0.0.2 255.255.255.252
    R2(config-if)# no shutdown
    R2(config-if)# exit
    R2(config)# interface GigabitEthernet0/0
-   R2(config-if)# ip address 198.51.100.1 255.255.255.0
+   R2(config-if)# ip address 192.168.2.1 255.255.255.0
    R2(config-if)# no shutdown
    ```
 
-4. R2 側の到達性を確認する（設定は不要）。R2 は `203.0.113.0/24` と
-   `198.51.100.0/24` の両方に直接つながっているため、静的 NAT・動的 NAT で使う
-   グローバルアドレス（`203.0.113.10` や `.20`〜`.21`）への戻り経路もすでに
-   揃っており、**追加のルーティング設定は不要です（打つコマンドはありません）**。
-5. R1 にデフォルトルートを設定し、外部到達性を用意する（**変換前にこれを
-   済ませておくことが重要**）
+4. 相互のサブネットへ静的ルートを設定し、全区間の疎通を確保する
 
    ```
-   R1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.2
+   R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2
    ```
 
-6. R1 から `ping 198.51.100.8` を実行し、Srv1 まで到達できることを確認する
-   （この時点では NAT 未設定のため、R2 の connected な 2 ネットワーク
-   （`203.0.113.0/24` と `198.51.100.0/24`）だけで完結する単純な疎通確認です。
-   仕組みの詳細は本手順末尾の補足コラムを参照してください）
-
-> ⚙️ **補足（読み飛ばし可）**：R2 が追加設定なしで戻りパケットを転送できる
-> 仕組みは次の 2 つです。
->
-> - **connected ルート**: R1 の外部インターフェースを `203.0.113.0/24` で
->   構成しているため、静的・動的 NAT で使うグローバルアドレスは R2 の
->   connected ネットワーク（Exercise11 で学んだ直接接続ルート）に含まれます。
-> - **Proxy ARP**: Exercise11 で学んだ、本来の宛先ではないルータが ARP 要求に
->   自分の MAC アドレスで応答してしまう動作です。R1 がこれを使って応答するため、
->   R2 は個々のホストへの経路を持たなくても戻りパケットを正しく転送できます。
->
-> 実務では、R1-R2 間の WAN リンクにグローバルアドレス帯とは別のセグメントを
-> 使う構成もよくあります。たとえば WAN リンクを `10.0.0.0/30`（R1 = `10.0.0.1`、
-> R2 = `10.0.0.2`）にした場合を考えてみましょう。このとき NAT で使う
-> `203.0.113.0/24` は R2 の connected ネットワークではなくなります。そのため
-> R2 には、次のような戻り経路を明示的に追加する必要があります。
->
-> ```
-> R2(config)# ip route 203.0.113.0 255.255.255.0 10.0.0.1
-> ```
->
-> 「NAT のグローバルアドレス宛のパケットが、外部から NAT ルータまで戻ってこられるか」
-> を必ず確認する、という点はどちらの構成でも変わりません。
-
-## 手順 2: inside / outside インターフェースの割り当て（10 分）
-
-```
-R1(config)# interface GigabitEthernet0/0
-R1(config-if)# ip nat inside
-R1(config-if)# exit
-R1(config)# interface GigabitEthernet0/1
-R1(config-if)# ip nat outside
-```
-
-この設定がないと、以降どの NAT 方式を設定しても変換は行われません。
-
-## 手順 3: 静的 NAT の構成と観察（20 分）
-
-1. PC1（192.168.1.10）を固定的に `203.0.113.10` として外部公開する
-
    ```
-   R1(config)# ip nat inside source static 192.168.1.10 203.0.113.10
+   R2(config)# ip route 192.168.1.0 255.255.255.0 10.0.0.1
    ```
 
-2. PC1 のコマンドプロンプトから `ping 198.51.100.8` を実行する
-3. R1 で変換テーブルを確認する
+5. R1 から `ping 10.0.0.2`、`ping 192.168.1.10` を実行し、この時点での疎通を確認する
+   （PC・Syslog サーバはまだ DHCP 未取得のため、PC 側からの ping はこの後の手順で
+   確認します）
+
+## 手順 2: R1 の DHCP サーバ構成（20 分）
+
+1. 固定用に使うアドレスを除外する（ローカル LAN 側の予約範囲とリモート LAN 側の
+   ゲートウェイアドレス）
 
    ```
-   R1# show ip nat translations
+   R1(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
+   R1(config)# ip dhcp excluded-address 192.168.2.1 192.168.2.1
    ```
 
-   - `Pro` 列が `---`、`Inside global` が `203.0.113.10`、`Inside local` が
-     `192.168.1.10` の行が、通信の有無にかかわらず**常時**表示されることを確認する
-
-4. 次の演習に備え、静的エントリを削除する
+2. ローカル LAN 用のプールを作成する
 
    ```
-   R1(config)# no ip nat inside source static 192.168.1.10 203.0.113.10
+   R1(config)# ip dhcp pool LAN1
+   R1(dhcp-config)# network 192.168.1.0 255.255.255.0
+   R1(dhcp-config)# default-router 192.168.1.1
+   R1(dhcp-config)# dns-server 192.168.1.10
+   R1(dhcp-config)# lease 0 8 0
+   R1(dhcp-config)# exit
    ```
 
-## 手順 4: 動的 NAT の構成と観察（30 分）
-
-1. 変換対象の内部アドレス範囲を ACL で定義する
+3. リモート LAN 用のプールを作成する（デフォルトゲートウェイは R2 の Gi0/0）
 
    ```
-   R1(config)# access-list 1 permit 192.168.1.0 0.0.0.255
+   R1(config)# ip dhcp pool LAN2
+   R1(dhcp-config)# network 192.168.2.0 255.255.255.0
+   R1(dhcp-config)# default-router 192.168.2.1
+   R1(dhcp-config)# dns-server 192.168.1.10
+   R1(dhcp-config)# exit
    ```
 
-2. グローバルアドレスプールを作成する（**あえて 2 個だけ**にし、後で枯渇を再現する）
+4. `show ip dhcp pool` を実行し、2 つのプール（LAN1・LAN2）が作成されたことを確認する
+
+## 手順 3: PC1・PC2 の DHCP 取得確認（15 分）
+
+1. PC1・PC2 の [Desktop] → [IP Configuration] で **DHCP** に設定する
+2. 両 PC が `192.168.1.11` 以降のアドレスを取得できることを `ipconfig` で確認する
+   （除外範囲 `192.168.1.1〜.10` の外側から払い出されることを確認する）
+3. PC1 から `ping 192.168.1.10`（Syslog サーバ）を実行し、疎通を確認する
+
+## 手順 4: R2 の DHCP リレー構成（10 分）
+
+1. R2 のクライアント側インターフェース（Gi0/0）に、DHCP サーバ（R1 の Gi0/1）を
+   指す `ip helper-address` を設定する
 
    ```
-   R1(config)# ip nat pool DYN 203.0.113.20 203.0.113.21 netmask 255.255.255.0
+   R2(config)# interface GigabitEthernet0/0
+   R2(config-if)# ip helper-address 10.0.0.1
    ```
 
-3. ACL とプールを結び付けて動的 NAT を有効化する
+   これにより、PC3・PC4 が送出する DHCP Discover（ブロードキャスト）が、
+   R2 によってユニキャストへ変換されて R1 へ転送されるようになります。
+
+## 手順 5: PC3・PC4 の DHCP 取得確認と binding の確認（20 分）
+
+1. PC3・PC4 の [IP Configuration] で **DHCP** に設定する
+2. 両 PC が `192.168.2.2` 以降のアドレスを、リレー経由で取得できることを
+   `ipconfig` で確認する（デフォルトゲートウェイが `192.168.2.1` になっていることも
+   確認する）
+3. R1 で `show ip dhcp binding` を実行し、**4 台分**（PC1〜PC4）のリースが
+   登録されていることを確認する
 
    ```
-   R1(config)# ip nat inside source list 1 pool DYN
+   R1# show ip dhcp binding
    ```
 
-4. PC1 から `ping 198.51.100.8` を実行し、続けて PC2 からも `ping 198.51.100.8` を実行する
-   （**手順 4〜6 は間を空けず連続で実行してください**。変換エントリは一定時間
-   無通信が続くとタイムアウトで解放されるため、間隔が空くと手順 6 の枯渇が
-   再現できないことがあります）
-5. R1 で `show ip nat translations` を実行し、PC1 と PC2 にそれぞれ
-   `203.0.113.20` と `203.0.113.21` が順に割り当てられている様子を確認する
-6. PC3 から `ping 198.51.100.8` を試みる。プールのアドレスが 2 個とも使用中のため、
-   PC3 の通信は変換されず失敗（タイムアウト）することを確認する
-7. `show ip nat statistics` で、プールの使用状況（`allocated`、`misses` の
-   増加など）を確認する
-8. 動的 NAT の設定を撤去する
+4. PC3 から Syslog サーバ（`ping 192.168.1.10`）への疎通を確認する
+
+## 手順 6: NTP マスタ／クライアントの構成と確認（20 分）
+
+1. R1 の時刻を手動設定し、NTP マスタとして動作させる
 
    ```
-   R1(config)# no ip nat inside source list 1 pool DYN
+   R1# clock set 10:00:00 13 July 2026
+   R1(config)# ntp master 3
    ```
 
-## 手順 5: PAT（NAT Overload）の構成と観察（30 分）
-
-1. R1 の Gi0/1（外部インターフェース）のアドレスに、内部ホストすべてを
-   集約する PAT を設定する
+2. R2 を R1 に同期する NTP クライアントとして設定する
 
    ```
-   R1(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload
+   R2(config)# ntp server 10.0.0.1
    ```
 
-   （ACL 1 は手順 4 で作成したものをそのまま再利用します）
-
-2. PC1・PC2・PC3 から**それぞれ** `ping 198.51.100.8` を実行する（同時期に実行することで
-   複数エントリが同居する様子を観察しやすくなります）
-3. R1 で `show ip nat translations` を実行し、次を確認する
-   - 3 台すべてが同一のグローバルアドレス（`203.0.113.1`、Gi0/1 のアドレス）に
-     変換されていること
-   - `Pro` 列に `icmp` が表示され、内部・グローバルの双方に番号（TCP/UDP は
-     ポート番号、ICMP はクエリ識別子）が付与されていること
-4. `show ip nat statistics` を実行し、アクティブな変換数・ヒット数・ミス数・
-   使用中のプール（インターフェースオーバーロードの場合は `interface` と
-   表示される）を確認する
-
-## 手順 6: クリアとデバッグの確認（20 分）
-
-1. 動的に生成された変換エントリをクリアする
+3. 数分待ってから、R2 で同期状態を確認する
 
    ```
-   R1# clear ip nat translation *
+   R2# show ntp status
+   R2# show ntp associations
    ```
 
-   直後に `show ip nat translations` を実行し、PAT のエントリが消えていることを
-   確認する（この時点で静的 NAT エントリは設定していないため、テーブルは
-   空になります）
+   - `show ntp associations` の出力で、R1（`10.0.0.1`）の行の先頭に `*` が
+     付いていれば、そのピアと**同期中**であることを示します
+   - `show ntp status` で `Clock is synchronized` と、stratum が **4**
+     （R1 の stratum 3 より 1 つ大きい値）になっていることを確認する
 
-2. `debug ip nat` を有効にする
+## 手順 7: Syslog の構成とイベント発生・確認（25 分）
 
-   ```
-   R1# debug ip nat
-   ```
-
-3. PC1 から再度 `ping 198.51.100.8` を実行し、コンソールに変換ログが
-   リアルタイムに出力される様子を観察する（`s=192.168.1.10->203.0.113.1` の
-   ような表示が確認できます）
-4. 観察が終わったらデバッグを停止する
+1. R1・R2 の両方で、タイムスタンプ付きログと Syslog サーバへの送出を設定する
 
    ```
-   R1# undebug all
+   R1(config)# service timestamps log datetime msec
+   R1(config)# logging host 192.168.1.10
+   R1(config)# logging trap informational
    ```
 
-## 手順 7: 記録と保存（10 分）
+   ```
+   R2(config)# service timestamps log datetime msec
+   R2(config)# logging host 192.168.1.10
+   R2(config)# logging trap informational
+   ```
 
-1. 各方式（静的 NAT／動的 NAT／PAT）を再設定した状態、または各手順で取得した
-   `show running-config | include nat` の出力をそれぞれ控え、レポートに添付する
-2. 変換テーブル（`show ip nat translations`）のスクリーンショットを、
-   最低でも静的 NAT・動的 NAT・PAT の 3 パターン分取得する
-3. `File > Save As` で `exercise14_氏名.pkt` として保存する
+2. R2 のいずれかのインターフェース（例: Gi0/0）で `shutdown` → `no shutdown` を
+   実行し、意図的にリンクの up/down イベントを発生させる
+
+   ```
+   R2(config)# interface GigabitEthernet0/0
+   R2(config-if)# shutdown
+   R2(config-if)# no shutdown
+   ```
+
+3. Syslog サーバの [Services] タブ → **SYSLOG** 画面を開き、`%LINK` /
+   `%LINEPROTO` を含むメッセージが記録されていることを確認する
+4. R2 で `show logging` を実行し、コンソール上でも同様のメッセージが
+   バッファに記録されていることを確認する
+
+## 手順 8: 総合検証と保存（15 分）
+
+1. 各ルータで次のコマンドを実行し、設定全体を検証する
+
+   ```
+   R1# show ip dhcp pool
+   R1# show ntp status
+   R1# show logging
+   R2# show ntp status
+   R2# show logging
+   ```
+
+2. `File > Save As` で `exercise14_氏名.pkt` として保存する
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. PAT 構成時の `show ip nat translations` において、3 台の PC が同一の
-   グローバルアドレスに変換されながらも、戻りパケットが正しい各 PC に届くのは
-   なぜか。出力のどの列（フィールド）がそれを可能にしているかを示して説明せよ。
-   （本ラボでは ping＝ICMP のみのため、その列には ICMP クエリ識別子が表示されます。
-   TCP/UDP のポート番号と同じく「個体識別のためのキー」として機能する値である、
-   という点に触れて説明してください）
-2. 動的 NAT 構成で PC3 の ping が失敗した一方、PAT に変更すると 3 台とも
-   成功した。この違いが生じた理由を、両方式のアドレス割り当ての仕組みの差から
-   説明せよ。
-3. 観察した変換テーブルから、静的 NAT エントリと動的／PAT エントリを見分ける
-   具体的な特徴（表示上の差異）を 2 点挙げよ。
+1. PC3・PC4 がリレー経由で取得した IP アドレスとデフォルトゲートウェイは
+   何だったか。R2 の `ip helper-address` を外すと PC3・PC4 のアドレス取得は
+   どうなるか、その理由（DHCP Discover がブロードキャストである点）と
+   あわせて述べよ。
+2. R2 で `show ntp status` / `show ntp associations` を実行したとき、
+   同期状態と R2 の stratum 値はいくつだったか。R1 の `ntp master` の値との
+   関係を説明せよ。
+3. Syslog サーバに記録されたインターフェース down/up メッセージ
+   （`%LINK-x-UPDOWN` 等）の severity レベルは何番で、その名称は何か。
+   `logging trap` のレベルを `warning` に変えると、このメッセージは
+   送出されるか。あわせて、同時に記録される `%LINEPROTO-5-UPDOWN`
+   （severity 5）についても、`logging trap warning` で送出されるかどうかを
+   確認し、`%LINK-3-UPDOWN` との違いとその理由（severity としきい値の
+   大小関係）を記述せよ。
 
 ## 提出方法
 
 1. `exercise14_氏名.pkt` を Backlog のラボ課題に**添付**する
-2. `show ip nat translations` / `show ip nat statistics` のスクリーンショットと、
-   観察レポートの回答を課題の**コメント**に貼る
+2. `show ip dhcp binding` / `show ntp status` / `show ntp associations` /
+   Syslog サーバの記録画面のスクリーンショットと、観察レポートの回答を
+   課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| どの方式でも変換が一切行われない | R1 の Gi0/0 に `ip nat inside`、Gi0/1 に `ip nat outside` が設定されているか |
-| 静的 NAT なのに変換されない | `ip nat inside source static` のアドレス指定ミス、inside/outside の設定漏れ |
-| 動的 NAT で誰も変換されない | ACL の対象範囲（`access-list 1`）が内部アドレスと一致しているか、プールのアドレス範囲・マスクが正しいか |
-| 動的 NAT でプールが枯渇するはずの PC3 が成功してしまう | PC1/PC2 の変換エントリがタイムアウトで解放された可能性があります。手順 4〜6 を間を空けず連続で実行し直してください |
-| PAT で複数ホストが変換されない | `overload` キーワードの付け忘れ |
-| PC1 から Srv1 に ping が全く届かない（NAT 設定前から） | R1 のデフォルトルート、R1・R2 の各インターフェース IP・`no shutdown` を確認 |
-| `show ip nat translations` に何も出ない | 変換対象の実トラフィック（ping 等）をまだ発生させていない可能性。ping 実行後に再確認 |
+| PC1・PC2 が DHCP アドレスを取得できない | R1 の `ip dhcp pool LAN1` の `network` 設定、R1 Gi0/0 の `no shutdown`、除外アドレス範囲の誤り |
+| PC3・PC4 が DHCP アドレスを取得できない | R2 Gi0/0 に `ip helper-address 10.0.0.1` が設定されているか、R1↔R2 間の静的ルート（往復とも）が入っているか |
+| R1 で `show ip dhcp binding` に PC3・PC4 が出ない | リレーで転送されたパケットが R1 へ届いていない可能性。R1↔R2 間の疎通・ルーティングを再確認 |
+| R2 が NTP に同期しない（`show ntp status` が unsynchronized） | R1 の `ntp master` 設定漏れ、R2 の `ntp server` の宛先 IP 誤り、しばらく時間をおいて再確認（同期には数分かかることがある） |
+| Syslog サーバに何も記録されない | R1・R2 の `logging host 192.168.1.10` の設定漏れ、Syslog サーバの IP・GW 設定、`logging trap` のレベル設定 |
+| リンク up/down のログが出ない | `shutdown` → `no shutdown` を確実に実行したか、対象インターフェースを取り違えていないか |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

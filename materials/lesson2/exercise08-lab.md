@@ -1,6 +1,6 @@
 # Exercise 8 ラボ手順書: VLAN 間ルーティング — Router-on-a-Stick と L3 スイッチ + SVI
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise08`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise8`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール

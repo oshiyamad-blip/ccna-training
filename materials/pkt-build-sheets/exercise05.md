@@ -1,16 +1,21 @@
 # exercise05 .pktビルドシート
 
-- **対象ラボ**: `materials/lesson1/exercise05-lab.md`（MAC アドレステーブルと ARP の観察、デュプレックス不一致の障害切り分け）
-- **作り込みレベル**: **A（配線済み・IP済み）** — 機器配置・全ケーブル・PC の IP 設定まで済ませ、SW1/SW2 は
-  ホスト名すら設定していない初期状態（`Switch>` のまま）で保存する。この Exercise のテーマ（MAC/ARP 観察、
-  duplex/speed 障害切り分け）はすべて受講者が行う。
+- **対象ラボ**: `materials/lesson3/exercise05-lab.md`（静的ルートとフローティングスタティックの構成 —
+  R1-R2-R3 直列トポロジ、IPv4/IPv6 静的ルート・デフォルトルート・フローティングスタティック）
+- **作り込みレベル**: **A（配線済み・IP済み）** — `pkt-build-spec.md` の exercise05 行の指定どおり、
+  「ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空
+  （静的ルート投入が本題）」とする。汎用の A 定義（ルータ/スイッチは未設定＝ホスト名すら
+  未設定の初期状態）ではなく、この exercise05 個別指定を優先する。具体的には、ラボ手順書の
+  **手順1（トポロジ作成・ホスト名・インターフェース IPv4/IPv6・`ipv6 unicast-routing`）と
+  手順2（PC の IP 設定）までを投入済み**にし、**手順4以降（IPv4/IPv6 静的ルート、
+  デフォルトルート、フローティングスタティック）はすべて受講者が入力する**空の状態で
+  保存する。
 - **保存ファイル名**: `exercise05_start.pkt`
 
-> 参考画像: `materials/images/exercise05-topology.svg` は現状リポジトリに存在しない
-  （ラボ手順書が参照する `exercise05-topology.png` も未配置）。本シートは
-  `exercise05-lab.md` の「完成トポロジ」節のテキスト記述と IP アドレス割り当て表を
-  正として作成している。画像が後日追加された場合は、結線がこのシートと
-  食い違っていないか確認すること。
+> 参考画像: `materials/images/exercise05-topology.svg` を確認済み。結線（PC1-R1 Gi0/0、
+> R1 Gi0/1-R2 Gi0/0、R2 Gi0/1-R3 Gi0/0、R3 Gi0/1-PC3、R1 Gi0/2-R3 Gi0/2 の直結）・
+> インターフェース名・IP・主経路/バックアップ経路の区別は、いずれも本シートおよび
+> `exercise05-lab.md` の IP アドレス表・手順1と完全一致している。
 
 ---
 
@@ -18,116 +23,258 @@
 
 | 役割 | 機器モデル | 台数 | 配置名 |
 |---|---|---|---|
-| スイッチ | Cisco 2960 | 2 | SW1, SW2 |
-| PC | 汎用 PC（PC-PT） | 4 | PC1, PC2, PC3, PC4 |
+| ルータ | Cisco 2911 | 3 | R1, R2, R3 |
+| PC | 汎用 PC（PC-PT） | 2 | PC1, PC3 |
 
-- スイッチ間リンクは `GigabitEthernet0/1` を使用するため、2960（Gi0/1 を持つ標準構成）で
-  ラボ手順書のコマンド（`interface gigabitEthernet0/1`）とインターフェース名が一致する。
-- PC ポート側は `FastEthernet0/1`・`FastEthernet0/2` を使用するため、2960 の Fa ポート数
-  （24 ポート）で問題なく足りる。
+- 2911 はオンボードで `GigabitEthernet0/0`〜`0/2` の 3 ポートを持ち、ラボ手順書の
+  コマンド（R1・R3 は Gi0/0〜Gi0/2 の3ポート、R2 は Gi0/0〜Gi0/1 の2ポートを使用）と
+  インターフェース名がそのまま一致する。追加の HWIC モジュールは不要。
+- ラボ手順書冒頭の「使用機器」欄の指定（Router 2911 × 3、PC × 2）と一致させている。
 
 ## 2. 結線表
 
 | 機器A・ポート | ケーブル種別 | 機器B・ポート |
 |---|---|---|
-| PC1 | ストレート | SW1 FastEthernet0/1 |
-| PC2 | ストレート | SW1 FastEthernet0/2 |
-| PC3 | ストレート | SW2 FastEthernet0/1 |
-| PC4 | ストレート | SW2 FastEthernet0/2 |
-| SW1 GigabitEthernet0/1 | ストレート（Auto-MDIX） | SW2 GigabitEthernet0/1 |
+| PC1 FastEthernet0 | ストレート | R1 GigabitEthernet0/0 |
+| R1 GigabitEthernet0/1 | ストレート | R2 GigabitEthernet0/0 |
+| R2 GigabitEthernet0/1 | ストレート | R3 GigabitEthernet0/0 |
+| R3 GigabitEthernet0/1 | ストレート | PC3 FastEthernet0 |
+| R1 GigabitEthernet0/2 | ストレート | R3 GigabitEthernet0/2 |
 
-- 手順書の指定どおり、全リンクを**ストレートケーブル**で結線する（スイッチ間リンクも
-  Auto-MDIX によりストレートで可）。Packet Tracer の「自動選択」でも同じ結線になるが、
-  赤リンクになった場合は上表のとおり明示的にストレートを選び直すこと。
-- PC の物理ポートは自動選択（FastEthernet）でよい。
+- ラボ手順書 手順1-4 の指定どおり、**全リンクがストレートケーブル**（GigabitEthernet
+  ポートは auto-mdix のためルータ同士でもストレートで結線可能）。Packet Tracer の
+  「自動選択（Automatically Choose Connection Type）」でも同じ結線になるが、赤リンクに
+  なった場合は上表のとおり手動でストレートを選び直すこと。
+- 5 本目の R1 Gi0/2 ⇔ R3 Gi0/2 は**主経路として使う直結リンク**（R1-R2-R3 側の
+  Gi0/1 系統がバックアップ）。取り違えないよう配線後に `show cdp neighbors` や
+  結線図で必ず確認する。
+- 全リンクが緑になるまで待ってから次に進む。
 
 ## 3. PC/サーバ設定
 
-全ノードは同一サブネット `192.168.10.0/24`。**デフォルトゲートウェイは空欄でよい**
-（ラボ手順書の指定どおり）。
-
 | デバイス | IPアドレス | サブネットマスク | デフォルトGW | その他 |
 |---|---|---|---|---|
-| PC1 | 192.168.10.11 | 255.255.255.0 | （空欄） | DNS 設定不要 |
-| PC2 | 192.168.10.12 | 255.255.255.0 | （空欄） | DNS 設定不要 |
-| PC3 | 192.168.10.13 | 255.255.255.0 | （空欄） | DNS 設定不要 |
-| PC4 | 192.168.10.14 | 255.255.255.0 | （空欄） | DNS 設定不要 |
+| PC1 | 192.168.1.10 | 255.255.255.0 | 192.168.1.1 | IPv6: 2001:db8:1::10/64（プレフィックス長64）、IPv6 GW: 2001:db8:1::1 |
+| PC3 | 192.168.3.10 | 255.255.255.0 | 192.168.3.1 | IPv6: 2001:db8:3::10/64（プレフィックス長64）、IPv6 GW: 2001:db8:3::1 |
 
-Desktop > IP Configuration で Static を選択し、上記の IP / マスクのみ入力する
-（Gateway 欄・DNS 欄は空のままでよい）。
+- Desktop > IP Configuration で Static を選択し、IPv4（Address / Subnet Mask /
+  Default Gateway）と IPv6（Address / Prefix Length / Default Gateway）の両方を
+  入力済みにする（レベル A の指定どおり PC 側は投入済み）。
+- DNS 欄は空欄のままでよい（ラボで DNS は使用しない）。
 
 ## 4. 貼り付け用コンフィグ（事前設定）
 
-**事前設定なし（機器は初期状態）。**
+ラボ手順書の**手順1（ホスト名・インターフェース IPv4/IPv6・`ipv6 unicast-routing`）**
+までを投入済みにする。`enable` → `configure terminal` から開始する前提で、以下を
+そのまま各ルータの CLI に貼り付ける。**`ip route` / `ipv6 route`（手順4以降の静的
+ルート・デフォルトルート・フローティングスタティック）は一切含めない**——これが
+exercise05 の本題であり、受講者が入力する部分として空のまま残す。
 
-レベル A の指定どおり、SW1・SW2 はホスト名も設定していない工場出荷状態
-（`Switch con0 is now available` のプロンプトのまま）で保存する。手順書の
-手順1にあるとおり、`hostname SW1` / `hostname SW2` を含むすべての IOS 設定は
-受講者が入力する部分としてビルドシートには含めない。
+### R1
+
+```
+enable
+configure terminal
+hostname R1
+interface gigabitEthernet 0/0
+ ip address 192.168.1.1 255.255.255.0
+ ipv6 address 2001:db8:1::1/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/1
+ ip address 10.0.12.1 255.255.255.252
+ ipv6 address 2001:db8:12::1/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/2
+ ip address 10.0.13.1 255.255.255.252
+ ipv6 address 2001:db8:13::1/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+end
+copy running-config startup-config
+```
+
+### R2
+
+```
+enable
+configure terminal
+hostname R2
+interface gigabitEthernet 0/0
+ ip address 10.0.12.2 255.255.255.252
+ ipv6 address 2001:db8:12::2/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/1
+ ip address 10.0.23.1 255.255.255.252
+ ipv6 address 2001:db8:23::1/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+end
+copy running-config startup-config
+```
+
+### R3
+
+```
+enable
+configure terminal
+hostname R3
+interface gigabitEthernet 0/0
+ ip address 10.0.23.2 255.255.255.252
+ ipv6 address 2001:db8:23::2/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/1
+ ip address 192.168.3.1 255.255.255.0
+ ipv6 address 2001:db8:3::1/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/2
+ ip address 10.0.13.2 255.255.255.252
+ ipv6 address 2001:db8:13::2/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+end
+copy running-config startup-config
+```
+
+### PC1・PC3
+
+IOS 設定は存在しない（PC のため）。IP 設定は「3. PC/サーバ設定」のとおり投入済み。
 
 ## 5. 完成コンフィグ（`_answer.pkt` 用・講師用）
 
-このラボの手順1〜9をすべて実施し、**手順9で復旧まで完了させた最終状態**の
-コンフィグを示す（採点・質問対応の見本）。障害演習（手順7/7'）は一時的な状態
-であり最終状態には残らないため、以下は「復旧後・auto/auto に統一された」
-状態のコンフィグとする。
+このラボの手順1〜13をすべて実施し、`copy running-config startup-config` まで
+完了させた**最終状態**（手順11の障害シミュレーションは手順12で `no shutdown` 済み、
+R1-R3 直結の Gi0/2 は `up`/`up` に復旧している）のコンフィグを示す（採点・質問対応の
+見本）。手順7 の R3 デフォルトルートは、観察レポート設問3（ロンゲストマッチの確認）で
+引き続き参照するため最終状態にも残す。
 
-### SW1
-
-```
-enable
-configure terminal
-hostname SW1
-!
-interface gigabitEthernet0/1
- speed auto
- duplex auto
- exit
-!
-end
-write memory
-```
-
-### SW2
+### R1（最終状態）
 
 ```
 enable
 configure terminal
-hostname SW2
-!
-interface gigabitEthernet0/1
- speed auto
- duplex auto
+hostname R1
+interface gigabitEthernet 0/0
+ ip address 192.168.1.1 255.255.255.0
+ ipv6 address 2001:db8:1::1/64
+ no shutdown
  exit
-!
+interface gigabitEthernet 0/1
+ ip address 10.0.12.1 255.255.255.252
+ ipv6 address 2001:db8:12::1/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/2
+ ip address 10.0.13.1 255.255.255.252
+ ipv6 address 2001:db8:13::1/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+ip route 192.168.3.0 255.255.255.0 10.0.13.2
+ip route 192.168.3.0 255.255.255.0 10.0.12.2 5
+ipv6 route 2001:db8:3::/64 2001:db8:13::2
+ipv6 route 2001:db8:3::/64 2001:db8:12::2 5
 end
-write memory
+copy running-config startup-config
 ```
 
-> 補足（講師用・障害演習の再現手順）: 手順7では上記に加えて SW1 側のみ
-> 一時的に `interface gigabitEthernet0/1` → `speed 100` → `duplex full` を投入し、
-> SW2 側は auto のまま不一致状態を作る。手順7'（発展）では SW1 に `speed 1000`、
-> SW2 に `speed 100` を投入してリンクダウンを再現する。いずれも手順9で
-> 両端 `speed auto` / `duplex auto` に戻して最終状態（上記コンフィグ）に復旧する。
+### R2（最終状態）
 
-### PC1〜PC4
+```
+enable
+configure terminal
+hostname R2
+interface gigabitEthernet 0/0
+ ip address 10.0.12.2 255.255.255.252
+ ipv6 address 2001:db8:12::2/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/1
+ ip address 10.0.23.1 255.255.255.252
+ ipv6 address 2001:db8:23::1/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+ip route 192.168.1.0 255.255.255.0 10.0.12.1
+ip route 192.168.3.0 255.255.255.0 10.0.23.2
+ipv6 route 2001:db8:1::/64 2001:db8:12::1
+ipv6 route 2001:db8:3::/64 2001:db8:23::2
+end
+copy running-config startup-config
+```
 
-IOS 設定なし。IP 設定は「3. PC/サーバ設定」の表のとおり（ラボ全体を通じて
-変更なし）。
+### R3（最終状態）
+
+```
+enable
+configure terminal
+hostname R3
+interface gigabitEthernet 0/0
+ ip address 10.0.23.2 255.255.255.252
+ ipv6 address 2001:db8:23::2/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/1
+ ip address 192.168.3.1 255.255.255.0
+ ipv6 address 2001:db8:3::1/64
+ no shutdown
+ exit
+interface gigabitEthernet 0/2
+ ip address 10.0.13.2 255.255.255.252
+ ipv6 address 2001:db8:13::2/64
+ no shutdown
+ exit
+ipv6 unicast-routing
+ip route 192.168.1.0 255.255.255.0 10.0.13.1
+ip route 192.168.1.0 255.255.255.0 10.0.23.1 5
+ip route 0.0.0.0 0.0.0.0 10.0.23.1
+ipv6 route 2001:db8:1::/64 2001:db8:13::1
+ipv6 route 2001:db8:1::/64 2001:db8:23::1 5
+end
+copy running-config startup-config
+```
+
+### PC1・PC3
+
+IP 設定は「3. PC/サーバ設定」のまま変更なし。
+
+- 完成状態での疎通確認の想定結果:
+  - PC1 (192.168.1.10) → PC3 (192.168.3.10)：`ping`／`ping 2001:db8:3::10` とも成功
+  - `tracert 192.168.3.10`（PC1）：`R1 Gi0/0 → R1 Gi0/2 → R3 Gi0/2`（R1-R3 直結の
+    主経路のみ、R2 は経由しない）の順にホップ
+  - R1 の `show ip route 192.168.3.0`：主経路（via 10.0.13.2、AD/メトリック `[1/0]`）
+    のみ表示され、フローティング側（via 10.0.12.2、AD=5）は非表示
+  - R1 の Gi0/2 を `shutdown` すると `show ip route 192.168.3.0` の表示先が
+    via 10.0.12.2（フローティング側、`[5/0]`）に切り替わり、`no shutdown` で
+    復旧すると via 10.0.13.2 に戻る
+  - R3 の `show ip route`：`S* 0.0.0.0/0 [1/0] via 10.0.23.1` が
+    `Gateway of last resort` として表示されつつ、`192.168.1.0/24` は
+    ロンゲストマッチにより具体的な静的ルート（via 10.0.13.1）で転送される
 
 ## 6. 組み立て後チェック
 
-- [ ] SW1・SW2・PC1〜PC4 の全リンクが緑（Auto-MDIX 経由のスイッチ間リンクも含む）
-- [ ] SW1・SW2 は `hostname` 未設定（プロンプトが `Switch>` のまま）で、
-      `show running-config` に interface 設定などが一切追加されていない
-      ＝レベル A どおり本題（MAC/ARP 観察・duplex/speed 設定）が未着手であることを確認
-- [ ] PC1〜PC4 の Desktop > IP Configuration に、3. の表のとおり IP/マスクが
-      入力済み、Gateway 欄は空欄
-- [ ] PC1 の Command Prompt から `ping 192.168.10.12`（同一スイッチ配下）と
-      `ping 192.168.10.13`（スイッチ間リンク経由）がともに成功する
-      （スイッチが初期状態でも、フラッディング＋学習により疎通は成立する想定）
-- [ ] `arp -a`（各 PC）・`show mac address-table`（SW1/SW2）が、保存前の
-      通信テストで汚れていないこと（テストで ping した場合は、保存前に
-      SW1/SW2 で `clear mac address-table dynamic` を実行し、PC 側の ARP
-      キャッシュもクリア、または一度再配置して汚れのない状態で保存する）
-- [ ] `exercise05_start.pkt` として保存し、再度開いて上記の状態が保たれていることを確認
+- [ ] PC1-R1、R1-R2、R2-R3、R3-PC3、R1-R3（直結）の全リンクが緑
+- [ ] R1・R2・R3 とも `hostname` が投入済み（プロンプトが `R1#`/`R2#`/`R3#`）で、
+      `show ip interface brief` と `show ipv6 interface brief` を実行すると、
+      IP アドレス表どおりの IPv4/IPv6 アドレスが設定され全インターフェースが
+      `up`/`up` であることを確認
+- [ ] 各ルータで `ipv6 unicast-routing` が有効（`show running-config | include ipv6 unicast-routing`
+      が1行返る）ことを確認
+- [ ] レベル A の指定どおり、`show ip route static` / `show ipv6 route static` が
+      いずれも**何も表示しない**（静的ルート・デフォルトルート・フローティング
+      スタティックが未投入）＝手順4以降が本題として残っていること
+- [ ] PC1 の Command Prompt から `ping 192.168.1.1`（R1 Gi0/0、同一セグメント）は
+      成功し、`ping 192.168.3.10`（PC3、未到達）は失敗する（`Request timed out.`）
+      ことを確認 ＝手順3で受講者が観察する「隣接ネットワークのみ疎通」の状態が
+      保たれていること
+- [ ] PC1・PC3 の Desktop > IP Configuration に、3. の表のとおり IPv4/IPv6 の
+      IP・マスク（プレフィックス長）・デフォルトゲートウェイが入力済み
+- [ ] `exercise05_start.pkt` として保存し、再度開いて配線・ホスト名・インターフェース
+      IP・PC の IP が保持され、静的ルート類は未投入のままであることを確認

@@ -18,16 +18,16 @@
 ## ウォームアップ（想起クイズ）
 
 > 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 9「STP と EtherChannel」 /
-> Exercise 13「OSPF 応用と FHRP」 / Exercise 15「IP サービス総合」 の範囲から出題）。
+> Exercise 12「OSPF 応用と FHRP」 / Exercise 14「IP サービス総合」 の範囲から出題）。
 
 **W1.** （Exercise 9）LACP で片方のスイッチのポートを `active`、もう片方を `passive` に
 設定した組み合わせでは EtherChannel は成立するか。また、両方とも `passive` に
 設定した組み合わせではどうか。
 
-**W2.** （Exercise 13）HSRP のプライオリティの既定値はいくつか。また、プリエンプト
+**W2.** （Exercise 12）HSRP のプライオリティの既定値はいくつか。また、プリエンプト
 （`standby <グループ番号> preempt`）は既定で有効か無効か。
 
-**W3.** （Exercise 15）Syslog の severity は 0〜7 のどちらが重大度が高いか。また、
+**W3.** （Exercise 14）Syslog の severity は 0〜7 のどちらが重大度が高いか。また、
 severity 6 の名称は何か。
 
 <details><summary>解答</summary>

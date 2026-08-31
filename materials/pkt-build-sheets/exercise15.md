@@ -1,99 +1,67 @@
 # exercise15 .pktビルドシート
 
-- **対象ラボ**: `materials/lesson3/exercise15-lab.md`（DHCP リレー・NTP 同期・Syslog 収集の
-  統合構成 — R1 が DHCP サーバ／NTP マスタ（stratum 3）、R2 が DHCP リレー
-  （`ip helper-address`）／NTP クライアントを兼務する 2 セグメント構成）
-- **作り込みレベル**: **A（配線済み・IP済み）** — `pkt-build-spec.md` の exercise15 行の指定
-  「配線・IP済み。各サービス設定が本題」のとおり。具体的には、ラボ手順書の
-  **手順1「基本ネットワーク構成」（R1・R2 のインターフェース IP・`no shutdown`・
-  相互の静的ルート、Syslog サーバの IP）までを投入済み**にし、**手順2以降
-  （DHCP 除外アドレス／プール、`ip helper-address`、NTP マスタ／クライアント、
-  Syslog 送出設定）はすべて未設定のまま**保存する。exercise11／exercise12／exercise14 と同じ
-  「配線・基本 IP は前提として済ませ、その日の本題（今回は DHCP・NTP・Syslog の
-  各サービス）だけを空けておく」という LESSON3 の運用に合わせている。
+- **対象ラボ**: `materials/lesson1/exercise15-lab.md`（IPv6 アドレッシング — 静的設定と SLAAC の構成）
+- **作り込みレベル**: **A（配線済み・IP済み）** — ただし `pkt-build-spec.md` の exercise15 特記事項により調整あり:
+  「IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み」。
+  本ラボは IPv4 を一切使わない IPv6 専用ラボであり、かつ **PC の IPv6 アドレス設定そのもの
+  （静的入力・SLAAC への切り替え）がラボ手順書「手順3」の学習対象**なので、標準レベル A の
+  「PC/サーバの IP・GW 設定済み」は適用しない。開始ファイルでは PC の IP（IPv4/IPv6 とも）は
+  未設定のまま保存する。ルータ・スイッチも通常のレベル A どおり初期状態（未設定）。
 - **保存ファイル名**: `exercise15_start.pkt`
-
-> 参考画像: `materials/images/exercise15-topology.svg` を確認済み。結線
-> （SW1: Fa0/1=R1 Gi0/0、Fa0/2=PC1、Fa0/3=PC2、Fa0/4=Syslog サーバ ／
-> SW2: Fa0/1=R2 Gi0/0、Fa0/2=PC3、Fa0/3=PC4 ／ R1 Gi0/1 ⇔ R2 Gi0/1 が
-> 10.0.0.0/30 の WAN リンク）・インターフェース名・IP は、いずれも本シートおよび
-> `exercise15-lab.md` の IP アドレス表・手順1と完全一致している。
+- **参照した図**: `materials/images/exercise15-topology.svg`（本文の結線・IP・機器と完全一致を確認済み）
 
 ---
 
 ## 1. 機器リスト
 
-| 役割 | 機器モデル | 台数 | 配置名 |
+| 役割 | 機器モデル | 台数 | 配置名（Device Name） |
 |---|---|---|---|
-| PC（ローカル LAN・DHCP クライアント） | 汎用 PC（PC-PT） | 2 | PC1, PC2 |
-| PC（リモート LAN・DHCP クライアント／リレー経由） | 汎用 PC（PC-PT） | 2 | PC3, PC4 |
-| サーバ（Syslog サーバ役） | 汎用サーバ（Server-PT） | 1 | Syslog サーバ |
-| L2 スイッチ（ローカル LAN） | Cisco 2960 | 1 | SW1 |
-| L2 スイッチ（リモート LAN） | Cisco 2960 | 1 | SW2 |
-| ルータ（DHCP サーバ／NTP マスタ） | Cisco 2911 | 1 | R1 |
-| ルータ（DHCP リレー／NTP クライアント） | Cisco 2911 | 1 | R2 |
+| ルータ | **2911**（オンボード GigabitEthernet0/0・0/1 の2ポートを利用。手順書のインターフェース名 `gigabitEthernet 0/0` / `0/1` と一致） | 1 | R1 |
+| スイッチ | **2960** | 2 | SW1, SW2 |
+| PC | PC-PT（汎用 PC） | 4 | PC1, PC2, PC3, PC4 |
 
-- 2911 はオンボードで `GigabitEthernet0/0`・`0/1` を持ち、ラボ手順書のコマンド
-  （R1 は Gi0/0=ローカル LAN 側・Gi0/1=WAN 側、R2 は Gi0/1=WAN 側・Gi0/0=リモート
-  LAN 側）とインターフェース名がそのまま一致する。追加の HWIC モジュールは不要。
-- 2960 は Fa0/1〜Fa0/24 の標準構成。SW1 は 4 ポート（Fa0/1〜Fa0/4）、SW2 は
-  3 ポート（Fa0/1〜Fa0/3）を使用し、いずれもラボ手順書の「L2 スイッチ、設定不要」
-  のとおり初期状態のまま使う。
-- Syslog サーバは Server-PT（`FastEthernet0` インターフェースを持つ標準構成）を
-  使用。Desktop タブで IP を設定し、Services タブの **SYSLOG** を有効化する
-  （Server-PT は既定で SYSLOG サービスが ON になっているが、開始ファイル作成時に
-  一度 Services タブを開いて ON になっていることを目視確認しておくこと）。
+> ラボ手順書「手順1」の指定どおり 2911×1・2960×2・PC×4。スイッチはデフォルト VLAN のアクセスポートのまま使用し、追加設定は一切行わない（ラボの範囲外）。
 
 ## 2. 結線表
 
 | 機器A・ポート | ケーブル種別 | 機器B・ポート |
 |---|---|---|
-| PC1 FastEthernet0 | ストレート | SW1 FastEthernet0/2 |
-| PC2 FastEthernet0 | ストレート | SW1 FastEthernet0/3 |
-| Syslog サーバ FastEthernet0 | ストレート | SW1 FastEthernet0/4 |
-| SW1 FastEthernet0/1 | ストレート | R1 GigabitEthernet0/0 |
-| R1 GigabitEthernet0/1 | ストレート | R2 GigabitEthernet0/1 |
-| R2 GigabitEthernet0/0 | ストレート | SW2 FastEthernet0/1 |
-| PC3 FastEthernet0 | ストレート | SW2 FastEthernet0/2 |
-| PC4 FastEthernet0 | ストレート | SW2 FastEthernet0/3 |
+| R1 / GigabitEthernet0/0 | ストレートケーブル | SW1 / FastEthernet0/1 |
+| SW1 / FastEthernet0/2 | ストレートケーブル | PC1 / FastEthernet0 |
+| SW1 / FastEthernet0/3 | ストレートケーブル | PC2 / FastEthernet0 |
+| R1 / GigabitEthernet0/1 | ストレートケーブル | SW2 / FastEthernet0/1 |
+| SW2 / FastEthernet0/2 | ストレートケーブル | PC3 / FastEthernet0 |
+| SW2 / FastEthernet0/3 | ストレートケーブル | PC4 / FastEthernet0 |
 
-- 全リンクがストレートケーブルで結線可能（Packet Tracer 9.x のスイッチ・
-  ルータポートは auto-mdix のため、ルータ同士（R1 Gi0/1 ⇔ R2 Gi0/1）でも
-  ストレートで問題ない）。「自動選択（Automatically Choose Connection Type）」
-  でも同じ結線になるが、赤リンクになった場合は上表のとおり手動でストレートを
-  選び直すこと。
-- SW1 は Fa0/1〜Fa0/4 の 4 ポートすべて使用（ラボ手順書の IP アドレス表の
-  「SW1 | Fa0/1〜Fa0/4」と一致）。SW2 は Fa0/1〜Fa0/3 の 3 ポート使用（同様に
-  「SW2 | Fa0/1〜Fa0/3」と一致）。
-- 全リンクが緑になるまで待ってから保存する。
+- 全6本とも「自動選択（Automatically Choose Connection Type）」で可（すべて異種機器間のためストレートで自動判定される）。
+- 配線直後の見え方（初期状態のまま保存するのが正しい状態）:
+  - SW1-PC1、SW1-PC2、SW2-PC3、SW2-PC4 の4本 → スイッチ側は起動後 STP 収束ですぐ**緑**になる
+  - R1-SW1、R1-SW2 の2本 → **ルータの GigabitEthernet インターフェースは工場出荷時 `shutdown` のため、初期状態では赤（down）のまま**でよい。ラボ手順書「手順2」で受講者が `no shutdown` するまで直さない（先に緑にすると本題を代わりにやってしまうことになるので注意）。
 
 ## 3. PC/サーバ設定
 
-| デバイス | IPアドレス | サブネットマスク | デフォルトGW | その他 |
-|---|---|---|---|---|
-| PC1 | DHCP 取得（未取得のまま保存でよい） | DHCP 取得 | DHCP 取得 | Desktop > IP Configuration で **DHCP** を選択済みにしておく（R1 の DHCP サーバが未設定のため、保存時点ではアドレス取得に失敗した状態のままでよい） |
-| PC2 | 同上 | 同上 | 同上 | 同上 |
-| PC3 | DHCP 取得（未取得のまま保存でよい） | DHCP 取得 | DHCP 取得 | Desktop > IP Configuration で **DHCP** を選択済みにしておく（リレー未設定・R1 の DHCP サーバも未設定のため同様） |
-| PC4 | 同上 | 同上 | 同上 | 同上 |
-| Syslog サーバ | 192.168.1.10 | 255.255.255.0 | 192.168.1.1 | Desktop > IP Configuration で **Static** を選択し入力。Services タブ > **SYSLOG** が ON になっていることを確認 |
+**このラボは exercise15 特記事項によりレベル A の PC IP 事前設定を適用しない。開始ファイル（`exercise15_start.pkt`）では PC1〜PC4 とも IP Configuration は初期状態（IPv4: DHCP のデフォルト表示のまま／IPv6: `Automatic` トグルはオフ、アドレス欄は空欄）で保存すること。** 下表は受講者がラボ手順書「手順3」で最終的に入力・確認する値の参照であり、講師用の完成見本（`exercise15_answer.pkt`、後述）にはこの値を反映する。
 
-- レベル A の指定どおり、PC/サーバの「IP 設定モード」自体は投入済みにする
-  （Syslog サーバは固定 IP を入力済み、PC1〜PC4 は DHCP モードを選択済み）。
-  実際のアドレス払い出しは R1・R2 の DHCP／リレー設定（本題）が完了して
-  初めて行われるため、開始ファイルの時点では PC1〜PC4 は「IP アドレス未取得」の
-  状態のままで正しい。
-- DNS サーバ欄は Syslog サーバでは使用しないため空欄でよい。
+| デバイス | IPアドレス | サブネットマスク／プレフィックス長 | デフォルトGW | その他 |
+|---|---|---|---|---|
+| PC1 | 2001:DB8:0:1::10（静的入力） | 64 | 2001:DB8:0:1::1 | IPv6 設定を Static に切り替えてから入力。IPv4 は未使用 |
+| PC2 | 2001:DB8:0:1::11（静的入力） | 64 | 2001:DB8:0:1::1 | IPv6 設定を Static に切り替えてから入力。IPv4 は未使用 |
+| PC3 | 自動割当（SLAAC、`2001:DB8:0:2::/64` 内） | 64（自動） | R1 Gi0/1 のリンクローカルから自動学習 | IPv6 設定を Automatic に切り替えるのみ。値は入力しない |
+| PC4 | 自動割当（SLAAC、`2001:DB8:0:2::/64` 内） | 64（自動） | R1 Gi0/1 のリンクローカルから自動学習 | IPv6 設定を Automatic に切り替えるのみ。値は入力しない |
 
 ## 4. 貼り付け用コンフィグ（事前設定）
 
-ラボ手順書の**手順1「基本ネットワーク構成」**（インターフェース IP・
-`no shutdown`・相互の静的ルート）までを投入済みにする。`enable` →
-`configure terminal` から開始する前提で、以下をそのまま各ルータの CLI に
-貼り付ける。**手順2（DHCP 除外アドレス・プール）、手順4（`ip helper-address`）、
-手順6（NTP マスタ／クライアント）、手順7（`service timestamps` /
-`logging host` / `logging trap`）は一切含めない**——これらが exercise15 の本題
-（DHCP・NTP・Syslog の各サービス設定）であり、受講者が入力する部分として
-空のまま残す。
+**事前設定なし（機器は初期状態）。**
+
+- R1: ホスト名すら未設定の工場出荷状態のまま配置・保存する（`enable` すら入力しない。IOS には一切コマンドを投入しない）。プロンプトは `Router>` のまま。
+- SW1 / SW2: 初期状態のまま（本ラボはスイッチの IOS 設定を一切行わない）。
+- PC1〜PC4: 上記のとおり IPv4・IPv6 とも未設定のまま保存する。
+
+これはレベル A の定義（機器配置＋全ケーブル済み、ルータ/スイッチは未設定）に、exercise15 特記事項（IPv6 アドレッシング自体がこの Exercise の学習対象のため PC の IP も未設定に残す）を重ねた状態。
+
+## 5. 完成コンフィグ（`exercise15_answer.pkt` 用・講師用）
+
+このラボを完成させた状態の全機器設定。採点・質問対応の見本として、別ファイル `exercise15_answer.pkt` に投入しておく。
 
 ### R1
 
@@ -101,188 +69,74 @@
 enable
 configure terminal
 hostname R1
+ipv6 unicast-routing
 interface gigabitEthernet 0/0
- ip address 192.168.1.1 255.255.255.0
+ ipv6 address 2001:DB8:0:1::1/64
  no shutdown
  exit
 interface gigabitEthernet 0/1
- ip address 10.0.0.1 255.255.255.252
+ ipv6 address 2001:DB8:0:2::/64 eui-64
  no shutdown
  exit
-ip route 192.168.2.0 255.255.255.0 10.0.0.2
 end
 copy running-config startup-config
 ```
 
-### R2
+> Gi0/1 の実際の GUA（EUI-64 生成結果）は R1 の Gi0/1 の MAC アドレスに依存するため、Packet Tracer 上での実値は機体ごとに異なる（`2001:DB8:0:2:xxxx:xxff:fexx:xxxx` の形式になる）。`show ipv6 interface gi0/1` で確認できる値をそのまま `exercise15_answer.pkt` の動作確認記録に残しておくこと。
+
+### SW1 / SW2
 
 ```
-enable
-configure terminal
-hostname R2
-interface gigabitEthernet 0/1
- ip address 10.0.0.2 255.255.255.252
- no shutdown
- exit
-interface gigabitEthernet 0/0
- ip address 192.168.2.1 255.255.255.0
- no shutdown
- exit
-ip route 192.168.1.0 255.255.255.0 10.0.0.1
-end
-copy running-config startup-config
+! コンフィグ投入なし。工場出荷時の初期状態のまま。
+! (本ラボはスイッチのIOS設定を範囲に含まない。デフォルトVLANのアクセスポートのみ使用)
 ```
 
-- 手順1の最後（手順1-5）で R1 から `ping 10.0.0.2` と `ping 192.168.1.10` を
-  実行して疎通確認する内容は、開始ファイル作成時にも同様に確認しておくと
-  結線・IP 設定のミスを事前に潰せる（Syslog サーバの IP が入っていれば両方とも
-  成功するはず）。
+### PC1〜PC4（Desktop > IP Configuration）
 
-### SW1・SW2
+| デバイス | IPv6 設定 | IPv6 Address | Prefix Length | IPv6 Default Gateway |
+|---|---|---|---|---|
+| PC1 | Static | 2001:DB8:0:1::10 | 64 | 2001:DB8:0:1::1 |
+| PC2 | Static | 2001:DB8:0:1::11 | 64 | 2001:DB8:0:1::1 |
+| PC3 | Automatic（SLAAC） | （自動取得。`ipconfig` で確認） | 64（自動） | （RA から自動学習） |
+| PC4 | Automatic（SLAAC） | （自動取得。`ipconfig` で確認） | 64（自動） | （RA から自動学習） |
 
-事前設定なし（機器は初期状態のまま。ラボ手順書のとおり L2 スイッチとして
-VLAN1 のデフォルト動作で使用し、設定は不要）。
+### 確認用コマンド（講師が動作確認する際の参考、ラボ手順書「手順4・5」相当）
 
-### PC1・PC2・PC3・PC4・Syslog サーバ
-
-IOS 設定は存在しない（PC/サーバのため）。IP 設定は「3. PC/サーバ設定」の
-とおり投入済み。
-
-## 5. 完成コンフィグ（`_answer.pkt` 用・講師用）
-
-このラボの手順1〜7をすべて実施した**最終状態**のコンフィグを示す
-（採点・質問対応の見本）。手順8の `show` 系コマンドは検証のみで
-running-config に影響しないため含めない。手順7-2 の
-`shutdown` → `no shutdown`（R2 Gi0/0）はログ発生のための一時操作であり、
-最終的にインターフェースは `no shutdown` のまま変化しないため、最終
-コンフィグには反映不要。
-
-### R1（最終状態）
-
-`clock set` は特権 EXEC コマンド（`config` モードではない）なので、
-`configure terminal` に入る**前**に実行する。
+R1 の CLI で:
 
 ```
-enable
-clock set 10:00:00 13 July 2026
-configure terminal
-hostname R1
-interface gigabitEthernet 0/0
- ip address 192.168.1.1 255.255.255.0
- no shutdown
- exit
-interface gigabitEthernet 0/1
- ip address 10.0.0.1 255.255.255.252
- no shutdown
- exit
-ip route 192.168.2.0 255.255.255.0 10.0.0.2
-ip dhcp excluded-address 192.168.1.1 192.168.1.10
-ip dhcp excluded-address 192.168.2.1 192.168.2.1
-ip dhcp pool LAN1
- network 192.168.1.0 255.255.255.0
- default-router 192.168.1.1
- dns-server 192.168.1.10
- lease 0 8 0
- exit
-ip dhcp pool LAN2
- network 192.168.2.0 255.255.255.0
- default-router 192.168.2.1
- dns-server 192.168.1.10
- exit
-ntp master 3
-service timestamps log datetime msec
-logging host 192.168.1.10
-logging trap informational
-end
-copy running-config startup-config
+show ipv6 interface brief
+show ipv6 interface gi0/0
+show ipv6 interface gi0/1
+show ipv6 route
+show ipv6 neighbors
 ```
 
-- `clock set` は running-config に残らない（時刻はデバイスの動作状態であり
-  コンフィグ項目ではない）ため、`_answer.pkt` を開き直した際は毎回
-  再実行が必要になる点に注意（採点時は日時がズレていても NTP マスタとしての
-  動作自体には影響しない）。
-
-### R2（最終状態）
+PC1 の Command Prompt で:
 
 ```
-enable
-configure terminal
-hostname R2
-interface gigabitEthernet 0/1
- ip address 10.0.0.2 255.255.255.252
- no shutdown
- exit
-interface gigabitEthernet 0/0
- ip address 192.168.2.1 255.255.255.0
- ip helper-address 10.0.0.1
- no shutdown
- exit
-ip route 192.168.1.0 255.255.255.0 10.0.0.1
-ntp server 10.0.0.1
-service timestamps log datetime msec
-logging host 192.168.1.10
-logging trap informational
-end
-copy running-config startup-config
+ipconfig
+ping 2001:DB8:0:1::11
+ping 2001:DB8:0:2:xxxx:xxxx:xxxx:xxxx
 ```
+（2番目の ping の宛先は PC3 の `ipconfig` で確認した実際の GUA に置き換える）
 
-- 手順7-2 の `interface GigabitEthernet0/0` → `shutdown` → `no shutdown` は
-  Syslog イベント（`%LINK-3-UPDOWN` / `%LINEPROTO-5-UPDOWN`）を発生させる
-  ための操作で、最終状態のインターフェースは上記のとおり `no shutdown`
-  （up/up）のままでよい。
-
-### SW1・SW2（最終状態）
-
-設定変更なし（初期状態のまま。ラボ全体を通じて L2 スイッチの設定は不要）。
-
-### PC1・PC2・PC3・PC4・Syslog サーバ（最終状態）
-
-- PC1・PC2: DHCP により `192.168.1.11` 以降のアドレスを LAN1 プールから取得
-  （デフォルト GW `192.168.1.1`、DNS `192.168.1.10`）。
-- PC3・PC4: R2 の `ip helper-address` 経由のリレーにより `192.168.2.2` 以降の
-  アドレスを LAN2 プールから取得（デフォルト GW `192.168.2.1`、DNS
-  `192.168.1.10`）。
-- Syslog サーバ: 「3. PC/サーバ設定」のまま変更なし（192.168.1.10/24）。
-  Services > SYSLOG 画面に R1・R2 からのログ（`%LINK`/`%LINEPROTO` を含む）が
-  記録されている。
-
-- 完成状態での確認結果の想定（手順8 の検証）:
-  - R1 の `show ip dhcp pool`: `LAN1`・`LAN2` の 2 プールが表示される。
-  - R1 の `show ip dhcp binding`: PC1〜PC4 の **4 台分**のリースが表示される。
-  - R2 の `show ntp status`: `Clock is synchronized`、stratum **4**。
-  - R2 の `show ntp associations`: `10.0.0.1` の行の先頭に `*`。
-  - R1・R2 の `show logging`: バッファに `%LINK-3-UPDOWN` /
-    `%LINEPROTO-5-UPDOWN` を含むメッセージが記録されている。
-  - Syslog サーバの Services > SYSLOG 画面にも同様のメッセージが記録されている。
+- `show ipv6 interface brief` で Gi0/0・Gi0/1 とも `up`/`up`、それぞれにリンクローカル（`fe80::`）と GUA の2つが表示されること
+- `show ipv6 route` に静的セグメント（`2001:DB8:0:1::/64`）・SLAACセグメント（`2001:DB8:0:2::/64`）の両方について `C`（Connected）・`L`（Local）の経路が登録されていること
+- PC3・PC4 の `ipconfig` 結果で、GUA のインターフェース ID 部分に `fffe` が含まれていること（EUI-64 生成の確認）
+- PC1→PC2（同一セグメント）、PC1→PC3（セグメント間、R1 経由）の ping がいずれも成功すること
+- ping 成功後、R1 の `show ipv6 neighbors` に PC1・PC2・PC3 等の IPv6-MAC 対応（NDP）が表示されること
 
 ## 6. 組み立て後チェック
 
-- [ ] PC1-SW1、PC2-SW1、Syslog サーバ-SW1、SW1-R1、R1-R2、R2-SW2、PC3-SW2、
-      PC4-SW2 の全リンクが緑
-- [ ] R1・R2 とも `hostname` が投入済み（プロンプトが `R1#`/`R2#`）で、
-      `show ip interface brief` を実行すると、IP アドレス表どおりの IPv4
-      アドレス（R1: Gi0/0=192.168.1.1、Gi0/1=10.0.0.1／R2: Gi0/1=10.0.0.2、
-      Gi0/0=192.168.2.1）が設定され、全インターフェースが `up`/`up` であることを
-      確認
-- [ ] R1・R2 とも `show ip route static` に相手側サブネットへの静的ルートが
-      1 件ずつ表示され、R1 の CLI から `ping 10.0.0.2` と
-      `ping 192.168.1.10`（Syslog サーバ）がいずれも成功することを確認
-- [ ] レベル A の指定どおり、本題（DHCP・NTP・Syslog）が未設定のまま残って
-      いることを確認する:
-      - R1 の `show running-config | include dhcp` が**何も表示しない**
-        （`ip dhcp excluded-address`／`ip dhcp pool` 未投入）
-      - R2 の `show running-config | include helper` が**何も表示しない**
-        （`ip helper-address` 未投入）
-      - R1・R2 の `show running-config | include ntp` が**何も表示しない**
-        （`ntp master`／`ntp server` 未投入）
-      - R1・R2 の `show running-config | include logging` が**何も表示しない**
-        （`logging host`／`logging trap` 未投入）
-- [ ] PC1〜PC4 の Desktop > IP Configuration が **DHCP** 選択済みで、この時点
-      では IP アドレスを取得できていない（本題未設定のため想定どおりの状態）
-- [ ] Syslog サーバの Desktop > IP Configuration に `192.168.1.10` /
-      `255.255.255.0` / GW `192.168.1.1` が入力済みで、Services > SYSLOG が
-      ON になっている
-- [ ] `exercise15_start.pkt` として保存し、再度開いて配線・ホスト名・インターフェース
-      IP・静的ルート・Syslog サーバの IP が保持され、DHCP／NTP／Syslog 関連設定
-      （DHCP プール・`ip helper-address`・`ntp master`/`ntp server`・
-      `logging host`/`logging trap`）が未投入のままであることを確認
+- [ ] R1(Gi0/0)-SW1(Fa0/1)、SW1(Fa0/2)-PC1、SW1(Fa0/3)-PC2、R1(Gi0/1)-SW2(Fa0/1)、SW2(Fa0/2)-PC3、SW2(Fa0/3)-PC4 の計6本の結線が図（`exercise15-topology.svg`）と完全一致
+- [ ] PC-スイッチ間の4本のリンクは**緑**
+- [ ] R1-SW1、R1-SW2 の2本は、ルータのインターフェースが未設定（`shutdown`）のため**赤のままでよい**（`no shutdown` していないのに緑になっている場合は、誤って設定を投入してしまっているので R1 を初期状態に戻す）
+- [ ] `exercise15_start.pkt` を開いた際、R1 は `hostname` すら未設定（プロンプトが `Router>`）であることを確認
+- [ ] `exercise15_start.pkt` の PC1〜PC4 は IP Configuration が IPv4・IPv6 とも初期状態（未入力）のまま残っていることを確認（本題＝IPv6アドレッシングが未実施のまま残っている＝exercise15特記事項どおり）
+- [ ] SW1・SW2 は初期状態（VLANやホスト名の設定なし）
+- [ ] 講師用 `exercise15_answer.pkt` を別途作成し、上記「5. 完成コンフィグ」を全機器へ投入した状態で、PC1→PC2（静的セグメント内）・PC1→PC3（セグメント間、SLAAC 側の実 GUA 宛て）の2種の IPv6 ping がいずれも成功することを確認
+- [ ] `exercise15_answer.pkt` で `show ipv6 interface brief`（R1）が Gi0/0・Gi0/1 とも `up`/`up` であり、両インターフェースにリンクローカルと GUA が表示されることを確認
+- [ ] `exercise15_answer.pkt` で PC3・PC4 の SLAAC 取得アドレスのインターフェース ID に `fffe` が含まれることを確認
+- [ ] `.pkt` として保存後、一度閉じて再度開き、配線・状態（未設定/設定済み）が保たれていることを確認
+- [ ] ファイル名が `exercise15_start.pkt`（開始用）/ `exercise15_answer.pkt`（完成見本）になっている

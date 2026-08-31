@@ -1,80 +1,58 @@
-# Exercise 12 ラボ手順書: OSPFv2 シングルエリアの構成と経路制御
+# Exercise 12 ラボ手順書: OSPF トラブルシューティングと HSRP による
+デフォルトゲートウェイ冗長化
 
 > 配置先: ドキュメント `02_ラボ手順書 > LESSON3 > Exercise12`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- ルータ 4 台（R1〜R4）でシングルエリア（**エリア 0**）の OSPFv2 を構成し、
-  全ルータが **FULL** でネイバー確立し、全ネットワーク間で疎通が取れる状態を作る
-- インターフェースのコストを変更し、冗長経路がある区間で**意図した経路へ
-  トラフィックを誘導**する（経路制御）
-- `show ip route` と `traceroute` を使って、コスト変更前後で実際の経路が
-  変化したことを確認する
-- `ip ospf priority` を使って DR（Designated Router）を狙ったルータへ変更する
-
-## ウォームアップ
-
-> 講義のウォームアップと同じ設問です。教材を見ずに、まず自力で思い出してから
-> 手順に進んでください。
-
-**W1.** OSPF のネイバー確立に一致が必要な項目を、最低 4 つ挙げよ。
-
-**W2.** DR/BDR の選出基準を順に答えよ（既定プライオリティはいくつか）。
-
-**W3.** インターフェースコストの計算式は何か。参照帯域幅の既定値はいくつか。
-
-<details><summary>解答</summary>
-
-- W1: エリア ID・サブネット・Hello / Dead タイマー・認証・スタブフラグ・MTU
-  （Router ID は一致不要。ただし一意性が必須）
-- W2: インターフェースの OSPF プライオリティが最大のルータ（既定 **1**）が優先され、
-  同値の場合は Router ID が最大のルータが選ばれる
-- W3: インターフェースコスト = 参照帯域幅 ÷ インターフェース帯域幅。
-  既定の参照帯域幅は **100 Mbps（10^8 bps）**
-
-</details>
+- 意図的なミスを含む OSPF トポロジを、下位層から上位層へと**体系的に切り分けて**
+  発見・修正し、全区間の疎通を回復させる
+- ASBR（R3）から OSPF ドメインへデフォルトルートを配布し、他ルータで
+  `O*E2` として学習されることを確認する
+- LAN のデフォルトゲートウェイを **HSRP** で冗長化し、Active ルータの障害時に
+  Standby ルータが自動的に引き継ぐことを、連続 ping を実行しながら確認する
 
 ## 完成トポロジ
 
-R1・R2・R3 が三角形を作り、そこから R4 と PC1・PC2 がぶら下がる構成です。
-Router ID の安定化のため、各ルータにループバック（Lo0）を作成します。
+R1・R2 が LAN（`192.168.10.0/24`）を共有し、HSRP でゲートウェイを冗長化します。
+R1・R2 はそれぞれ R3 と個別リンクで接続し、R3 の先に遠端 LAN
+（`192.168.30.0/24`、PC3）があります。全ルータをエリア 0 のシングルエリア
+OSPF（プロセス ID 10）で構成します。
 
 ![Exercise 12 トポロジ図](../images/exercise12-topology.png)
 
-- R1 = Lo0 `1.1.1.1/32`　R2 = Lo0 `2.2.2.2/32`　R3 = Lo0 `3.3.3.3/32`　R4 = Lo0 `4.4.4.4/32`
+> R3 の先には実際の ISP ルータを用意しません。手順 8 で、受け取ったパケットを
+> そのまま捨てる仮想インターフェース **Null0**（ルータに内蔵された「ゴミ箱」の
+> ようなインターフェース）宛のスタティックルート `ip route 0.0.0.0 0.0.0.0
+> Null0` を使い、疑似的な「ISP 向けデフォルトルート」として
+> `default-information originate` の動作を確認します。
 
 ### IP アドレス表
 
 | 機器 | インターフェース | IPv4 アドレス | 接続先 | 備考 |
 |---|---|---|---|---|
-| R1 | Gi0/0 | 10.0.12.1/24 | R2 Gi0/0 | 三角形の 1 辺 |
-| R1 | Gi0/1 | 10.0.13.1/24 | R3 Gi0/0 | 三角形の 1 辺 |
-| R1 | Gi0/2 | 10.0.14.1/24 | R4 Gi0/0 | R4 への支線 |
-| R1 | Lo0 | 1.1.1.1/32 | ― | Router ID 用 |
-| R2 | Gi0/0 | 10.0.12.2/24 | R1 Gi0/0 | 三角形の 1 辺 |
-| R2 | Gi0/1 | 10.0.23.2/24 | R3 Gi0/1 | 三角形の 1 辺 |
-| R2 | Gi0/2 | 192.168.2.1/24 | PC2 | LAN 側（パッシブ） |
-| R2 | Lo0 | 2.2.2.2/32 | ― | Router ID 用 |
-| R3 | Gi0/0 | 10.0.13.3/24 | R1 Gi0/1 | 三角形の 1 辺 |
-| R3 | Gi0/1 | 10.0.23.3/24 | R2 Gi0/1 | 三角形の 1 辺 |
-| R3 | Lo0 | 3.3.3.3/32 | ― | Router ID 用 |
-| R4 | Gi0/0 | 10.0.14.4/24 | R1 Gi0/2 | R1 への支線 |
-| R4 | Gi0/1 | 192.168.4.1/24 | PC1 | LAN 側（パッシブ） |
-| R4 | Lo0 | 4.4.4.4/32 | ― | Router ID 用 |
-| PC1 | NIC | 192.168.4.10/24（GW: .1） | R4 Gi0/1 | ― |
-| PC2 | NIC | 192.168.2.10/24（GW: .1） | R2 Gi0/2 | ― |
+| R1 | Gi0/0 | 192.168.10.2/24 | SW1 Fa0/1 | LAN／HSRP（優先ルータ予定） |
+| R1 | Gi0/1 | 10.0.13.1/30 | R3 Gi0/0 | OSPF コアリンク |
+| R2 | Gi0/0 | 192.168.10.3/24 | SW1 Fa0/2 | LAN／HSRP |
+| R2 | Gi0/1 | 10.0.23.1/30 | R3 Gi0/1 | OSPF コアリンク |
+| R3 | Gi0/0 | 10.0.13.2/30 | R1 Gi0/1 | OSPF コアリンク |
+| R3 | Gi0/1 | 10.0.23.2/30 | R2 Gi0/1 | OSPF コアリンク |
+| R3 | Gi0/2 | 192.168.30.1/24 | SW2 Fa0/1 | 遠端 LAN |
+| PC1 | NIC | 192.168.10.10/24（GW: .1） | SW1 Fa0/3 | HSRP 仮想 IP をゲートウェイに設定 |
+| PC2 | NIC | 192.168.10.11/24（GW: .1） | SW1 Fa0/4 | HSRP 仮想 IP をゲートウェイに設定 |
+| PC3 | NIC | 192.168.30.10/24（GW: .1） | SW2 Fa0/2 | R3 の物理 IP がそのままゲートウェイ |
 
-> **事前準備メモ**: Cisco 2911 は `GigabitEthernet0/0`・`0/1`・`0/2` の 3 ポートを
-> **オンボードで**備えています（2 ポートのみなのは 2901）。R1・R2 の `Gi0/2` も
-> 既定搭載のポートでそのまま使えるため、拡張モジュールの追加は不要です。
+- HSRP 仮想 IP: `192.168.10.1`（グループ 1） ／ R1 = Active 予定（priority 110、
+  preempt 有効）、R2 = Standby 予定（priority 既定 100）
 
 ---
 
-## 手順 1: トポロジの作成と IP アドレス設定（30 分）
+## 手順 1: トポロジの作成と IP アドレス設定・下位層確認（10 分）
 
-1. Router **2911** を 4 台（R1〜R4）、PC を 2 台（PC1・PC2）配置する
-2. 上記の完成トポロジ・IP アドレス表のとおりにケーブル（ストレート）で接続する
+1. Router **2911** を 3 台（R1〜R3）、Switch **2960** を 2 台（SW1・SW2）、
+   PC を 3 台（PC1〜PC3）配置する
+2. 上記トポロジ・IP アドレス表のとおりにケーブル（ストレート）で接続する
 3. 各ルータで、接続したインターフェースに IP アドレスを設定し有効化する
 
    ```
@@ -82,247 +60,338 @@ Router ID の安定化のため、各ルータにループバック（Lo0）を�
    Router# configure terminal
    Router(config)# hostname R1
    R1(config)# interface GigabitEthernet0/0
-   R1(config-if)# ip address 10.0.12.1 255.255.255.0
+   R1(config-if)# ip address 192.168.10.2 255.255.255.0
    R1(config-if)# no shutdown
    R1(config-if)# exit
    R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# ip address 10.0.13.1 255.255.255.0
-   R1(config-if)# no shutdown
-   R1(config-if)# exit
-   R1(config)# interface GigabitEthernet0/2
-   R1(config-if)# ip address 10.0.14.1 255.255.255.0
+   R1(config-if)# ip address 10.0.13.1 255.255.255.252
    R1(config-if)# no shutdown
    R1(config-if)# exit
    ```
 
-4. 同様に R2〜R4 も IP アドレス表のとおりに設定する
-5. PC1・PC2 にも [Desktop] 内の [IP Configuration] から IP アドレス・サブネットマスク・
-   デフォルトゲートウェイを設定する
-6. 全リンクの●が緑になっていることを確認する
+4. 同様に R2・R3 も IP アドレス表のとおりに設定する（R3 は Gi0/0・Gi0/1・Gi0/2 の
+   3 つ）
+5. PC1〜PC3 にも [Desktop] → [IP Configuration] から IP アドレス・サブネット
+   マスク・デフォルトゲートウェイを設定する
+6. 全リンクの●が緑になっていることを、`show ip interface brief` と直結 PC 間の
+   ping（例: PC1 から SW1 経由で PC2）で確認する。この時点では PC1↔PC3 の
+   疎通はまだ確認しません（OSPF 未構成のため）
 
-## 手順 2: ループバックインターフェースの作成（10 分）
+## 手順 2: OSPF プロセスの起動（15 分）
 
-各ルータにループバックを作成します。ループバックは物理リンクに依存しないため
-**Router ID を安定させる**目的で使われます。
+各ルータで OSPF プロセス（プロセス ID 10）を起動し、`network` 文と
+`passive-interface` を投入します。**この手順どおりに投入すると、演習用に
+仕込まれた設定ミスにより、一部区間でネイバーが正常に成立しません。**
+以降の手順で、これらを自力で発見・修正していきます。
+
+R1:
 
 ```
-R1(config)# interface Loopback0
-R1(config-if)# ip address 1.1.1.1 255.255.255.255
+R1(config)# router ospf 10
+R1(config-router)# network 192.168.10.0 0.0.0.255 area 0
+R1(config-router)# network 10.0.13.0 0.0.0.3 area 0
+R1(config-router)# passive-interface GigabitEthernet0/0
+R1(config-router)# exit
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip ospf hello-interval 5
+R1(config-if)# ip mtu 1400
 R1(config-if)# exit
 ```
 
-R2 は `2.2.2.2`、R3 は `3.3.3.3`、R4 は `4.4.4.4` を同様に設定する。
-
-## 手順 3: OSPF プロセスの起動と Router ID の明示設定（15 分）
-
-各ルータで OSPF プロセスを起動し、Router ID を明示的に指定します。
+R2:
 
 ```
-R1(config)# router ospf 1
-R1(config-router)# router-id 1.1.1.1
+R2(config)# router ospf 10
+R2(config-router)# network 192.168.10.0 0.0.0.255 area 0
+R2(config-router)# passive-interface GigabitEthernet0/0
+R2(config-router)# exit
 ```
 
-R2 は `router-id 2.2.2.2`、R3 は `router-id 3.3.3.3`、R4 は `router-id 4.4.4.4`
-を設定する（すでに `router ospf 1` の中にいる状態で入力する）。
+（R2 では意図的に `10.0.23.0/30` 向けの `network` 文をまだ入力していません）
 
-> Router ID はプロセス起動時に確定するため、後から `router-id` を変更した場合は
-> `clear ip ospf process` で反映させる必要があります（手順 9 で使用します）。
-
-## 手順 4: network 文でエリア 0 への参加（20 分）
-
-各ルータで、接続している全ネットワーク（ループバック含む）をエリア 0 に
-参加させます。ワイルドカードマスクは `/24` → `0.0.0.255`、`/32` → `0.0.0.0` です。
+R3:
 
 ```
-R1(config-router)# network 10.0.12.0 0.0.0.255 area 0
-R1(config-router)# network 10.0.13.0 0.0.0.255 area 0
-R1(config-router)# network 10.0.14.0 0.0.0.255 area 0
-R1(config-router)# network 1.1.1.1 0.0.0.0 area 0
+R3(config)# router ospf 10
+R3(config-router)# network 10.0.13.0 0.0.0.3 area 0
+R3(config-router)# network 10.0.23.0 0.0.0.3 area 0
+R3(config-router)# network 192.168.30.0 0.0.0.255 area 0
+R3(config-router)# passive-interface GigabitEthernet0/2
+R3(config-router)# passive-interface GigabitEthernet0/1
+R3(config-router)# exit
 ```
 
-```
-R2(config-router)# network 10.0.12.0 0.0.0.255 area 0
-R2(config-router)# network 10.0.23.0 0.0.0.255 area 0
-R2(config-router)# network 192.168.2.0 0.0.0.255 area 0
-R2(config-router)# network 2.2.2.2 0.0.0.0 area 0
-```
+各ルータで `show ip ospf neighbor` を実行し、ネイバーの状態を記録してください。
+この時点では **R1-R3 間・R2-R3 間ともにネイバーが正常に Full になりません**。
 
-```
-R3(config-router)# network 10.0.13.0 0.0.0.255 area 0
-R3(config-router)# network 10.0.23.0 0.0.0.255 area 0
-R3(config-router)# network 3.3.3.3 0.0.0.0 area 0
-```
+> **ここからがこの Exercise の山場です。** 4 つの障害を一つずつ切り分けて
+> いきますが、「状態（State）を見る → 疑わしい原因を絞る → 設定を比較する」の順で
+> 進めれば必ず特定できます。時間をかけて構いません。
 
-```
-R4(config-router)# network 10.0.14.0 0.0.0.255 area 0
-R4(config-router)# network 192.168.4.0 0.0.0.255 area 0
-R4(config-router)# network 4.4.4.4 0.0.0.0 area 0
-```
+## 手順 3: 障害 1（Hello/Dead タイマー不一致・ネイバー不成立）の切り分けと修正（15 分）
 
-## 手順 5: パッシブインターフェースの設定（10 分）
-
-PC を収容する LAN 側インターフェースには Hello を送る必要がありません。
-R2 の PC2 側、R4 の PC1 側をパッシブに設定します。
-
-```
-R2(config-router)# passive-interface GigabitEthernet0/2
-```
-
-```
-R4(config-router)# passive-interface GigabitEthernet0/1
-```
-
-> 実務では: LAN 側を passive にし忘れると、不要な Hello で帯域・CPU を無駄にする
-> だけでなく、攻撃者が偽の OSPF ルータを立てて経路を注入する隙にもなります。
-> 「OSPF を喋ってよいのは対向ルータがいるリンクだけ」を徹底しましょう。
-
-## 手順 6: ネイバー関係の確認（15 分）
-
-1. 各ルータで次を実行し、ネイバーの状態を確認する
+1. R1 と R3 で `show ip ospf neighbor` を実行し、R1-R3 間のネイバー状態を確認する
+   （タイマーが一致しない Hello は相手に破棄されるため、Init にすら進まず
+   ネイバーとして一切現れないことを確認する）
+2. 両ルータの `show ip ospf interface GigabitEthernet0/1`（R1）・
+   `GigabitEthernet0/0`（R3）を実行し、**Hello interval / Dead interval** を
+   比較する
 
    ```
-   R1# show ip ospf neighbor
+   R1# show ip ospf interface GigabitEthernet0/1
+   R3# show ip ospf interface GigabitEthernet0/0
    ```
 
-2. **確認**: R1 は R2・R3・R4 の 3 台とネイバーになっており、いずれも状態が
-   **FULL** であること。R1-R2、R1-R3、R1-R4 の各リンクには 2 台しかルータが
-   いません。そのため DROTHER（DR/BDR 以外の役割）が存在せず、両方とも DR か
-   BDR のどちらかになります。講義で学んだ「DROTHER 同士は 2-Way で停止する」
-   ケースは、この構成では発生しません
-3. R2・R3・R4 でも同様に確認し、結果を記録する（RID、状態、DR/BDR の役割、
-   接続インターフェース）
-
-## 手順 7: ルーティングテーブルと疎通の確認（15 分）
-
-1. 各ルータで OSPF から学習した経路を確認する
+3. **確認**: R1 側の Hello interval が `5` 秒（既定の 10 秒から変更されている）に
+   なっており、R3 側と一致していないことを特定する
+4. R1 側のタイマを既定値へ戻す
 
    ```
-   R1# show ip route ospf
+   R1(config)# interface GigabitEthernet0/1
+   R1(config-if)# no ip ospf hello-interval
+   R1(config-if)# exit
    ```
 
-2. **確認**: 他ルータのループバックと LAN（192.168.2.0/24、192.168.4.0/24）が
-   コード `O` で学習され、コスト値・ネクストホップが表示されていること
-3. PC1（`192.168.4.10`）から PC2（`192.168.2.10`）へ ping を実行し、疎通することを
+5. 再度 `show ip ospf neighbor` を確認する（次の障害が残っているため、
+   まだ Full にはならない可能性があります。State を記録してください）
+
+## 手順 4: 障害 2（network 文漏れ・状態 Down）の切り分けと修正（10 分）
+
+1. R2 で `show ip protocols` を実行し、OSPF が広告対象としているネットワークの
+   一覧を確認する
+
+   ```
+   R2# show ip protocols
+   ```
+
+2. **確認**: `10.0.23.0/30`（R2-R3 間リンク）が一覧に含まれておらず、
+   `network` 文が漏れていることを特定する
+3. 抜けているネットワークを追加する
+
+   ```
+   R2(config)# router ospf 10
+   R2(config-router)# network 10.0.23.0 0.0.0.3 area 0
+   R2(config-router)# exit
+   ```
+
+4. `show ip ospf neighbor` を R2・R3 双方で確認する（次の障害が残っているため、
+   まだ Full にはならない可能性があります）
+
+## 手順 5: 障害 3（passive-interface 誤設定）の切り分けと修正（10 分）
+
+1. R3 で `show ip protocols` を実行し、Passive Interface の一覧を確認する
+
+   ```
+   R3# show ip protocols
+   ```
+
+2. **確認**: 本来 LAN 側（`GigabitEthernet0/2`）だけがパッシブであるべきところ、
+   バックボーンリンクの `GigabitEthernet0/1`（R2 との接続）まで誤って
+   パッシブに設定されていることを特定する
+3. 誤設定を解除する
+
+   ```
+   R3(config)# router ospf 10
+   R3(config-router)# no passive-interface GigabitEthernet0/1
+   R3(config-router)# exit
+   ```
+
+4. R2・R3 で `show ip ospf neighbor` を確認し、R2-R3 間が **FULL** になったことを
    確認する
-4. R4 から R2 の LAN（`192.168.2.10`）へ traceroute を実行し、**現在の経路**
-   （どのルータを経由するか）を記録する
+
+## 手順 6: 障害 4（MTU 不一致・ExStart 停滞）の切り分けと修正（10 分）
+
+> ⚠️ **Packet Tracer での見え方について**: 実機 IOS では MTU 不一致は DBD 交換を
+> 妨げ ExStart／EXCHANGE で停滞しますが、Packet Tracer はバージョンによって
+> この MTU チェックを厳密に再現しないことがあります。もし手順 1 の時点で
+> R1-R3 間がすでに **FULL** になっていても異常ではありません。その場合は
+> 停滞の再現を待たず、手順 2〜4 の「両側の IP MTU を比較し、既定値へ戻す」
+> 作業そのものを設定衛生（不要な変更の除去）の練習として実施してください。
+
+1. R1・R3 で `show ip ospf neighbor` を確認する。R1-R3 間のネイバーが
+   **ExStart** または **EXCHANGE** のまま停滞していないか確認する（Packet Tracer
+   では上記のとおり停滞せず FULL になっている場合もあります）
+2. 両ルータの IP MTU を比較する（OSPF の DBD MTU チェックは IP MTU を見るため、
+   L2 の `show interfaces` ではなく `show ip interface` で確認します）
 
    ```
-   R4# traceroute 192.168.2.10
+   R1# show ip interface GigabitEthernet0/1 | include MTU
+   R3# show ip interface GigabitEthernet0/0 | include MTU
    ```
 
-5. `show ip ospf interface GigabitEthernet0/0` を実行し、既定コスト・
-   Hello/Dead タイマー・DR/BDR の情報を確認する
+3. **確認**: R1 側の IP MTU が `1400`（既定の 1500 から変更されている）になっており、
+   R3 側と一致していないことを特定する
+4. R1 側の MTU を既定値へ戻す
 
-## 手順 8: コスト変更による経路制御（15 分）
+   ```
+   R1(config)# interface GigabitEthernet0/1
+   R1(config-if)# no ip mtu
+   R1(config-if)# exit
+   ```
 
-R1-R2 間の直接リンク（`10.0.12.0/24`）のコストを上げて、R4 から R2 の LAN 宛の
-トラフィックを **R1 → R3 → R2 の迂回経路**へ誘導します。
+5. `show ip ospf neighbor` を R1・R3 双方で確認し、**FULL** になったことを確認する
+
+## 手順 7: 全区間の疎通確認（10 分）
+
+1. 各ルータで `show ip route ospf` を実行し、他ルータの LAN（`192.168.30.0/24`
+   など）が OSPF で学習されていることを確認する
+2. PC1（`192.168.10.10`）から PC3（`192.168.30.10`）へ ping を実行し、
+   全区間の疎通が回復したことを確認する
+3. 疎通しない場合は、手順 3〜6 のいずれかの修正が漏れていないか
+   `show ip ospf neighbor` で全リンクが FULL であることを再確認する
+
+## 手順 8: OSPF によるデフォルトルート配布（10 分）
+
+R3 に疑似的な ISP 向けデフォルトルートを設定し、OSPF ドメイン全体へ配布します。
+
+```
+R3(config)# ip route 0.0.0.0 0.0.0.0 Null0
+R3(config)# router ospf 10
+R3(config-router)# default-information originate
+R3(config-router)# exit
+```
+
+## 手順 9: 受信側での確認（5 分）
+
+R1・R2 で次を実行し、デフォルトルートが学習されていることを確認します。
+
+```
+R1# show ip route
+R2# show ip route
+```
+
+**確認**: `O*E2  0.0.0.0/0 [110/1] via 10.0.13.2` のように、`O*E2` として
+デフォルトルートが表示されていること。あわせて R3 で
+`show ip ospf database external` を実行し、外部 LSA が生成されていることを
+確認する。
+
+## 手順 10: R1 で HSRP を設定する（10 分）
+
+LAN 側インターフェース（Gi0/0）に HSRP バージョン 2 とグループ 1 を設定します。
+R1 を優先ルータ（Active）にするため、プライオリティを上げ、プリエンプトを
+有効にします。
 
 ```
 R1(config)# interface GigabitEthernet0/0
-R1(config-if)# ip ospf cost 50
+R1(config-if)# standby version 2
+R1(config-if)# standby 1 ip 192.168.10.1
+R1(config-if)# standby 1 priority 110
+R1(config-if)# standby 1 preempt
 R1(config-if)# exit
 ```
 
-1. `show ip route ospf` を再実行し、R2 の LAN（`192.168.2.0/24`）への
-   ネクストホップが変化したことを確認する
-2. R4 から再度 traceroute を実行し、経由するルータが変わったことを確認・記録する
+## 手順 11: R2 で HSRP を設定する（5 分）
+
+R2 はプライオリティを既定値（100）のまま、同じグループに参加させます。
+
+```
+R2(config)# interface GigabitEthernet0/0
+R2(config-if)# standby version 2
+R2(config-if)# standby 1 ip 192.168.10.1
+R2(config-if)# exit
+```
+
+## 手順 12: HSRP の状態確認と PC のゲートウェイ設定（10 分）
+
+1. PC1・PC2 のデフォルトゲートウェイが `192.168.10.1`（HSRP 仮想 IP）に
+   設定されていることを確認する（手順 1 で設定済み）
+2. R1・R2 で次を実行し、状態を確認する
 
    ```
-   R4# traceroute 192.168.2.10
+   R1# show standby brief
+   R2# show standby brief
    ```
 
-> ここでコストを変更したのは R1 の Gi0/0（R1 から R2 へ出ていく向き）だけです。
-> R2 から R4 へ戻る向きのコストは変わっていないため、**復路は従来どおり
-> R2 → R1 → R4 のまま**です。往路と復路で経路が異なるこの状態を**非対称経路**と
-> 呼びます。異常ではありませんが、障害の切り分けでは往路・復路を別々に確認する
-> 必要があるため、頭に入れておいてください。
+3. **確認**: R1 が **Active**、R2 が **Standby** であること、および仮想 IP
+   （`192.168.10.1`）が `Virtual IP` 列に表示されていることを記録する
+4. 仮想 MAC アドレスは `show standby brief` の一覧には表示されません。R1 で
+   詳細表示のコマンドを実行し、`Virtual MAC address` の行を確認して記録する
 
-> 実務では: コストを意図的に上げて経路を迂回させる調整は、回線の帯域・品質差や
-> 冗長化設計に合わせて日常的に行われます。変更後は必ず `show ip route` と
-> `traceroute` で実際の経路を確認し、意図どおりか裏付けを取る習慣をつけましょう。
+   ```
+   R1# show standby
+   ```
 
-## 手順 9: DR の変更（15 分）
+   `show standby brief` の列は左から Interface / Grp / Pri / P（preempt）/ State /
+   Active addr / Standby addr / Virtual IP です。仮想 MAC を確認したいときは
+   詳細表示の `show standby` を使う、と覚えてください。
 
-まず `10.0.12.0/24` セグメント（R1-R2 間）の現在の DR / BDR を確認します。
+## 手順 13: 連続 ping の開始と Active 障害の発生（10 分）
 
-```
-R1# show ip ospf neighbor
-```
+1. PC1 の [Desktop] → [Command Prompt] で、遠端 PC3 宛に連続 ping を実行する
 
-DR/BDR の選出は**非プリエンプティブ**（後から条件のよいルータが来ても交代しない）
-なので、先に OSPF を有効化した側が DR になっているはずです。この手順では R1 →
-R2 の順に設定してきたため、多くの場合 R1 が DR、R2 が BDR になります。Router ID
-は R2（`2.2.2.2`）の方が大きいにもかかわらずこうなる点が、非プリエンプティブの
-実例そのものです。**結果は投入した順序やタイミングで変わるため、必ず自分の
-`show ip ospf neighbor` の出力で確認してから次へ進んでください。**
+   ```
+   ping -t 192.168.30.10
+   ```
 
-ここでは、プライオリティを使って**確実に R1 を DR にする**手順を実施します。
+2. 連続 ping を実行したまま、R1 の Gi0/0 をシャットダウンし、Active 障害を
+   人為的に発生させる
 
-```
-R1(config)# interface GigabitEthernet0/0
-R1(config-if)# ip ospf priority 200
-R1(config-if)# exit
-R1(config)# exit
-R1# clear ip ospf process
-```
+   ```
+   R1(config)# interface GigabitEthernet0/0
+   R1(config-if)# shutdown
+   ```
 
-（確認メッセージが出た場合は `yes` と入力する）
+## 手順 14: フェイルオーバーの確認（10 分）
 
-先ほど確認したとおり、選出は**非プリエンプティブ**です。そのため片方のルータだけ
-プロセスを再起動しても、残っているルータが DR / BDR の座を保持したまま選出が
-行われ、priority を上げた効果が出ないことがあります。確実に反映させるには、
-**R1 と R2 の両方**で `clear ip ospf process` を実行し、同時に選出をやり直させて
-ください（どちらが現在 DR かにかかわらず、両方で実行します）。
+1. R2 で `show standby` を実行し、状態が **Standby → Active** に遷移したことを
+   確認する
 
-```
-R2# clear ip ospf process
-```
+   ```
+   R2# show standby
+   ```
 
-（確認メッセージが出た場合は `yes` と入力する）
+2. PC1 の連続 ping 画面を観察し、R1 の shutdown 直後に数回だけ応答が途切れた
+   （Request timed out）あと、ping が再び成功するようになることを確認し、
+   何回程度失われたかを記録する
 
-1. `show ip ospf neighbor` を R1・R2 双方で実行し、priority 200 を設定した R1 が
-   DR になっていることを確認する（もともと R1 が DR だった場合は、DR のまま
-   変わらないことを確認する）
-2. 変更前後の DR・BDR の Router ID を記録する
+## 手順 15: 復旧とプリエンプトの確認（5 分）
 
-## 手順 10: 総仕上げ確認と提出準備（5 分）
+1. R1 の Gi0/0 を復旧させる
 
-1. `show ip protocols` を実行し、Router ID・参加ネットワーク・パッシブ
-   インターフェース・AD（110）が表示されることを確認する
-2. ファイルを保存する: `File > Save As` で `exercise12_氏名.pkt` として保存する
+   ```
+   R1(config)# interface GigabitEthernet0/0
+   R1(config-if)# no shutdown
+   ```
+
+2. `show standby brief` を R1・R2 双方で実行し、プリエンプト設定により
+   R1 が再び **Active** を奪還したことを確認する
+
+## 手順 16: 保存と提出（5 分）
+
+1. ファイルを保存する: `File > Save As` → `exercise12_氏名.pkt`
+2. 下記の観察レポートに解答する
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. コスト変更の前後で、R4 から R2 の LAN 宛の経路（traceroute の経由ルータ）は
-   どう変わったか。変わった理由を**総コスト**の観点で説明せよ。
-2. マルチアクセス区間で選出された DR と BDR の Router ID を記録し、なぜそのルータが
-   DR に選ばれたのか（選出基準）を述べよ。また `priority` と
-   `clear ip ospf process` 実行後にどう変化したか。
-3. LAN 側インターフェースを `passive-interface` にした後、`show ip route ospf` で
-   他ルータからそのネットワークが依然として学習できているか。パッシブ設定が
-   **ネイバー形成**と**経路広告**に与える影響をそれぞれ説明せよ。
+1. 4 つの OSPF 障害それぞれについて、ネイバー状態（Down / Init / ExStart 等）と
+   原因、確認に用いたコマンド、実施した修正を**表にまとめよ**。
+2. R1・R2 の `show ip route` に現れたデフォルトルートは何コード（例: O*E2）で
+   表示され、その配布元と広告に用いたコマンドは何か。
+3. R1 の Gi0/0 を shutdown した際、`show standby` で R2 の状態はどう遷移し、
+   PC からの連続 ping は何回程度失われたか。プリエンプトを有効にした場合と
+   無効の場合で復旧挙動はどう変わるか説明せよ。
 
 ## 提出方法
 
 1. `exercise12_氏名.pkt` を Backlog のラボ課題に**添付**する
-2. 手順 6〜9 の確認結果（`show` コマンドの出力や traceroute 結果、
-   スクリーンショット可）と観察レポートを課題の**コメント**に貼る
+2. 手順 3〜6・9・12・14・15 の確認結果（`show` コマンドの出力や連続 ping の
+   様子、スクリーンショット可）と観察レポートを課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| ネイバーが 1 つも表示されない | エリア ID・IP アドレス／サブネットマスクの入力ミス、ケーブルが緑か、`network` 文のワイルドカードマスクが正しいか |
-| ネイバーが表示されるが FULL にならない | Hello/Dead タイマーの不一致、MTU の不一致（既定のままなら通常発生しない）、認証設定の有無の食い違い |
-| passive にしたのに経路が消えた | `passive-interface` を設定しても `network` 文で該当ネットワークが area 0 に含まれているか確認（`network` 文自体を消していないか） |
-| コスト変更後も経路が変わらない | `ip ospf cost` を設定したインターフェースが正しいか（迂回させたい直接経路の出力側インターフェース）、`show ip ospf interface` でコスト反映を確認 |
-| `clear ip ospf process` 後に DR が変わらない | 対象インターフェースの `priority` が正しく設定されているか、両ルータで `clear ip ospf process` を実行したか |
-| PC1-PC2 で ping が通らない | PC のデフォルトゲートウェイ設定、途中ルータの `show ip route` に経路が載っているか |
+| R1-R3 間のネイバーが一切現れない（設定直後） | `show ip ospf interface` で両側の Hello/Dead interval を比較（手順 3 の修正漏れ。タイマー不一致の Hello は相手に破棄されるため Init にも進みません） |
+| R2-R3 間にネイバーが全く現れない（設定直後） | `show ip protocols` で R2 の `network` 文に `10.0.23.0/30` が含まれているか（手順 4） |
+| network 文を追加してもまだネイバーが現れない | R3 側の `show ip protocols` で Passive Interface に該当リンクが入っていないか（手順 5） |
+| R1-R3 間が ExStart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません。Packet Tracer では停滞せず FULL のままのこともあります） |
+| PC1-PC3 の ping が通らない | 全リンクの `show ip ospf neighbor` が FULL か、`show ip route ospf` に経路があるか |
+| `O*E2` が学習されない | R3 で `ip route 0.0.0.0 0.0.0.0 Null0` と `default-information originate` の両方が投入されているか |
+| `show standby brief` で Active/Standby が逆 | R1 の priority が 110 になっているか、`standby 1 ip` の仮想 IP が両ルータで一致しているか |
+| R1 復旧後も R2 が Active のまま | R1 に `standby 1 preempt` が設定されているか |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

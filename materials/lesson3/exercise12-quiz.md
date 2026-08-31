@@ -1,119 +1,94 @@
-# Exercise 12 小テスト: OSPFv2（シングルエリア）
+# Exercise 12 小テスト: OSPF 応用と FHRP
 
 > 運用: 設問部分を小テスト課題の本文（またはドキュメント）に掲載。
 > 「解答・解説」は講師用フォルダに保管し、**次の Exercise の開始時**に受講者へ公開する。
 > ルール: 10 問 / 30 分 / 教材参照なし。解答はコメントに「Q1: A」形式で提出。
-
----
-
-## ウォームアップ（想起クイズ）
-
-> 教材を見ずに、まず自力で思い出してください（分散学習: 直前の Exercise 11
-> 「ルーティングの基礎と静的ルート」の範囲から出題）。
-
-**W1.** （Exercise 11）`show ip route` の出力で、ルータに直接接続されたネットワークを
-示すコードは何か。
-
-**W2.** （Exercise 11）宛先 `172.16.10.5` に対し、ルーティングテーブルに
-`172.16.0.0/16` と `172.16.10.0/24` の 2 経路が存在する場合、経路選択で
-最初に適用される原則は何か。またどちらの経路が選ばれるか。
-
-**W3.** （Exercise 11）静的ルート（ネクストホップ指定）の AD（管理距離）はいくつか。
-OSPF（AD 110）と比べて優先度はどちらが高いか。
-
-**W4.** （Exercise 11）フローティングスタティックルートとは何か、1〜2 文で説明せよ。
-
-**W5.** （Exercise 11）IPv6 で静的ルートを機能させるために、あらかじめグローバル
-コンフィグモードで実行しておく必要があるコマンドは何か。
-
-<details><summary>解答</summary>
-
-- W1: **C**（Connected）。直接接続されたネットワークを示す
-- W2: **ロンゲストマッチ**（プレフィックス長がより長い経路を優先）。
-  `172.16.10.0/24` が選ばれる
-- W3: **1**。OSPF（110）より数値が小さく、優先度は静的ルートの方が高い
-- W4: 主経路より**高い AD 値**を設定しておき、主経路が使用できなくなったときに
-  自動的にルーティングテーブルへ昇格するバックアップ経路
-- W5: **`ipv6 unicast-routing`**
-
-</details>
+> 配点: 各 10 点（合計 100 点）。
 
 ---
 
 ## 設問
 
-**Q1.** OSPF のアドミニストレーティブディスタンス（AD）として正しいものはどれか。
-
-- A. 110
-- B. 90
-- C. 120
-- D. 1
-
-**Q2.** OSPF の 5 種類のパケットのうち、ネイバーの発見と維持（生存確認）を担うのはどれか。
-
-- A. LSAck
-- B. Hello
-- C. LSU
-- D. DBD
-
-**Q3.** OSPF のネイバー関係が成立するために、両ルータ間で**一致している必要がない**
-項目はどれか。
-
-- A. エリア ID
-- B. Hello / Dead タイマー
-- C. Router ID
-- D. サブネット（同一セグメント）
-
-**Q4.** マルチアクセスネットワークにおいて、DROTHER 同士のネイバー状態が **2-Way**
-のまま **Full** に進まない理由として正しいものはどれか。
-
-- A. 認証に失敗しているため
-- B. MTU が不一致のため
-- C. Hello タイマーが不一致のため
-- D. DR/BDR を経由して情報を集約する設計のため、DROTHER 同士は Full まで進める必要がないため
-
-**Q5.** ルータに `router-id` コマンドの設定がなく、ループバックインターフェースも
-存在しない場合、Router ID はどのように決定されるか。
-
-- A. 最も高い物理インターフェースの IP アドレス
-- B. 最も低い物理インターフェースの IP アドレス
-- C. ランダムに生成される
-- D. OSPF プロセス ID がそのまま使われる
-
-**Q6.** OSPF の DR（Designated Router）選出基準として正しいものはどれか。
-
-- A. Router ID が最小のルータが常に選ばれる
-- B. インターフェースの OSPF プライオリティが最大のルータが優先され、同値の場合は Router ID が最大のルータが選ばれる
-- C. 最初に Hello を送信したルータが常に選ばれる
-- D. プライオリティに関係なく、最も帯域幅が広いインターフェースを持つルータが選ばれる
-
-**Q7.** 参照帯域幅が既定値（100 Mbps）のまま変更されていない場合、
-GigabitEthernet インターフェース（1000 Mbps）の既定コストはいくつになるか。
-
-- A. 0
-- B. 10
-- C. 1
-- D. 100
-
-**Q8.** ネットワーク `172.16.5.0/24` をエリア 0 に参加させる `network` 文として
+**Q1.** 次のうち、OSPF ネイバー成立に一致が必要な項目の組み合わせとして
 正しいものはどれか。
 
-- A. network 172.16.5.0 255.255.255.0 area 0
-- B. network 172.16.5.0 0.0.0.0 area 0
-- C. network 172.16.5.255 0.0.0.255 area 0
-- D. network 172.16.5.0 0.0.0.255 area 0
+- A. エリア ID、Hello / Dead タイマー
+- B. Router ID、MTU
+- C. エリア ID、Router ID
+- D. スタブフラグ、Router ID
 
-**Q9.** あるインターフェースに `passive-interface` を設定した場合の効果として
-正しいものはどれか。
+**Q2.** OSPF のネイバー状態遷移として正しい順序はどれか。
 
-- A. そのインターフェースから Hello パケットが送信されなくなるが、ネットワークの広告は継続する
-- B. そのインターフェースが属するネットワークが他ルータへ広告されなくなる
-- C. OSPF プロセスそのものが停止する
-- D. インターフェースがシャットダウン状態になる
+- A. Down→2-Way→Init→ExStart→Exchange→Loading→Full
+- B. Down→Init→ExStart→2-Way→Exchange→Loading→Full
+- C. Down→Init→2-Way→ExStart→Exchange→Loading→Full
+- D. Down→Init→2-Way→Exchange→ExStart→Loading→Full
 
-**Q10.**（記述）あるルータが特定のネイバーに到達できず、`show ip ospf neighbor`
-にそのネイバーが現れない場合、原因として考えられる要素を**最低 4 つ**挙げ、
-それぞれをどの `show` コマンドで確認するかを説明せよ。
+**Q3.** OSPF ネイバーが ExStart または Exchange の状態で停滞している場合、
+最も疑うべき原因はどれか。
+
+- A. Hello / Dead タイマー不一致
+- B. エリア ID 不一致
+- C. 認証不一致
+- D. MTU 不一致
+
+**Q4.** OSPF ネイバーが（両側で設定が食い違い）そもそも成立しない場合の典型的な
+原因と、ブロードキャスト / P2P ネットワークにおける既定の Hello / Dead タイマーの
+組み合わせとして正しいものはどれか。
+
+- A. サブネット不一致、Hello 30 秒 / Dead 120 秒
+- B. Hello / Dead タイマー不一致、Hello 10 秒 / Dead 40 秒
+- C. MTU 不一致、Hello 10 秒 / Dead 40 秒
+- D. 認証不一致、Hello 5 秒 / Dead 20 秒
+
+**Q5.** あるインターフェースが `show ip ospf neighbor` にネイバーとして
+一切現れない場合、`passive-interface` の誤設定と `network` 文の漏れを
+切り分けるために有効なコマンドの組み合わせはどれか。
+
+- A. `show ip protocols` と `show ip ospf interface brief`
+- B. `show version` と `show running-config`
+- C. `show standby` と `show vlan brief`
+- D. `show ip ospf database` と `show cdp neighbor`
+
+**Q6.** ASBR となるルータ自身のルーティングテーブルにデフォルトルートが
+存在しない場合でも、OSPF ドメインへデフォルトルートを常に配布したいときに
+必要な設定はどれか。
+
+- A. `default-information originate`
+- B. `redistribute static subnets`
+- C. `network 0.0.0.0 255.255.255.255 area 0`
+- D. `default-information originate always`
+
+**Q7.** FHRP（First Hop Redundancy Protocol）の主な目的として正しいものは
+どれか。
+
+- A. スイッチ間のループ防止
+- B. デフォルトゲートウェイの単一障害点を排除し、ゲートウェイを冗長化すること
+- C. ルーティングプロトコル同士の再配送
+- D. VLAN 間のトランク設定の自動化
+
+**Q8.** HSRP・VRRP・GLBP の説明として正しいものはどれか。
+
+- A. HSRP は業界標準プロトコルであり、複数ベンダ環境で利用できる
+- B. VRRP は Cisco 独自プロトコルであり、Active / Standby で動作する
+- C. GLBP は複数のルータが同時にトラフィックを転送する負荷分散が可能である
+- D. HSRP・VRRP・GLBP はいずれもプリエンプトが既定で有効である
+
+**Q9.** HSRP のプライオリティに関する説明として正しいものはどれか。
+
+- A. 既定値は 100 であり、値が高いルータが Active になる。同値の場合は
+  IP アドレスが大きい方が優先される
+- B. 既定値は 0 であり、値が低いルータが Active になる
+- C. 既定値は 100 であり、値が高いルータが Active になる。同値の場合は
+  IP アドレスが小さい方が優先される
+- D. プライオリティの既定値はグループ番号と同じ値になる
+
+**Q10.** HSRP v1・グループ番号 10 で使われる仮想 MAC アドレスはどれか。
+
+- A. `0000.0C07.AC10`
+- B. `0000.0C07.AC0A`
+- C. `0000.0C9F.F00A`
+- D. `0000.5E00.010A`
 
 ---
 
@@ -121,15 +96,14 @@ GigabitEthernet インターフェース（1000 Mbps）の既定コストはい�
 
 | 問 | 解答 | 解説 |
 |---|---|---|
-| Q1 | A | OSPF の AD は 110。EIGRP（90）より優先度は低く、RIP（120）より優先度は高い。なお OSPF はリンクステート型で、各ルータが LSA を交換して同一の LSDB を構築し、SPF で自ら最短経路を計算する点がディスタンスベクタ（噂を信じる方式）と異なる |
-| Q2 | B | Hello パケットがネイバーの発見・維持を担う。既定の Hello タイマーは 10 秒、Dead タイマーは 40 秒（Hello の 4 倍） |
-| Q3 | C | Router ID はネイバー成立の一致条件ではない（ただしネットワーク内で一意である必要がある）。エリア ID・タイマー・サブネットは一致が必須 |
-| Q4 | D | DR/BDR に情報を集約する設計のため、DROTHER 同士は Full まで進める必要がなく 2-Way で正常に停止する |
-| Q5 | A | Router ID は (1) router-id コマンド → (2) 最大のループバック IP → (3) 最大の物理インターフェース IP の順で決まる。設問はループバックがない場合なので物理インターフェースの中で最大の IP が選ばれる |
-| Q6 | B | プライオリティ（既定 1）が最大のルータが優先され、同値なら Router ID が最大のルータが選ばれる。priority 0 は選出対象外、選出は非プリエンプティブ |
-| Q7 | C | コスト = 参照帯域幅（既定 10^8）÷ 帯域幅。Gigabit は 10^8 ÷ 10^9 = 0.1 だが切り上げにより 1 となり、FastEthernet と同じコストになってしまう |
-| Q8 | D | ワイルドカードマスクはサブネットマスクの反転。/24（255.255.255.0）は 0.0.0.255 になる |
-| Q9 | A | passive-interface は Hello の送信（＝ネイバー形成）だけを止め、ネットワークの広告自体は継続する |
-| Q10 | 例 | エリア ID 不一致（`show ip ospf interface` / `show running-config`）、Hello/Dead タイマー不一致（`show ip ospf interface`）、サブネット不一致（`show ip interface brief` や `show running-config`）、Router ID 重複（`show ip protocols` や `show ip ospf`）、認証不一致（`show running-config`）、該当 IF が passive 設定になっている（`show ip protocols` の Passive Interface 欄や `show ip ospf interface`）などから最低 4 つ、原因と確認コマンドが正しく対応していれば正解。※ MTU 不一致は「ネイバーが現れない」原因ではなく「現れるが ExStart/Exchange で FULL にならない」原因なので、本問の正解には含めない |
-
-**採点**: 1 問 10 点、正答率 70% 未満は次の Exercise の冒頭で再テスト。Q10 は趣旨が合っていれば 10 点。
+| Q1 | A | エリア ID と Hello/Dead タイマーは一致が必須。Router ID は一致条件ではなく、ドメイン内での一意性が必須。MTU も一致が必要だが、選択肢の組み合わせとしては A が正しい |
+| Q2 | C | Down→Init→2-Way→ExStart→Exchange→Loading→Full の順。2-Way は双方向疎通の確認、ExStart は DBD 交換の主従関係決定、Full で LSDB 同期完了 |
+| Q3 | D | MTU 不一致は DBD 交換を完了できず、ExStart または Exchange で停滞する典型原因。Hello/Dead タイマー不一致は、設定が一致しない Hello が相手に破棄されるためネイバーがそもそも成立しない（現れない）原因であり、Init 停滞とは異なる |
+| Q4 | B | Hello/Dead タイマー不一致は Hello パケットが相手に破棄されるため、ネイバーがそもそも成立しない（現れない）典型原因。ブロードキャスト/P2P の既定値は Hello 10 秒・Dead 40 秒（NBMA は Hello 30 秒・Dead 120 秒） |
+| Q5 | A | `show ip protocols` で `network` 文の対象ネットワークと Passive Interface の一覧を確認でき、`show ip ospf interface brief` でインターフェースが OSPF プロセスに参加しているかを確認できる |
+| Q6 | D | `always` キーワードを付けると、自身にデフォルトルートが存在しなくても常に広告する。`always` なしの `default-information originate` は自身にデフォルトルートが存在する場合のみ広告する |
+| Q7 | B | FHRP は複数ルータで仮想 IP / 仮想 MAC を共有し、デフォルトゲートウェイの単一障害点（Single Point of Failure）を排除する仕組み |
+| Q8 | C | GLBP は AVG（Active Virtual Gateway）が複数の AVF（Active Virtual Forwarder）に負荷を分散させ、複数台のルータが同時に転送できる点が HSRP・VRRP と異なる。HSRP・GLBP は Cisco 独自、VRRP が業界標準（RFC 5798）で、HSRP のプリエンプトは既定で無効 |
+| Q9 | A | HSRP のプライオリティ既定値は 100（範囲 0〜255）。値が高いルータが Active になり、同値の場合は IP アドレスが大きい方が優先される |
+| Q10 | B | HSRP v1 の仮想 MAC アドレスは `0000.0C07.ACXX`（XX はグループ番号を 16 進数 2 桁で表したもの）。グループ番号 10 は 16 進で `0A` になるため `0000.0C07.AC0A`。A は 10 進の「10」をそのまま置いた誤り、C は HSRP v2 の形式（`0000.0C9F.FXXX`）との混同、D は VRRP の仮想 MAC 形式（`0000.5E00.01XX`）との混同 |
+**採点**: 各 10 点（合計 100 点）。70 点未満は次の Exercise の冒頭で再テスト。

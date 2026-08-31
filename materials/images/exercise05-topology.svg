@@ -1,99 +1,128 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700">
   <defs>
     <style>
       text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
-      .title { font-size: 26px; font-weight: 700; }
-      .sub { font-size: 15px; fill: #6b7280; }
-      .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
-      .model { font-size: 13px; text-anchor: middle; fill: #6b7280; }
-      .iface { font-size: 13px; font-weight: 700; fill: #0e9aa7; }
-      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
-      .net { font-size: 15px; font-weight: 700; fill: #1d4ed8; }
-      .linklabel { font-size: 13px; font-weight: 700; fill: #374151; text-anchor: middle; }
-      .linknote { font-size: 12px; fill: #6b7280; text-anchor: middle; }
-      .link { stroke: #94a3b8; stroke-width: 3; }
-      .trunk { stroke: #0e9aa7; stroke-width: 5; }
+      .title { font-size: 25px; font-weight: 700; }
+      .sub { font-size: 14px; fill: #6b7280; }
+      .devname { font-size: 17px; font-weight: 700; text-anchor: middle; }
+      .ip { font-size: 12.5px; fill: #374151; text-anchor: middle; }
+      .iface { font-size: 12px; font-weight: 700; fill: #374151; text-anchor: middle; }
+      .net { font-size: 13px; font-weight: 700; text-anchor: middle; }
+      .netlan { fill: #374151; }
+      .netprimary { fill: #1d5a94; }
+      .netbackup { fill: #b45309; }
+      .linksub { font-size: 12px; text-anchor: middle; fill: #6b7280; }
+      .linklabel { font-size: 14px; font-weight: 700; text-anchor: middle; }
+      .legend { font-size: 13px; fill: #374151; }
+      .linkprimary { stroke: #2779ca; stroke-width: 4.5; }
+      .linkbackup { stroke: #ff9200; stroke-width: 3.5; stroke-dasharray: 9 6; }
+      .linklan { stroke: #94a3b8; stroke-width: 3; }
+      .haloed { paint-order: stroke; stroke: #ffffff; stroke-width: 3.5px; stroke-linejoin: round; }
     </style>
-    <g id="pc">
-      <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
-      <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
-      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
-      <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
+    <g id="router">
+      <circle r="34" fill="#2779ca"/>
+      <circle r="34" fill="none" stroke="#1e5f9e" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="4" stroke-linecap="round">
+        <line x1="-15" y1="-7" x2="7" y2="-7"/>
+        <line x1="15" y1="7" x2="-7" y2="7"/>
+      </g>
+      <g fill="#ffffff">
+        <path d="M 7 -13 L 19 -7 L 7 -1 Z"/>
+        <path d="M -7 1 L -19 7 L -7 13 Z"/>
+      </g>
     </g>
-    <g id="switch">
-      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="#0e9aa7"/>
-      <rect x="-48" y="-30" width="96" height="60" rx="10" fill="none" stroke="#0b7a85" stroke-width="2.5"/>
-      <line x1="-30" y1="-11" x2="30" y2="-11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
-      <path d="M -30 -11 L -21 -17 L -21 -5 Z" fill="#ffffff"/>
-      <path d="M 30 -11 L 21 -17 L 21 -5 Z" fill="#ffffff"/>
-      <line x1="-30" y1="11" x2="30" y2="11" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/>
-      <path d="M -30 11 L -21 5 L -21 17 Z" fill="#ffffff"/>
-      <path d="M 30 11 L 21 5 L 21 17 Z" fill="#ffffff"/>
+    <g id="pc">
+      <rect x="-25" y="-23" width="50" height="35" rx="4" fill="#475569"/>
+      <rect x="-20" y="-18" width="40" height="25" rx="2" fill="#bfdbfe"/>
+      <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
+      <rect x="-17" y="18" width="34" height="5" rx="2" fill="#475569"/>
     </g>
   </defs>
 
-  <rect width="1200" height="760" fill="#ffffff"/>
+  <rect width="1200" height="700" fill="#ffffff"/>
 
-  <text class="title" x="40" y="52">Exercise 5 ラボ: 完成トポロジ</text>
-  <text class="sub" x="40" y="80">スイッチ 2 台（2960）・PC 4 台 ／ MAC アドレステーブルと ARP の学習、Gi0/1 のデュプレックス不一致切り分け</text>
+  <text class="title" x="40" y="46">Exercise 5 ラボ: 完成トポロジ ― 静的ルートとフローティングスタティック</text>
+  <text class="sub" x="40" y="72">R1-R3 直結（Gi0/2）を主経路、R1-R2-R3 経由（Gi0/1系統）をバックアップとして構成する</text>
 
-  <!-- Subnet area -->
-  <rect x="40" y="102" width="1120" height="560" rx="22" fill="#eff6ff" stroke="#93c5fd" stroke-width="2.5" stroke-dasharray="9 6"/>
-  <text class="net" x="66" y="134">ネットワークアドレス: 192.168.10.0/24（全ノード共通サブネット・デフォルトゲートウェイ不要）</text>
+  <!-- legend -->
+  <g>
+    <line x1="40" y1="98" x2="76" y2="98" class="linkprimary"/>
+    <text class="legend" x="84" y="103">主経路（ネクストホップ指定・AD=1）</text>
+    <line x1="400" y1="98" x2="436" y2="98" class="linkbackup"/>
+    <text class="legend" x="444" y="103">バックアップ経路（フローティングスタティック・AD=5）</text>
+  </g>
 
-  <!-- PC-SW connecting links -->
-  <line class="link" x1="238" y1="200" x2="384" y2="356"/>
-  <line class="link" x1="238" y1="560" x2="384" y2="404"/>
-  <line class="link" x1="962" y1="200" x2="816" y2="356"/>
-  <line class="link" x1="962" y1="560" x2="816" y2="404"/>
+  <!-- ===== links (drawn first, under labels/icons) ===== -->
+  <!-- PC1 - R1 (LAN1) -->
+  <line class="linklan" x1="136" y1="520" x2="296" y2="520"/>
+  <!-- R1 - R2 (backup) -->
+  <line class="linkbackup" x1="358" y1="491" x2="572" y2="235"/>
+  <!-- R2 - R3 (backup) -->
+  <line class="linkbackup" x1="628" y1="235" x2="842" y2="491"/>
+  <!-- R1 - R3 direct (primary) -->
+  <line class="linkprimary" x1="364" y1="520" x2="836" y2="520"/>
+  <!-- R3 - PC3 (LAN3) -->
+  <line class="linklan" x1="904" y1="520" x2="1065" y2="520"/>
 
-  <!-- inter-switch trunk-style link -->
-  <line class="trunk" x1="478" y1="380" x2="722" y2="380"/>
+  <!-- ===== R2（apex）===== -->
+  <text class="devname" x="600" y="152">R2（2911）</text>
+  <use href="#router" x="600" y="210"/>
+  <text class="iface" x="546" y="264">Gi0/0</text>
+  <text class="iface" x="659" y="264">Gi0/1</text>
 
-  <!-- interface labels near switches -->
-  <text class="iface" x="336" y="347" text-anchor="end">Fa0/1</text>
-  <text class="iface" x="336" y="418" text-anchor="end">Fa0/2</text>
-  <text class="iface" x="824" y="347">Fa0/1</text>
-  <text class="iface" x="824" y="418">Fa0/2</text>
+  <!-- backup link R1-R2 labels -->
+  <text class="linklabel netbackup haloed" x="425" y="338">バックアップ経路</text>
+  <text class="linksub haloed" x="425" y="356">10.0.12.0/30 ／ 2001:db8:12::/64</text>
+  <text class="linksub haloed" x="425" y="373">R1: .1 ／ R2: .2（AD=5）</text>
+  <text class="iface" x="397" y="440">Gi0/1</text>
 
-  <!-- inter-switch link labels -->
-  <text class="linklabel" x="500" y="366">Gi0/1</text>
-  <text class="linklabel" x="700" y="366">Gi0/1</text>
-  <text class="linklabel" x="600" y="405">スイッチ間リンク</text>
-  <text class="linknote" x="600" y="423">ストレートケーブル（Auto-MDIX）</text>
+  <!-- backup link R2-R3 labels -->
+  <text class="linklabel netbackup haloed" x="775" y="338">バックアップ経路</text>
+  <text class="linksub haloed" x="775" y="356">10.0.23.0/30 ／ 2001:db8:23::/64</text>
+  <text class="linksub haloed" x="775" y="373">R2: .1 ／ R3: .2（AD=5）</text>
+  <text class="iface" x="806" y="440">Gi0/0</text>
 
-  <!-- SW1 -->
-  <use href="#switch" x="430" y="380"/>
-  <text class="devname" x="430" y="300">SW1</text>
-  <text class="model" x="430" y="320">Catalyst 2960</text>
+  <!-- ===== R1（base-left）===== -->
+  <text class="devname" x="330" y="470">R1（2911）</text>
+  <use href="#router" x="330" y="520"/>
+  <text class="iface" x="276" y="503">Gi0/0</text>
+  <text class="iface" x="420" y="503">Gi0/2</text>
 
-  <!-- SW2 -->
-  <use href="#switch" x="770" y="380"/>
-  <text class="devname" x="770" y="300">SW2</text>
-  <text class="model" x="770" y="320">Catalyst 2960</text>
+  <!-- ===== R3（base-right）===== -->
+  <text class="devname" x="870" y="470">R3（2911）</text>
+  <use href="#router" x="870" y="520"/>
+  <text class="iface" x="924" y="503">Gi0/1</text>
+  <text class="iface" x="780" y="503">Gi0/2</text>
 
-  <!-- PC1 -->
-  <use href="#pc" x="220" y="190"/>
-  <text class="devname" x="220" y="248">PC1</text>
-  <text class="ip" x="220" y="268">192.168.10.11 /24</text>
+  <!-- primary link R1-R3 labels -->
+  <text class="linklabel netprimary" x="600" y="486">主経路（直結）</text>
+  <text class="linksub" x="600" y="547">10.0.13.0/30 ／ 2001:db8:13::/64</text>
+  <text class="linksub" x="600" y="564">R1: .1 ／ R3: .2（AD=1）</text>
 
-  <!-- PC2 -->
-  <use href="#pc" x="220" y="570"/>
-  <text class="devname" x="220" y="500">PC2</text>
-  <text class="ip" x="220" y="520">192.168.10.12 /24</text>
+  <!-- LAN1 label -->
+  <text class="net netlan" x="216" y="497">LAN1</text>
+  <text class="linksub" x="216" y="512">192.168.1.0/24</text>
+  <text class="linksub" x="216" y="527">2001:db8:1::/64</text>
 
-  <!-- PC3 -->
-  <use href="#pc" x="980" y="190"/>
-  <text class="devname" x="980" y="248">PC3</text>
-  <text class="ip" x="980" y="268">192.168.10.13 /24</text>
+  <!-- LAN3 label -->
+  <text class="net netlan" x="985" y="497">LAN3</text>
+  <text class="linksub" x="985" y="512">192.168.3.0/24</text>
+  <text class="linksub" x="985" y="527">2001:db8:3::/64</text>
 
-  <!-- PC4 -->
-  <use href="#pc" x="980" y="570"/>
-  <text class="devname" x="980" y="500">PC4</text>
-  <text class="ip" x="980" y="520">192.168.10.14 /24</text>
+  <!-- ===== PC1 ===== -->
+  <text class="devname" x="110" y="470">PC1</text>
+  <use href="#pc" x="110" y="520"/>
+  <text class="ip" x="110" y="570">192.168.1.10/24（GW: .1）</text>
+  <text class="ip" x="110" y="588">2001:db8:1::10/64（GW: ::1）</text>
+
+  <!-- ===== PC3 ===== -->
+  <text class="devname" x="1090" y="470">PC3</text>
+  <use href="#pc" x="1090" y="520"/>
+  <text class="ip" x="1090" y="570">192.168.3.10/24（GW: .1）</text>
+  <text class="ip" x="1090" y="588">2001:db8:3::10/64（GW: ::1）</text>
 
   <!-- goal note -->
-  <rect x="40" y="680" width="1120" height="56" rx="8" fill="#f0fdf4" stroke="#86efac"/>
-  <text x="60" y="705" font-size="14">ゴール: シミュレーションモードで ARP（Request=ブロードキャスト／Reply=ユニキャスト）とスイッチの MAC</text>
-  <text x="60" y="726" font-size="14">アドレス学習の流れを観察し、Gi0/1 で発生させたデュプレックス／速度不一致を show interfaces 系コマンドで切り分け・復旧できる。</text>
+  <rect x="40" y="622" width="1120" height="56" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="60" y="644" font-size="13">ゴール: ① 全ルータに IPv4/IPv6 の静的ルート（往路・復路）とデフォルトルートを設定し、PC1-PC3 間で全区間疎通を実現する</text>
+  <text x="60" y="664" font-size="13">② R1-R3 間の主経路にフローティングスタティックで冗長化し、主経路遮断時に自動でバックアップへ切り替わることを show ip route で検証する</text>
 </svg>

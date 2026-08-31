@@ -1,18 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="920" viewBox="0 0 1200 920">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="830" viewBox="0 0 1200 830">
   <defs>
     <style>
       text { font-family: "Noto Sans CJK JP", sans-serif; fill: #1f2937; }
       .title { font-size: 26px; font-weight: 700; }
       .sub { font-size: 15px; fill: #6b7280; }
+      .area { font-size: 16px; font-weight: 700; fill: #1d4ed8; }
       .devname { font-size: 18px; font-weight: 700; text-anchor: middle; }
-      .model { font-size: 12px; fill: #6b7280; text-anchor: middle; }
-      .iface { font-size: 13px; fill: #374151; }
-      .ip { font-size: 13px; fill: #374151; text-anchor: middle; }
-      .zoneTitle { font-size: 16px; font-weight: 700; }
-      .zoneSub { font-size: 13px; fill: #4b5563; }
-      .net { font-size: 15px; font-weight: 700; fill: #b45309; }
-      .netsub { font-size: 12px; fill: #6b7280; }
+      .devname-admin { font-size: 18px; font-weight: 700; text-anchor: middle; fill: #c2410c; }
+      .iface { font-size: 13px; fill: #374151; text-anchor: middle; }
+      .ip { font-size: 13px; fill: #4b5563; text-anchor: middle; }
       .link { stroke: #94a3b8; stroke-width: 3; }
+      .goal { font-size: 14.5px; fill: #1f2937; }
     </style>
     <g id="router">
       <circle r="36" fill="#2779ca"/>
@@ -26,118 +24,87 @@
         <path d="M -8 2 L -20 8 L -8 14 Z"/>
       </g>
     </g>
+    <g id="switch">
+      <rect x="-35" y="-22" width="70" height="44" rx="8" fill="#0e9aa7"/>
+      <rect x="-35" y="-22" width="70" height="44" rx="8" fill="none" stroke="#0b7480" stroke-width="2.5"/>
+      <g stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" fill="#ffffff">
+        <line x1="-22" y1="-7" x2="9" y2="-7"/>
+        <path d="M 9 -7 L 3 -11 L 3 -3 Z"/>
+        <path d="M -22 -7 L -16 -11 L -16 -3 Z"/>
+        <line x1="-9" y1="8" x2="22" y2="8"/>
+        <path d="M 22 8 L 16 4 L 16 12 Z"/>
+        <path d="M -9 8 L -15 4 L -15 12 Z"/>
+      </g>
+    </g>
     <g id="pc">
       <rect x="-26" y="-24" width="52" height="36" rx="4" fill="#475569"/>
       <rect x="-21" y="-19" width="42" height="26" rx="2" fill="#bfdbfe"/>
       <rect x="-8" y="12" width="16" height="6" fill="#475569"/>
       <rect x="-18" y="18" width="36" height="5" rx="2" fill="#475569"/>
     </g>
-    <g id="switch">
-      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="#0e9aa7"/>
-      <rect x="-42" y="-26" width="84" height="52" rx="8" fill="none" stroke="#0b7f8a" stroke-width="2.5"/>
-      <g stroke="#ffffff" stroke-width="3" stroke-linecap="round">
-        <line x1="-26" y1="-9" x2="18" y2="-9"/>
-        <line x1="-18" y1="9" x2="26" y2="9"/>
-      </g>
-      <g fill="#ffffff">
-        <path d="M 18 -14 L 30 -9 L 18 -4 Z"/>
-        <path d="M -26 -14 L -38 -9 L -26 -4 Z"/>
-        <path d="M -18 4 L -30 9 L -18 14 Z"/>
-        <path d="M 26 4 L 38 9 L 26 14 Z"/>
-      </g>
-    </g>
   </defs>
 
-  <rect width="1200" height="920" fill="#ffffff"/>
+  <rect width="1200" height="830" fill="#ffffff"/>
 
-  <text class="title" x="40" y="50">Exercise 3 ラボ: 完成トポロジ図（VLSM アドレス設計）</text>
-  <text class="sub" x="40" y="78">192.168.100.0/24 を 部署A(/26)・部署B(/27)・WANリンク(/30) に VLSM 分割してルーティングを構成する</text>
+  <text class="title" x="40" y="50">Exercise 3 ラボ: 完成トポロジ ― IOS 初期設定と SSH 管理</text>
+  <text class="sub" x="40" y="78">R1・SW1・SW2 に管理設定を行い、Admin-PC から SSH でリモート管理できる状態を作る</text>
 
-  <!-- Department A zone -->
-  <rect x="70" y="100" width="470" height="300" rx="24" fill="#eff6ff" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
-  <text class="zoneTitle" x="95" y="132" fill="#2779ca">部署A ネットワーク 192.168.100.0/26</text>
-  <text class="zoneSub" x="95" y="152">有効ホスト .1〜.62（要件 50 台）</text>
+  <!-- 管理サブネット全体を囲む -->
+  <rect x="50" y="100" width="1100" height="610" rx="24" fill="#f8fafc" stroke="#2779ca" stroke-width="2.5" stroke-dasharray="10 7"/>
+  <text class="area" x="75" y="134">192.168.1.0/24 ・ VLAN 1（管理サブネット）</text>
 
-  <!-- Department B zone -->
-  <rect x="660" y="100" width="470" height="300" rx="24" fill="#f0fdf4" stroke="#7ea800" stroke-width="2.5" stroke-dasharray="10 7"/>
-  <text class="zoneTitle" x="685" y="132" fill="#7ea800">部署B ネットワーク 192.168.100.64/27</text>
-  <text class="zoneSub" x="685" y="152">有効ホスト .65〜.94（要件 25 台）</text>
+  <!-- links -->
+  <line class="link" x1="200" y1="300" x2="520" y2="300"/>
+  <line class="link" x1="520" y1="300" x2="900" y2="170"/>
+  <line class="link" x1="520" y1="300" x2="900" y2="430"/>
+  <line class="link" x1="520" y1="300" x2="520" y2="610"/>
+  <line class="link" x1="520" y1="610" x2="900" y2="610"/>
 
-  <!-- ===== links (drawn first, under icons) ===== -->
-  <!-- SW1 to PCs -->
-  <line class="link" x1="430" y1="260" x2="200" y2="195"/>
-  <line class="link" x1="430" y1="260" x2="200" y2="310"/>
-  <!-- SW2 to PCs -->
-  <line class="link" x1="770" y1="260" x2="1000" y2="195"/>
-  <line class="link" x1="770" y1="260" x2="1000" y2="310"/>
-  <!-- SW1/SW2 to R1 -->
-  <line class="link" x1="430" y1="260" x2="600" y2="480"/>
-  <line class="link" x1="770" y1="260" x2="600" y2="480"/>
-  <!-- R1 to R2 (WAN link) -->
-  <line class="link" x1="600" y1="516" x2="600" y2="709"/>
+  <!-- link labels -->
+  <text class="iface" x="360" y="284">Gi0/0 ⟷ Fa0/24</text>
+  <text class="iface" x="660" y="250">Fa0/1</text>
+  <text class="iface" x="660" y="378">Fa0/2</text>
+  <text class="iface" x="590" y="450">Fa0/23</text>
+  <text class="iface" x="590" y="468">⟷ Fa0/23</text>
+  <text class="iface" x="710" y="594">Fa0/1</text>
 
-  <!-- iface labels: SW1-PC1 / SW1-PC2 -->
-  <text class="iface" x="245" y="196" text-anchor="middle">Fa0/2</text>
-  <text class="iface" x="245" y="290" text-anchor="middle">Fa0/3</text>
-  <!-- iface labels: SW2-PC3 / SW2-PC4 -->
-  <text class="iface" x="955" y="196" text-anchor="middle">Fa0/2</text>
-  <text class="iface" x="955" y="290" text-anchor="middle">Fa0/3</text>
+  <!-- R1 -->
+  <use href="#router" x="200" y="300"/>
+  <text class="devname" x="200" y="245">R1</text>
+  <text class="ip" x="200" y="355">Gi0/0: 192.168.1.1/24</text>
 
-  <!-- iface labels: SW1-R1 -->
-  <text class="iface" x="470" y="304">Fa0/1</text>
-  <text class="iface" x="558" y="432" text-anchor="end">Gi0/0</text>
-  <text class="ip" x="500" y="450" text-anchor="end">192.168.100.1/26</text>
-  <!-- iface labels: SW2-R1 -->
-  <text class="iface" x="730" y="304" text-anchor="end">Fa0/1</text>
-  <text class="iface" x="642" y="432">Gi0/1</text>
-  <text class="ip" x="702" y="450">192.168.100.65/27</text>
+  <!-- SW1 -->
+  <use href="#switch" x="520" y="300"/>
+  <text class="devname" x="520" y="255">SW1</text>
+  <text class="ip" x="520" y="345">VLAN1(SVI): 192.168.1.11/24</text>
+  <text class="ip" x="520" y="363">GW: 192.168.1.1</text>
 
-  <!-- WAN link labels -->
-  <text class="iface" x="558" y="540" text-anchor="end">Gi0/2</text>
-  <text class="ip" x="500" y="558" text-anchor="end">192.168.100.97/30</text>
-  <text class="net" x="500" y="596" text-anchor="end">WAN リンク 192.168.100.96/30</text>
-  <text class="netsub" x="500" y="614" text-anchor="end">有効ホスト .97〜.98（要件 2 台）</text>
-  <text class="ip" x="500" y="654" text-anchor="end">192.168.100.98/30</text>
-  <text class="iface" x="558" y="672" text-anchor="end">Gi0/0</text>
+  <!-- SW2 -->
+  <use href="#switch" x="520" y="610"/>
+  <text class="devname" x="520" y="565">SW2</text>
+  <text class="ip" x="520" y="655">VLAN1(SVI): 192.168.1.12/24</text>
+  <text class="ip" x="520" y="673">GW: 192.168.1.1</text>
 
-  <!-- ===== switches ===== -->
-  <use href="#switch" x="430" y="260"/>
-  <text class="devname" x="430" y="204">SW1</text>
-  <text class="model" x="430" y="222">(2960)</text>
+  <!-- PC1 -->
+  <use href="#pc" x="900" y="170"/>
+  <text class="devname" x="900" y="125">PC1</text>
+  <text class="ip" x="900" y="215">192.168.1.101/24</text>
+  <text class="ip" x="900" y="233">GW: 192.168.1.1</text>
 
-  <use href="#switch" x="770" y="260"/>
-  <text class="devname" x="770" y="204">SW2</text>
-  <text class="model" x="770" y="222">(2960)</text>
+  <!-- Admin-PC -->
+  <use href="#pc" x="900" y="430"/>
+  <text class="devname-admin" x="900" y="385">Admin-PC</text>
+  <text class="ip" x="900" y="475">192.168.1.100/24</text>
+  <text class="ip" x="900" y="493">GW: 192.168.1.1</text>
 
-  <!-- ===== PCs ===== -->
-  <use href="#pc" x="200" y="195"/>
-  <text class="devname" x="200" y="255">PC1</text>
-  <text class="ip" x="200" y="273">192.168.100.2/26</text>
-
-  <use href="#pc" x="200" y="310"/>
-  <text class="devname" x="200" y="370">PC2</text>
-  <text class="ip" x="200" y="388">192.168.100.3/26</text>
-
-  <use href="#pc" x="1000" y="195"/>
-  <text class="devname" x="1000" y="255">PC3</text>
-  <text class="ip" x="1000" y="273">192.168.100.66/27</text>
-
-  <use href="#pc" x="1000" y="310"/>
-  <text class="devname" x="1000" y="370">PC4</text>
-  <text class="ip" x="1000" y="388">192.168.100.67/27</text>
-
-  <!-- ===== routers ===== -->
-  <use href="#router" x="600" y="480"/>
-  <text class="devname" x="600" y="414">R1</text>
-  <text class="model" x="600" y="432">(2911)</text>
-
-  <use href="#router" x="600" y="745"/>
-  <text class="devname" x="600" y="679">R2</text>
-  <text class="model" x="600" y="697">(2911)</text>
+  <!-- PC2 -->
+  <use href="#pc" x="900" y="610"/>
+  <text class="devname" x="900" y="565">PC2</text>
+  <text class="ip" x="900" y="655">192.168.1.102/24</text>
+  <text class="ip" x="900" y="673">GW: 192.168.1.1</text>
 
   <!-- goal note -->
-  <rect x="70" y="800" width="1060" height="90" rx="10" fill="#fff7ed" stroke="#fdba74"/>
-  <text x="90" y="828" font-size="14">ゴール: 部署内（同一サブネット）・部署間（R1 経由）・WAN リンク越し（R2 まで）の End-to-End 疎通を確認し、</text>
-  <text x="90" y="850" font-size="14">192.168.100.0/24 の VLSM 設計にアドレスの重複（オーバーラップ）がないことを計算と実機の両方で検証する。</text>
-  <text x="90" y="874" font-size="13" fill="#6b7280">未使用アドレス: 192.168.100.100 〜 192.168.100.255（将来の拡張用として保持）</text>
+  <rect x="50" y="730" width="1100" height="76" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+  <text class="goal" x="70" y="758">ゴール: R1・SW1・SW2 にホスト名／enable secret／管理 IP を設定し、SSHv2 のみを許可（Telnet 排除）。</text>
+  <text class="goal" x="70" y="780">Admin-PC から SSH でログインし、設定を startup-config に保存・検証できること。</text>
 </svg>

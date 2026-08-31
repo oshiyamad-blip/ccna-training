@@ -35,7 +35,7 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 - リンクが**緑**になる（STP 収束済み）状態まで待ってから保存する
 - 開始用ファイル名は `exerciseNN_start.pkt`（例: `exercise06_start.pkt`）。Exercise00／LESSON0 P5 用は `exercise00_start.pkt`
 - 受講者が提出する完成ファイルの命名規則は `exerciseNN_氏名.pkt`
-  （例: `exercise03_yamada.pkt`）。LESSON0 の P5 だけは `lesson0-p5_氏名.pkt`
+  （例: `exercise04_yamada.pkt`）。LESSON0 の P5 だけは `lesson0-p5_氏名.pkt`
 - 保存前に受講者視点で一度開き、意図した状態（本題が未設定）になっているか確認
 
 ## 検収チェック（各ファイル共通）
@@ -64,10 +64,10 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
 | exercise01_start.pkt | lesson1/exercise01-lab.md | **B** | PC2台+スイッチ2960。配線のみ。IP設定〜pingが学習対象なので PC の IP も未設定 |
-| exercise02_start.pkt | lesson1/exercise02-lab.md | A | R1/SW1/SW2/PC/Admin-PC 配線済み・PC類IP済み。IOS初期設定（hostname/SSH等）が本題なのでルータ/スイッチは初期状態 |
-| exercise03_start.pkt | lesson1/exercise03-lab.md | **B** | VLSM設計が学習対象。機器配置+配線のみ、IP は受講者が設計・設定 |
-| exercise04_start.pkt | lesson1/exercise04-lab.md | A | IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み |
-| exercise05_start.pkt | lesson1/exercise05-lab.md | A | MACテーブル観察・切り分け。配線済み・PC IP済み、スイッチは初期状態 |
+| exercise02_start.pkt | lesson1/exercise02-lab.md | A | MACテーブル観察・切り分け。配線済み・PC IP済み、スイッチは初期状態 |
+| exercise03_start.pkt | lesson1/exercise03-lab.md | A | R1/SW1/SW2/PC/Admin-PC 配線済み・PC類IP済み。IOS初期設定（hostname/SSH等）が本題なのでルータ/スイッチは初期状態 |
+| exercise04_start.pkt | lesson1/exercise04-lab.md | **B** | VLSM設計が学習対象。機器配置+配線のみ、IP は受講者が設計・設定 |
+| exercise05_start.pkt | lesson1/exercise05-lab.md | A | 静的ルート。ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空（静的ルート投入が本題） |
 
 ### LESSON 2
 
@@ -83,11 +83,11 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 
 | ファイル | 参照 | レベル | 特記事項 |
 |---|---|---|---|
-| exercise11_start.pkt | lesson3/exercise11-lab.md | A | 静的ルート。ルータ3台+PC配線済み・各インターフェースIP済み・PC IP済み。ルーティング設定は空（静的ルート投入が本題） |
-| exercise12_start.pkt | lesson3/exercise12-lab.md | A | OSPF。ルータ3〜4台の配線・インターフェースIP済み。OSPF設定は空 |
-| exercise13_start.pkt | lesson3/exercise13-lab.md | **C** | OSPF障害切り分け+HSRP。**意図的なミス入りのOSPF設定を投入済み**（手順書の障害シナリオどおり）。切り分けとHSRPが本題 |
-| exercise14_start.pkt | lesson3/exercise14-lab.md | A | NAT。内部/外部セグメント配線・IP済み（外部サーバは 198.51.100.8）。NAT設定が本題 |
-| exercise15_start.pkt | lesson3/exercise15-lab.md | A | DHCP/NTP/Syslog。配線・IP済み。各サービス設定が本題 |
+| exercise11_start.pkt | lesson3/exercise11-lab.md | A | OSPF。ルータ3〜4台の配線・インターフェースIP済み。OSPF設定は空 |
+| exercise12_start.pkt | lesson3/exercise12-lab.md | **C** | OSPF障害切り分け+HSRP。**意図的なミス入りのOSPF設定を投入済み**（手順書の障害シナリオどおり）。切り分けとHSRPが本題 |
+| exercise13_start.pkt | lesson3/exercise13-lab.md | A | NAT。内部/外部セグメント配線・IP済み（外部サーバは 198.51.100.8）。NAT設定が本題 |
+| exercise14_start.pkt | lesson3/exercise14-lab.md | A | DHCP/NTP/Syslog。配線・IP済み。各サービス設定が本題 |
+| exercise15_start.pkt | lesson3/exercise15-lab.md | A | IPv6設定が本題。PCのIPv4は不要、機器配置+配線済み |
 
 ### LESSON 4
 
@@ -108,7 +108,7 @@ Packet Tracer は GUI 操作のため AI では作れません。この仕様に
 ## 作成の進め方（推奨）
 
 1. まず **Exercise1〜5** を作る（LESSON1 が始まればすぐ必要）。1個15〜30分が目安
-2. 障害シナリオ入り（Exercise13）と総合演習（Exercise20）は時間がかかるので優先的に着手
+2. 障害シナリオ入り（Exercise12）と総合演習（Exercise20）は時間がかかるので優先的に着手
 3. 各ファイルは完成後、上の「検収チェック」を実施
 4. 作成した `.pkt` は各ラボ課題に添付する（`upload-wiki.mjs` は Markdown 教材専用の
    ため、`.pkt` は Backlog 課題への手動添付、またはファイル共有で配布する）

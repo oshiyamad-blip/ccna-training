@@ -28,7 +28,7 @@
   <rect width="1100" height="660" fill="#ffffff"/>
 
   <text class="title" x="40" y="40">経路選択の3段階ロジック ― 宛先 192.168.3.10 への経路はどれが採用されるか</text>
-  <text class="sub" x="40" y="63">ルーティングテーブルに複数の候補が存在するとき、ルータは①→②→③の順で1つに絞り込む（宛先は Exercise11 ラボの LAN3 と同一）</text>
+  <text class="sub" x="40" y="63">ルーティングテーブルに複数の候補が存在するとき、ルータは①→②→③の順で1つに絞り込む（宛先は Exercise5 ラボの LAN3 と同一）</text>
 
   <!-- process strip -->
   <g>
@@ -116,7 +116,7 @@
   <text class="mono monogood" x="550" y="335" font-size="15">S   192.168.3.0/24  [1/0] via 10.0.13.2, GigabitEthernet0/2</text>
   <text class="mononote" x="550" y="358" font-size="12" text-anchor="middle">→ ルーティングテーブルに採用され、以後この経路でパケットが転送される</text>
 
-  <text class="reason" x="550" y="390" font-size="12">※ 候補C（フローティングスタティック AD=5）は、この主経路が生きている間はテーブルに載らず待機する（Exercise11 ラボ手順9〜11 参照）</text>
+  <text class="reason" x="550" y="390" font-size="12">※ 候補C（フローティングスタティック AD=5）は、この主経路が生きている間はテーブルに載らず待機する（Exercise5 ラボ手順9〜11 参照）</text>
 
   <!-- ============ stage 3 inset ============ -->
   <rect x="40" y="415" width="1020" height="150" rx="10" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2"/>

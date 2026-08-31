@@ -1,240 +1,296 @@
-# Exercise 3 ラボ手順書: VLSM によるアドレス設計とルーティング
+# Exercise 3 ラボ手順書: IOS の基本操作とデバイス初期設定
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise03`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise3`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- 部署別ホスト数の要件書をもとに `192.168.100.0/24` を VLSM（可変長サブネット
-  マスク）で設計できる
-- 算出したサブネットをルータのインターフェースと PC に正しく割り当てられる
-- 部署内（同一サブネット）の疎通と、部署間（ルータ経由）の疎通、および
-  WAN リンク越しの End-to-End 疎通を確認できる
-- アドレスのオーバーラップ（重複）がない設計であることを、計算と実機の両方で検証できる
+- ルータ 1 台・スイッチ 2 台に、ホスト名・`enable secret`・コンソール/VTY パスワード・
+  管理 IP アドレスを設定できる
+- SSHv2 を有効化し、Telnet を排除した状態を作れる
+- Admin-PC から各機器へ SSH でリモートログインし、show コマンドで状態を確認できる
+- 設定を startup-config に保存し、`show running-config` で保存内容を検証できる
 
 ## 完成トポロジ
 
 ![Exercise 3 トポロジ図](../images/exercise03-topology.png)
 
-### IP アドレス割り当て表（VLSM 設計結果）
+※ コンソール接続（ロールオーバーケーブル）は Admin-PC の RS232 ポートと、設定対象の
+機器（R1 → SW1 → SW2 の順）の Console ポートを、手順ごとに順次つなぎ替えて使用します。
 
-要件: 部署 A = 50 台、部署 B = 25 台、R1-R2 の WAN リンク = 2 台
-（必要数の多い順に、`192.168.100.0/24` の先頭から連続して割り当てています）
-
-| 用途 | ネットワークアドレス | プレフィックス | サブネットマスク | ブロードキャスト | 有効ホスト範囲 | 割り当て機器 |
-|---|---|---|---|---|---|---|
-| 部署 A（50 台） | 192.168.100.0 | /26 | 255.255.255.192 | 192.168.100.63 | .1〜.62 | R1 Gi0/0, PC1, PC2 |
-| 部署 B（25 台） | 192.168.100.64 | /27 | 255.255.255.224 | 192.168.100.95 | .65〜.94 | R1 Gi0/1, PC3, PC4 |
-| WAN リンク（2 台） | 192.168.100.96 | /30 | 255.255.255.252 | 192.168.100.99 | .97〜.98 | R1 Gi0/2, R2 Gi0/0 |
+### IP アドレス割り当て表
 
 | 機器 | インターフェース | IP アドレス | サブネットマスク | デフォルトゲートウェイ |
 |---|---|---|---|---|
-| R1 | Gi0/0 | 192.168.100.1 | 255.255.255.192 | — |
-| R1 | Gi0/1 | 192.168.100.65 | 255.255.255.224 | — |
-| R1 | Gi0/2 | 192.168.100.97 | 255.255.255.252 | — |
-| R2 | Gi0/0 | 192.168.100.98 | 255.255.255.252 | — |
-| PC1 | NIC | 192.168.100.2 | 255.255.255.192 | 192.168.100.1 |
-| PC2 | NIC | 192.168.100.3 | 255.255.255.192 | 192.168.100.1 |
-| PC3 | NIC | 192.168.100.66 | 255.255.255.224 | 192.168.100.65 |
-| PC4 | NIC | 192.168.100.67 | 255.255.255.224 | 192.168.100.65 |
+| R1 | Gi0/0 | 192.168.1.1 | 255.255.255.0 | — |
+| SW1 | VLAN 1（SVI） | 192.168.1.11 | 255.255.255.0 | 192.168.1.1 |
+| SW2 | VLAN 1（SVI） | 192.168.1.12 | 255.255.255.0 | 192.168.1.1 |
+| PC1 | NIC | 192.168.1.101 | 255.255.255.0 | 192.168.1.1 |
+| PC2 | NIC | 192.168.1.102 | 255.255.255.0 | 192.168.1.1 |
+| Admin-PC | NIC | 192.168.1.100 | 255.255.255.0 | 192.168.1.1 |
 
-`192.168.100.100`〜`192.168.100.255` は将来の拡張用として未使用のまま残します。
+### 配線一覧
+
+| 接続元 | ポート | 接続先 | ポート | ケーブル種別 |
+|---|---|---|---|---|
+| R1 | Gi0/0 | SW1 | Fa0/24 | ストレート |
+| SW1 | Fa0/1 | PC1 | FastEthernet0 | ストレート |
+| SW1 | Fa0/2 | Admin-PC | FastEthernet0 | ストレート |
+| SW1 | Fa0/23 | SW2 | Fa0/23 | クロス |
+| SW2 | Fa0/1 | PC2 | FastEthernet0 | ストレート |
 
 ---
 
-## 手順 1: VLSM 設計とアドレスの確定（20 分）
+## 手順 1: R1 へのコンソール接続とモード遷移確認（5 分）
 
-1. 要件（部署 A = 50 台 ／ 部署 B = 25 台 ／ WAN リンク = 2 台）を確認する
-2. 必要ホスト数の多い順に並べ替える: 部署 A（50）→ 部署 B（25）→ WAN（2）
-3. それぞれに必要な最小のプレフィックス長を求める
-   - 部署 A: 2^6 − 2 = 62 ≥ 50 → **/26**
-   - 部署 B: 2^5 − 2 = 30 ≥ 25 → **/27**
-   - WAN: 2 台ちょうど → **/30**
-4. `192.168.100.0/24` の先頭から順に、ブロックが重ならないように連続して割り当てる
-   （上の「IP アドレス割り当て表」を参照）
-5. 各サブネットのネットワークアドレス・ブロードキャストアドレス・ホスト範囲を紙または
-   メモに書き出し、**範囲が交差していない**ことを目視で確認する
+1. トポロジ画面で、Exercise 1 手順 1 と同じ要領で接続ツール（稲妻アイコン）→
+   **ロールオーバーケーブル**を選び、Admin-PC の **RS232** ポートと R1 の
+   **Console** ポートを順にクリックしてケーブルをつなぐ
+2. Admin-PC をクリックし、[Desktop] → **Terminal** を開く（設定はデフォルトの
+   9600/8-N-1 のままで OK）
+3. 接続後に表示される `Router>` プロンプトで `enable` を実行し、`Router#` に
+   変わることを確認する
+4. `configure terminal` を実行し、`Router(config)#` に変わることを確認する
 
-## 手順 2: トポロジの作成（20 分）
-
-1. Packet Tracer を起動し、新規ファイルを開く
-2. [Network Devices] → [Routers] → **2911** を 2 台配置（R1, R2）
-3. [Network Devices] → [Switches] → **2960** を 2 台配置（SW1, SW2）
-4. [End Devices] → **PC** を 4 台配置（PC1〜PC4）
-5. ケーブル（すべて**ストレートケーブル**）で接続する
-   - R1 `GigabitEthernet0/0` — SW1 `FastEthernet0/1`
-   - R1 `GigabitEthernet0/1` — SW2 `FastEthernet0/1`
-   - R1 `GigabitEthernet0/2` — R2 `GigabitEthernet0/0`（WAN リンク）
-   - SW1 `Fa0/2` — PC1、SW1 `Fa0/3` — PC2
-   - SW2 `Fa0/2` — PC3、SW2 `Fa0/3` — PC4
-
-   > 本来、ルータ同士の直結（R1-R2 の WAN リンク）のような**同種機器間**の接続には
-   > **クロスケーブル**が必要です。ここでストレートケーブルでもリンクアップするのは、
-   > Gigabit インターフェースが備える **Auto-MDIX**（ケーブルの種類を自動判別して
-   > 送受信の極性を調整する機能）のおかげです。試験問題や、Auto-MDIX を持たない
-   > 古い FastEthernet 機器での実機構成では、同種機器間はクロスケーブルを選ぶという
-   > 原則を忘れないでください。
-6. PC-スイッチ間リンクの●が緑になることを確認する（R1 が絡むリンク〔R1-SW1、
-   R1-SW2、R1-R2〕は、ルータのインターフェースが既定でシャットダウン状態のため、
-   手順 4 で `no shutdown` を投入するまで赤〔down〕のままとなる点に注意する）
-
-## 手順 3: ルータの基本設定（10 分）
-
-Packet Tracer では、Exercise 2 で行ったロールオーバーケーブルによるコンソール接続を
-しなくても CLI を操作できます。ルータのアイコンを直接クリックすると開く
-**[CLI] タブ**から、同じ CLI（コマンドラインインターフェース）を扱えます（実機では
-必ずケーブル接続が必要ですが、これはシミュレータ上の簡易操作です）。R1・R2 それぞれの
-アイコンをクリックして [CLI] タブを開き、以下を実行します。
+## 手順 2: R1 の基本設定（ホスト名・enable secret・バナー）（10 分）
 
 ```
-enable
-configure terminal
-hostname R1
+Router(config)# hostname R1
+R1(config)# enable secret cisco123
+R1(config)# enable password cisco456
+R1(config)# banner motd #Authorized access only#
 ```
 
-R2 も同様に `hostname R2` を設定します。
-
-## 手順 4: ルータインターフェースへの IP アドレス設定（25 分）
-
-**R1** で、部署 A・部署 B・WAN リンクの 3 つのインターフェースに設定します。
+## 手順 3: R1 のコンソール保護と管理 IP（15 分）
 
 ```
-interface gigabitEthernet0/0
- ip address 192.168.100.1 255.255.255.192
- no shutdown
- exit
-interface gigabitEthernet0/1
- ip address 192.168.100.65 255.255.255.224
- no shutdown
- exit
-interface gigabitEthernet0/2
- ip address 192.168.100.97 255.255.255.252
- no shutdown
- exit
+R1(config)# line console 0
+R1(config-line)# password consolepw
+R1(config-line)# login
+R1(config-line)# logging synchronous
+R1(config-line)# exit
+R1(config)# interface gigabitEthernet 0/0
+R1(config-if)# ip address 192.168.1.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)# exit
 ```
 
-**R2** で、WAN リンク側のインターフェースに設定します。
+## 手順 4: R1 の SSH 前提条件の設定（15 分）
 
 ```
-interface gigabitEthernet0/0
- ip address 192.168.100.98 255.255.255.252
- no shutdown
- exit
+R1(config)# ip domain-name example.local
+R1(config)# crypto key generate rsa
 ```
 
-## 手順 5: ルーティングの設定（15 分）
-
-**スタティックルート**とは、管理者が `ip route` コマンドで手動で登録する経路情報です
-（「この宛先ネットワークへは、このネクストホップ〔次の転送先〕を通ればよい」という
-対応を 1 行で教える設定です）。
-
-R1 は部署 A・部署 B・WAN リンクの 3 つのネットワークすべてに**直接接続**されているため、
-追加のスタティックルートは不要です（直結ネットワークは自動的にルーティングテーブルへ
-登録されます）。
-
-一方 R2 は WAN リンクのネットワークにしか接続されていないため、部署 A・部署 B へ
-戻る経路を知りません。R2 にデフォルトルートを設定し、R1 へすべての通信を転送させます。
-デフォルトルートは `ip route 0.0.0.0 0.0.0.0 <ネクストホップ>` の形式で設定し、
-`0.0.0.0 0.0.0.0` は「どの宛先アドレスにも一致する」ことを表します。
+鍵長を聞かれたら `1024` を入力します。
 
 ```
-ip route 0.0.0.0 0.0.0.0 192.168.100.97
+How many bits in the modulus [512]: 1024
 ```
 
-> なぜ R1 には静的ルートが不要で R2 には必要なのか、を自分の言葉で説明できるように
-> しておきましょう（レポート設問にも関連します）。
+続けて SSHv2 への固定とローカルユーザを作成します。
 
-## 手順 6: PC の IP 設定（15 分）
+```
+R1(config)# ip ssh version 2
+R1(config)# username admin privilege 15 secret adminpw
+```
 
-各 PC の [Desktop] タブ → **IP Configuration** で、上の「IP アドレス割り当て表」に
-従い、IP アドレス・サブネットマスク・デフォルトゲートウェイを入力します。
+## 手順 5: R1 の VTY を SSH 限定に設定（5 分）
 
-- PC1: `192.168.100.2` / `255.255.255.192` / GW `192.168.100.1`
-- PC2: `192.168.100.3` / `255.255.255.192` / GW `192.168.100.1`
-- PC3: `192.168.100.66` / `255.255.255.224` / GW `192.168.100.65`
-- PC4: `192.168.100.67` / `255.255.255.224` / GW `192.168.100.65`
+```
+R1(config)# line vty 0 4
+R1(config-line)# transport input ssh
+R1(config-line)# login local
+R1(config-line)# exit
+```
 
-設定後、`File > Save As` で `exercise03_氏名.pkt` として保存します。
+## 手順 6: R1 の保存と確認（10 分）
 
-## 手順 7: 疎通確認と経路の検証（25 分）
+```
+R1(config)# end
+R1# copy running-config startup-config
+```
 
-1. R1 で次のコマンドを実行し、全インターフェースが `up` / `up` であることを確認する
+続けて以下のコマンドを実行し、結果を記録します。
 
-   ```
-   show ip interface brief
-   ```
+```
+R1# show ip ssh
+R1# show ip interface brief
+```
 
-2. R1 で次のコマンドを実行し、ルーティングテーブルを確認する
+## 手順 7: SW1 の基本設定（10 分）
 
-   ```
-   show ip route
-   ```
+Admin-PC のロールオーバーケーブルを SW1 の Console ポートへつなぎ替え、手順 2・3 と
+同様に基本設定を行います。
 
-   直結（`C`：Connected）ルートが、設計したプレフィックス（/26, /27, /30）で登録されている
-   ことを確認します。あわせて、そこから派生する `L`（Local）ルート（ルータ自身の
-   インターフェースアドレス）が、プレフィックス長にかかわらず常に `/32` で登録されている
-   ことも確認します。
+```
+Switch(config)# hostname SW1
+SW1(config)# enable secret cisco123
+SW1(config)# enable password cisco456
+SW1(config)# banner motd #Authorized access only#
+SW1(config)# line console 0
+SW1(config-line)# password consolepw
+SW1(config-line)# login
+SW1(config-line)# logging synchronous
+SW1(config-line)# exit
+```
 
-3. PC1 の Command Prompt で `ipconfig` を実行し、設定値が割り当て表と一致することを
-   確認する
-4. PC1 から PC2 へ `ping 192.168.100.3` を実行し、**同一部署内（同一サブネット）**の
-   疎通を確認する
-5. PC1 から PC3 へ `ping 192.168.100.66` を実行し、**部署間（R1 経由）**の疎通を
-   確認する
-6. PC1 から R2 の WAN 側インターフェースへ `ping 192.168.100.98` を実行し、
-   **WAN リンク越しの End-to-End 疎通**を確認する
+## 手順 8: SW1 の管理 IP（SVI）とデフォルトゲートウェイ（10 分）
 
-## 手順 8: シミュレーションモードでの経路観察（10 分）
+```
+SW1(config)# interface vlan 1
+SW1(config-if)# ip address 192.168.1.11 255.255.255.0
+SW1(config-if)# no shutdown
+SW1(config-if)# exit
+SW1(config)# ip default-gateway 192.168.1.1
+```
 
-1. [Simulation] タブに切り替え、[Edit Filters] で **ICMP** のみを表示するようにする
-2. PC1 から `ping 192.168.100.66`（PC3）を実行し、コマ送りで再生する
-3. R1 の `GigabitEthernet0/0` で受信し、`GigabitEthernet0/1` から送出される様子を
-   観察する（ルーティングによって出力インターフェースが切り替わる瞬間）
-4. パケットをクリックし、**宛先 MAC アドレスが R1 を経由するたびに書き換わる**一方、
-   **宛先 IP アドレスは変わらない**ことを確認する（Exercise 1 で学んだカプセル化の復習）
+## 手順 9: SW1 の SSH 有効化（10 分）
 
-## 手順 9: 障害の再現と復旧（10 分）
+```
+SW1(config)# ip domain-name example.local
+SW1(config)# crypto key generate rsa
+```
 
-意図的な誤設定によって、アドレス設計ミスがどのような症状を引き起こすかを体験します。
+鍵長は `1024` を入力します。
 
-1. PC3 の IP Configuration を開き、サブネットマスクを誤って `255.255.255.128`
-   （**/25**、本来の /27 ではない）に変更する
-2. PC1 から PC3 へ `ping 192.168.100.66` を実行し、**疎通できなくなる**ことを確認する
-   （マスクが広すぎるため、PC3 はリモートの PC1〔`.2`〕を同一サブネットだと誤認し、
-   本来経由すべきデフォルトゲートウェイを使わず、部署 B のセグメント上で PC1 を
-   直接 ARP しようとして応答が得られないため。なお PC3 → PC4 の ping は同一 /25
-   内のため成功したままとなる）
-3. 症状を確認したら、PC3 のサブネットマスクを正しい `255.255.255.224`（/27）に
-   戻し、再度 ping を実行して疎通が復旧することを確認する
+```
+SW1(config)# ip ssh version 2
+SW1(config)# username admin privilege 15 secret adminpw
+SW1(config)# line vty 0 4
+SW1(config-line)# transport input ssh
+SW1(config-line)# login local
+SW1(config-line)# exit
+```
+
+## 手順 10: SW2 も同様に設定（15 分）
+
+Admin-PC のロールオーバーケーブルを SW2 の Console ポートへつなぎ替え、手順 7〜9 を
+繰り返します。ホスト名は `SW2`、管理 IP は `192.168.1.12 255.255.255.0` とし、それ
+以外のパスワード・SSH 設定は SW1 と同じ値で構いません。
+
+## 手順 11: 全機器の保存と service password-encryption の比較（10 分）
+
+R1・SW1・SW2 それぞれで、コンソールケーブルをその機器の Console ポートへつなぎ替え、
+特権 EXEC モードで設定を保存します。この時点では Admin-PC にまだ IP アドレスを設定
+していないため、SSH では接続できません（Admin-PC の IP 設定は手順 12、SSH ログインは
+手順 13 で行います）。
+
+```
+R1# copy running-config startup-config
+SW1# copy running-config startup-config
+SW2# copy running-config startup-config
+```
+
+続けて SW1 で以下を行います。コンソールケーブルが SW1 の Console ポートに接続されて
+いることを確認してください。
+
+```
+SW1# show running-config
+```
+
+`enable password`・`enable secret`・`line` 配下の `password` の表示を確認し記録します。
+続けて設定モードへ入り、`service password-encryption` を実行します。
+
+```
+SW1# configure terminal
+SW1(config)# service password-encryption
+```
+
+設定モードを抜けずに確認するには、講義で扱った `do` を使います。
+
+```
+SW1(config)# do show running-config
+```
+
+`enable password` とコンソール/VTY の `password` の表示がどう変化したか、また
+`enable secret` の行に変化があったかを記録します。
+
+## 手順 12: PC の IP 設定と疎通確認（10 分）
+
+1. PC1・PC2・Admin-PC それぞれの [Desktop] → **IP Configuration** で、上記の IP
+   アドレス割り当て表のとおりに IP アドレス・サブネットマスク・デフォルトゲートウェイ
+   を設定する
+2. Admin-PC の Command Prompt から、R1・SW1・SW2 へそれぞれ ping を実行し、すべて
+   成功することを確認する
+
+```
+ping 192.168.1.1
+ping 192.168.1.11
+ping 192.168.1.12
+```
+
+## 手順 13: Admin-PC から SW1 へ SSH 接続（10 分）
+
+Admin-PC の Command Prompt から次のコマンドを実行します。
+
+```
+ssh -l admin 192.168.1.11
+```
+
+※ `-l` は小文字の**エル（L）**です（数字の 1 ではありません）。ログインユーザ名を
+指定するオプションです。
+
+パスワード `adminpw` を入力してログインし、リモートセッション上で次のコマンドを
+実行して結果を記録します。
+
+```
+SW1# show ip interface brief
+```
+
+## 手順 14: SW1 での状態確認（5 分）
+
+SW1 のコンソール側（または SSH セッション）で、次のコマンドを実行し出力を記録します。
+
+```
+SW1# show ssh
+SW1# show mac address-table
+SW1# show version
+```
+
+## 手順 15: Telnet が拒否されることの確認（10 分）
+
+Admin-PC の Command Prompt から R1 へ Telnet 接続を試みます。
+
+```
+telnet 192.168.1.1
+```
+
+`transport input ssh` を設定した VTY では Telnet が拒否される（接続が確立しない）
+ことを確認し、結果を記録します。
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. 設計した VLSM 表（各サブネットのネットワークアドレス・プレフィックス・
-   ブロードキャスト・ホスト範囲・割り当て用途）を記載し、`192.168.100.0/24` 内で
-   アドレスがオーバーラップしていないことをどう確認したか説明せよ。
-2. `show ip route` の出力で、各サブネットが `C`（Connected）と `L`（Local）として
-   どう表示されたか。`L` ルートのプレフィックスが `/32` になっている理由を述べよ。
-3. WAN リンクに `/30` を選んだ理由を、収容ホスト数とアドレス効率の観点から説明せよ。
-   `/24` のまま使った場合と比べてどれだけアドレスを節約できたか。
+1. `service password-encryption` を有効化する前と後で、`show running-config` の
+   `enable password`・`line` 配下の `password`・`enable secret` の表示はそれぞれ
+   どう変わったか。`enable secret` が影響を受けなかった理由は何か。
+2. 手順 15 で R1 へ Telnet（`telnet 192.168.1.1`）を試みた結果は成功したか失敗したか。
+   R1・SW1・SW2 のいずれも `transport input ssh` を設定しているため、SW1 や SW2 に
+   Telnet を試みても同じ結果になるはずです。その理由もあわせて述べよ。
+3. SW1 の VLAN1 インターフェースに `ip default-gateway` を設定しなかった場合、別
+   サブネットの PC から SW1 へ管理アクセスできるか。スイッチが管理 IP を SVI に
+   持つ理由とあわせて説明せよ。
 
-## 手順 10: 提出（5 分）
+## 提出方法
 
-1. `exercise03_氏名.pkt` を Backlog のラボ課題に**添付**する
-2. 手順 7 のコマンド結果（スクリーンショット可）と、観察レポートの 3 問の回答を
-   課題の**コメント**に貼る
+1. ファイルを `exercise03_氏名.pkt` の名前で保存し、Backlog のラボ課題に**添付**する
+2. 手順 6・13・14・15 の実行結果（スクリーンショット可）と、観察レポートの
+   3 問の解答を課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| PC1 → PC2（同一部署内）で ping が失敗する | 両 PC の IP・マスクの入力ミス、ケーブルが緑か |
-| PC1 → PC3（部署間）で ping が失敗するが同一部署内は成功する | 各 PC のデフォルトゲートウェイが正しいか、R1 のインターフェースが `no shutdown` 済みか |
-| PC1 → R2（WAN 越し）で ping が失敗する | R2 に `ip route 0.0.0.0 0.0.0.0 192.168.100.97` が設定されているか、`show ip route` で経路を再確認 |
-| `show ip interface brief` でインターフェースが `down` | `no shutdown` を入力し忘れていないか、ケーブル接続先のポート番号が正しいか |
-| ルータへ IP アドレスを入力すると `overlaps with` のエラーが出る | 別のインターフェースと同じアドレス範囲を設定していないか、VLSM 設計を見直す |
+| コンソールに何も表示されない | ケーブルの接続先ポート、端末エミュレータのビットレート（9600）設定 |
+| `enable secret` を設定したのに `Router#` のまま反映されない | コマンドの打ち間違い、`end` または `exit` でモードを抜けたか |
+| SSH で接続できない（Connection refused 等） | `crypto key generate rsa` を実行したか、`ip ssh version 2` が設定済みか、VTY の `transport input` に `ssh` が含まれているか |
+| SSH のパスワードが通らない | `username` コマンドのユーザ名・パスワードと、ログイン時に入力した値の一致、`login local` の設定漏れ |
+| SW1 で ping が届くが SSH が届かない | `ip domain-name` の設定漏れ、RSA 鍵の未生成、VTY の `login local` 設定漏れ |
+| 別サブネットから SW1 に管理アクセスできない | `ip default-gateway` の設定漏れ（SVI に IP はあるがゲートウェイ未設定） |
+| `no shutdown` 後もインターフェースが up/up にならない | 対向ポートの状態、ケーブル種別（ストレート/クロス）の誤り |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

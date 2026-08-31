@@ -1,6 +1,6 @@
 # Exercise 7 ラボ手順書: トランクの構築とネイティブ VLAN 不一致のトラブルシューティング
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise07`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON2 > Exercise7`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール

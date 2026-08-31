@@ -1,397 +1,268 @@
-# Exercise 13 ラボ手順書: OSPF トラブルシューティングと HSRP による
-デフォルトゲートウェイ冗長化
+# Exercise 13 ラボ手順書: 静的 NAT・動的 NAT・PAT の構成と変換テーブルの観察
 
 > 配置先: ドキュメント `02_ラボ手順書 > LESSON3 > Exercise13`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- 意図的なミスを含む OSPF トポロジを、下位層から上位層へと**体系的に切り分けて**
-  発見・修正し、全区間の疎通を回復させる
-- ASBR（R3）から OSPF ドメインへデフォルトルートを配布し、他ルータで
-  `O*E2` として学習されることを確認する
-- LAN のデフォルトゲートウェイを **HSRP** で冗長化し、Active ルータの障害時に
-  Standby ルータが自動的に引き継ぐことを、連続 ping を実行しながら確認する
+- 1 台のルータ上で静的 NAT・動的 NAT・PAT（NAT Overload）を順に構成できる
+- 内部ホストから外部（模擬インターネット上のサーバ）へ通信したときに、変換テーブルが
+  どのように生成されるかを `show ip nat translations` / `show ip nat statistics` で観察できる
+- 3 方式の違い（1 対 1 固定・動的プール割当・ポート多重化）を実機挙動として説明できる
 
 ## 完成トポロジ
 
-R1・R2 が LAN（`192.168.10.0/24`）を共有し、HSRP でゲートウェイを冗長化します。
-R1・R2 はそれぞれ R3 と個別リンクで接続し、R3 の先に遠端 LAN
-（`192.168.30.0/24`、PC3）があります。全ルータをエリア 0 のシングルエリア
-OSPF（プロセス ID 10）で構成します。
-
 ![Exercise 13 トポロジ図](../images/exercise13-topology.png)
-
-> R3 の先には実際の ISP ルータを用意しません。手順 8 で、受け取ったパケットを
-> そのまま捨てる仮想インターフェース **Null0**（ルータに内蔵された「ゴミ箱」の
-> ようなインターフェース）宛のスタティックルート `ip route 0.0.0.0 0.0.0.0
-> Null0` を使い、疑似的な「ISP 向けデフォルトルート」として
-> `default-information originate` の動作を確認します。
 
 ### IP アドレス表
 
-| 機器 | インターフェース | IPv4 アドレス | 接続先 | 備考 |
-|---|---|---|---|---|
-| R1 | Gi0/0 | 192.168.10.2/24 | SW1 Fa0/1 | LAN／HSRP（優先ルータ予定） |
-| R1 | Gi0/1 | 10.0.13.1/30 | R3 Gi0/0 | OSPF コアリンク |
-| R2 | Gi0/0 | 192.168.10.3/24 | SW1 Fa0/2 | LAN／HSRP |
-| R2 | Gi0/1 | 10.0.23.1/30 | R3 Gi0/1 | OSPF コアリンク |
-| R3 | Gi0/0 | 10.0.13.2/30 | R1 Gi0/1 | OSPF コアリンク |
-| R3 | Gi0/1 | 10.0.23.2/30 | R2 Gi0/1 | OSPF コアリンク |
-| R3 | Gi0/2 | 192.168.30.1/24 | SW2 Fa0/1 | 遠端 LAN |
-| PC1 | NIC | 192.168.10.10/24（GW: .1） | SW1 Fa0/3 | HSRP 仮想 IP をゲートウェイに設定 |
-| PC2 | NIC | 192.168.10.11/24（GW: .1） | SW1 Fa0/4 | HSRP 仮想 IP をゲートウェイに設定 |
-| PC3 | NIC | 192.168.30.10/24（GW: .1） | SW2 Fa0/2 | R3 の物理 IP がそのままゲートウェイ |
+| 機器 | インターフェース | IP アドレス | 備考 |
+|---|---|---|---|
+| PC1 | Fa0 | 192.168.1.10/24 | GW: 192.168.1.1 |
+| PC2 | Fa0 | 192.168.1.11/24 | GW: 192.168.1.1 |
+| PC3 | Fa0 | 192.168.1.12/24 | GW: 192.168.1.1 |
+| SW1 | Fa0/1〜Fa0/3, Fa0/24 | — | L2 スイッチ、設定不要 |
+| R1 | Gi0/0 | 192.168.1.1/24 | `ip nat inside` |
+| R1 | Gi0/1 | 203.0.113.1/24 | `ip nat outside` |
+| R2 | Gi0/1 | 203.0.113.2/24 | R1 との WAN リンク |
+| R2 | Gi0/0 | 198.51.100.1/24 | Srv1 側セグメント |
+| Srv1 | FastEthernet0 | 198.51.100.8/24 | GW: 198.51.100.1、外部 Web サーバ役 |
 
-- HSRP 仮想 IP: `192.168.10.1`（グループ 1） ／ R1 = Active 予定（priority 110、
-  preempt 有効）、R2 = Standby 予定（priority 既定 100）
+R1 の Gi0/0 が **inside**、Gi0/1 が **outside** です。グローバルアドレスとして
+`203.0.113.0/24` 帯（演習用に静的・動的・PAT でそれぞれ別アドレスを使用）を利用します。
 
 ---
 
-## 手順 1: トポロジの作成と IP アドレス設定・下位層確認（10 分）
+## 手順 1: 基本構成（30 分）
 
-1. Router **2911** を 3 台（R1〜R3）、Switch **2960** を 2 台（SW1・SW2）、
-   PC を 3 台（PC1〜PC3）配置する
-2. 上記トポロジ・IP アドレス表のとおりにケーブル（ストレート）で接続する
-3. 各ルータで、接続したインターフェースに IP アドレスを設定し有効化する
+1. PC1〜PC3 に、それぞれ `192.168.1.10`〜`.12`、サブネットマスク `255.255.255.0`、
+   デフォルトゲートウェイ `192.168.1.1` を設定する
+2. Srv1 に `198.51.100.8`、サブネットマスク `255.255.255.0`、デフォルトゲートウェイ
+   `198.51.100.1` を設定する
+3. R1・R2 の各インターフェースに IP アドレスを設定し、`no shutdown` で有効化する
 
    ```
-   Router> enable
-   Router# configure terminal
-   Router(config)# hostname R1
    R1(config)# interface GigabitEthernet0/0
-   R1(config-if)# ip address 192.168.10.2 255.255.255.0
+   R1(config-if)# ip address 192.168.1.1 255.255.255.0
    R1(config-if)# no shutdown
    R1(config-if)# exit
    R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# ip address 10.0.13.1 255.255.255.252
+   R1(config-if)# ip address 203.0.113.1 255.255.255.0
    R1(config-if)# no shutdown
-   R1(config-if)# exit
    ```
 
-4. 同様に R2・R3 も IP アドレス表のとおりに設定する（R3 は Gi0/0・Gi0/1・Gi0/2 の
-   3 つ）
-5. PC1〜PC3 にも [Desktop] → [IP Configuration] から IP アドレス・サブネット
-   マスク・デフォルトゲートウェイを設定する
-6. 全リンクの●が緑になっていることを、`show ip interface brief` と直結 PC 間の
-   ping（例: PC1 から SW1 経由で PC2）で確認する。この時点では PC1↔PC3 の
-   疎通はまだ確認しません（OSPF 未構成のため）
-
-## 手順 2: OSPF プロセスの起動（15 分）
-
-各ルータで OSPF プロセス（プロセス ID 10）を起動し、`network` 文と
-`passive-interface` を投入します。**この手順どおりに投入すると、演習用に
-仕込まれた設定ミスにより、一部区間でネイバーが正常に成立しません。**
-以降の手順で、これらを自力で発見・修正していきます。
-
-R1:
-
-```
-R1(config)# router ospf 10
-R1(config-router)# network 192.168.10.0 0.0.0.255 area 0
-R1(config-router)# network 10.0.13.0 0.0.0.3 area 0
-R1(config-router)# passive-interface GigabitEthernet0/0
-R1(config-router)# exit
-R1(config)# interface GigabitEthernet0/1
-R1(config-if)# ip ospf hello-interval 5
-R1(config-if)# ip mtu 1400
-R1(config-if)# exit
-```
-
-R2:
-
-```
-R2(config)# router ospf 10
-R2(config-router)# network 192.168.10.0 0.0.0.255 area 0
-R2(config-router)# passive-interface GigabitEthernet0/0
-R2(config-router)# exit
-```
-
-（R2 では意図的に `10.0.23.0/30` 向けの `network` 文をまだ入力していません）
-
-R3:
-
-```
-R3(config)# router ospf 10
-R3(config-router)# network 10.0.13.0 0.0.0.3 area 0
-R3(config-router)# network 10.0.23.0 0.0.0.3 area 0
-R3(config-router)# network 192.168.30.0 0.0.0.255 area 0
-R3(config-router)# passive-interface GigabitEthernet0/2
-R3(config-router)# passive-interface GigabitEthernet0/1
-R3(config-router)# exit
-```
-
-各ルータで `show ip ospf neighbor` を実行し、ネイバーの状態を記録してください。
-この時点では **R1-R3 間・R2-R3 間ともにネイバーが正常に Full になりません**。
-
-> **ここからがこの Exercise の山場です。** 4 つの障害を一つずつ切り分けて
-> いきますが、「状態（State）を見る → 疑わしい原因を絞る → 設定を比較する」の順で
-> 進めれば必ず特定できます。時間をかけて構いません。
-
-## 手順 3: 障害 1（Hello/Dead タイマー不一致・ネイバー不成立）の切り分けと修正（15 分）
-
-1. R1 と R3 で `show ip ospf neighbor` を実行し、R1-R3 間のネイバー状態を確認する
-   （タイマーが一致しない Hello は相手に破棄されるため、Init にすら進まず
-   ネイバーとして一切現れないことを確認する）
-2. 両ルータの `show ip ospf interface GigabitEthernet0/1`（R1）・
-   `GigabitEthernet0/0`（R3）を実行し、**Hello interval / Dead interval** を
-   比較する
-
    ```
-   R1# show ip ospf interface GigabitEthernet0/1
-   R3# show ip ospf interface GigabitEthernet0/0
+   R2(config)# interface GigabitEthernet0/1
+   R2(config-if)# ip address 203.0.113.2 255.255.255.0
+   R2(config-if)# no shutdown
+   R2(config-if)# exit
+   R2(config)# interface GigabitEthernet0/0
+   R2(config-if)# ip address 198.51.100.1 255.255.255.0
+   R2(config-if)# no shutdown
    ```
 
-3. **確認**: R1 側の Hello interval が `5` 秒（既定の 10 秒から変更されている）に
-   なっており、R3 側と一致していないことを特定する
-4. R1 側のタイマを既定値へ戻す
+4. R2 側の到達性を確認する（設定は不要）。R2 は `203.0.113.0/24` と
+   `198.51.100.0/24` の両方に直接つながっているため、静的 NAT・動的 NAT で使う
+   グローバルアドレス（`203.0.113.10` や `.20`〜`.21`）への戻り経路もすでに
+   揃っており、**追加のルーティング設定は不要です（打つコマンドはありません）**。
+5. R1 にデフォルトルートを設定し、外部到達性を用意する（**変換前にこれを
+   済ませておくことが重要**）
 
    ```
-   R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# no ip ospf hello-interval
-   R1(config-if)# exit
+   R1(config)# ip route 0.0.0.0 0.0.0.0 203.0.113.2
    ```
 
-5. 再度 `show ip ospf neighbor` を確認する（次の障害が残っているため、
-   まだ Full にはならない可能性があります。State を記録してください）
+6. R1 から `ping 198.51.100.8` を実行し、Srv1 まで到達できることを確認する
+   （この時点では NAT 未設定のため、R2 の connected な 2 ネットワーク
+   （`203.0.113.0/24` と `198.51.100.0/24`）だけで完結する単純な疎通確認です。
+   仕組みの詳細は本手順末尾の補足コラムを参照してください）
 
-## 手順 4: 障害 2（network 文漏れ・状態 Down）の切り分けと修正（10 分）
+> ⚙️ **補足（読み飛ばし可）**：R2 が追加設定なしで戻りパケットを転送できる
+> 仕組みは次の 2 つです。
+>
+> - **connected ルート**: R1 の外部インターフェースを `203.0.113.0/24` で
+>   構成しているため、静的・動的 NAT で使うグローバルアドレスは R2 の
+>   connected ネットワーク（Exercise5 で学んだ直接接続ルート）に含まれます。
+> - **Proxy ARP**: Exercise5 で学んだ、本来の宛先ではないルータが ARP 要求に
+>   自分の MAC アドレスで応答してしまう動作です。R1 がこれを使って応答するため、
+>   R2 は個々のホストへの経路を持たなくても戻りパケットを正しく転送できます。
+>
+> 実務では、R1-R2 間の WAN リンクにグローバルアドレス帯とは別のセグメントを
+> 使う構成もよくあります。たとえば WAN リンクを `10.0.0.0/30`（R1 = `10.0.0.1`、
+> R2 = `10.0.0.2`）にした場合を考えてみましょう。このとき NAT で使う
+> `203.0.113.0/24` は R2 の connected ネットワークではなくなります。そのため
+> R2 には、次のような戻り経路を明示的に追加する必要があります。
+>
+> ```
+> R2(config)# ip route 203.0.113.0 255.255.255.0 10.0.0.1
+> ```
+>
+> 「NAT のグローバルアドレス宛のパケットが、外部から NAT ルータまで戻ってこられるか」
+> を必ず確認する、という点はどちらの構成でも変わりません。
 
-1. R2 で `show ip protocols` を実行し、OSPF が広告対象としているネットワークの
-   一覧を確認する
-
-   ```
-   R2# show ip protocols
-   ```
-
-2. **確認**: `10.0.23.0/30`（R2-R3 間リンク）が一覧に含まれておらず、
-   `network` 文が漏れていることを特定する
-3. 抜けているネットワークを追加する
-
-   ```
-   R2(config)# router ospf 10
-   R2(config-router)# network 10.0.23.0 0.0.0.3 area 0
-   R2(config-router)# exit
-   ```
-
-4. `show ip ospf neighbor` を R2・R3 双方で確認する（次の障害が残っているため、
-   まだ Full にはならない可能性があります）
-
-## 手順 5: 障害 3（passive-interface 誤設定）の切り分けと修正（10 分）
-
-1. R3 で `show ip protocols` を実行し、Passive Interface の一覧を確認する
-
-   ```
-   R3# show ip protocols
-   ```
-
-2. **確認**: 本来 LAN 側（`GigabitEthernet0/2`）だけがパッシブであるべきところ、
-   バックボーンリンクの `GigabitEthernet0/1`（R2 との接続）まで誤って
-   パッシブに設定されていることを特定する
-3. 誤設定を解除する
-
-   ```
-   R3(config)# router ospf 10
-   R3(config-router)# no passive-interface GigabitEthernet0/1
-   R3(config-router)# exit
-   ```
-
-4. R2・R3 で `show ip ospf neighbor` を確認し、R2-R3 間が **FULL** になったことを
-   確認する
-
-## 手順 6: 障害 4（MTU 不一致・ExStart 停滞）の切り分けと修正（10 分）
-
-> ⚠️ **Packet Tracer での見え方について**: 実機 IOS では MTU 不一致は DBD 交換を
-> 妨げ ExStart／EXCHANGE で停滞しますが、Packet Tracer はバージョンによって
-> この MTU チェックを厳密に再現しないことがあります。もし手順 1 の時点で
-> R1-R3 間がすでに **FULL** になっていても異常ではありません。その場合は
-> 停滞の再現を待たず、手順 2〜4 の「両側の IP MTU を比較し、既定値へ戻す」
-> 作業そのものを設定衛生（不要な変更の除去）の練習として実施してください。
-
-1. R1・R3 で `show ip ospf neighbor` を確認する。R1-R3 間のネイバーが
-   **ExStart** または **EXCHANGE** のまま停滞していないか確認する（Packet Tracer
-   では上記のとおり停滞せず FULL になっている場合もあります）
-2. 両ルータの IP MTU を比較する（OSPF の DBD MTU チェックは IP MTU を見るため、
-   L2 の `show interfaces` ではなく `show ip interface` で確認します）
-
-   ```
-   R1# show ip interface GigabitEthernet0/1 | include MTU
-   R3# show ip interface GigabitEthernet0/0 | include MTU
-   ```
-
-3. **確認**: R1 側の IP MTU が `1400`（既定の 1500 から変更されている）になっており、
-   R3 側と一致していないことを特定する
-4. R1 側の MTU を既定値へ戻す
-
-   ```
-   R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# no ip mtu
-   R1(config-if)# exit
-   ```
-
-5. `show ip ospf neighbor` を R1・R3 双方で確認し、**FULL** になったことを確認する
-
-## 手順 7: 全区間の疎通確認（10 分）
-
-1. 各ルータで `show ip route ospf` を実行し、他ルータの LAN（`192.168.30.0/24`
-   など）が OSPF で学習されていることを確認する
-2. PC1（`192.168.10.10`）から PC3（`192.168.30.10`）へ ping を実行し、
-   全区間の疎通が回復したことを確認する
-3. 疎通しない場合は、手順 3〜6 のいずれかの修正が漏れていないか
-   `show ip ospf neighbor` で全リンクが FULL であることを再確認する
-
-## 手順 8: OSPF によるデフォルトルート配布（10 分）
-
-R3 に疑似的な ISP 向けデフォルトルートを設定し、OSPF ドメイン全体へ配布します。
-
-```
-R3(config)# ip route 0.0.0.0 0.0.0.0 Null0
-R3(config)# router ospf 10
-R3(config-router)# default-information originate
-R3(config-router)# exit
-```
-
-## 手順 9: 受信側での確認（5 分）
-
-R1・R2 で次を実行し、デフォルトルートが学習されていることを確認します。
-
-```
-R1# show ip route
-R2# show ip route
-```
-
-**確認**: `O*E2  0.0.0.0/0 [110/1] via 10.0.13.2` のように、`O*E2` として
-デフォルトルートが表示されていること。あわせて R3 で
-`show ip ospf database external` を実行し、外部 LSA が生成されていることを
-確認する。
-
-## 手順 10: R1 で HSRP を設定する（10 分）
-
-LAN 側インターフェース（Gi0/0）に HSRP バージョン 2 とグループ 1 を設定します。
-R1 を優先ルータ（Active）にするため、プライオリティを上げ、プリエンプトを
-有効にします。
+## 手順 2: inside / outside インターフェースの割り当て（10 分）
 
 ```
 R1(config)# interface GigabitEthernet0/0
-R1(config-if)# standby version 2
-R1(config-if)# standby 1 ip 192.168.10.1
-R1(config-if)# standby 1 priority 110
-R1(config-if)# standby 1 preempt
+R1(config-if)# ip nat inside
 R1(config-if)# exit
+R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip nat outside
 ```
 
-## 手順 11: R2 で HSRP を設定する（5 分）
+この設定がないと、以降どの NAT 方式を設定しても変換は行われません。
 
-R2 はプライオリティを既定値（100）のまま、同じグループに参加させます。
+## 手順 3: 静的 NAT の構成と観察（20 分）
 
-```
-R2(config)# interface GigabitEthernet0/0
-R2(config-if)# standby version 2
-R2(config-if)# standby 1 ip 192.168.10.1
-R2(config-if)# exit
-```
-
-## 手順 12: HSRP の状態確認と PC のゲートウェイ設定（10 分）
-
-1. PC1・PC2 のデフォルトゲートウェイが `192.168.10.1`（HSRP 仮想 IP）に
-   設定されていることを確認する（手順 1 で設定済み）
-2. R1・R2 で次を実行し、状態を確認する
+1. PC1（192.168.1.10）を固定的に `203.0.113.10` として外部公開する
 
    ```
-   R1# show standby brief
-   R2# show standby brief
+   R1(config)# ip nat inside source static 192.168.1.10 203.0.113.10
    ```
 
-3. **確認**: R1 が **Active**、R2 が **Standby** であること、および仮想 IP
-   （`192.168.10.1`）が `Virtual IP` 列に表示されていることを記録する
-4. 仮想 MAC アドレスは `show standby brief` の一覧には表示されません。R1 で
-   詳細表示のコマンドを実行し、`Virtual MAC address` の行を確認して記録する
+2. PC1 のコマンドプロンプトから `ping 198.51.100.8` を実行する
+3. R1 で変換テーブルを確認する
 
    ```
-   R1# show standby
+   R1# show ip nat translations
    ```
 
-   `show standby brief` の列は左から Interface / Grp / Pri / P（preempt）/ State /
-   Active addr / Standby addr / Virtual IP です。仮想 MAC を確認したいときは
-   詳細表示の `show standby` を使う、と覚えてください。
+   - `Pro` 列が `---`、`Inside global` が `203.0.113.10`、`Inside local` が
+     `192.168.1.10` の行が、通信の有無にかかわらず**常時**表示されることを確認する
 
-## 手順 13: 連続 ping の開始と Active 障害の発生（10 分）
-
-1. PC1 の [Desktop] → [Command Prompt] で、遠端 PC3 宛に連続 ping を実行する
+4. 次の演習に備え、静的エントリを削除する
 
    ```
-   ping -t 192.168.30.10
+   R1(config)# no ip nat inside source static 192.168.1.10 203.0.113.10
    ```
 
-2. 連続 ping を実行したまま、R1 の Gi0/0 をシャットダウンし、Active 障害を
-   人為的に発生させる
+## 手順 4: 動的 NAT の構成と観察（30 分）
+
+1. 変換対象の内部アドレス範囲を ACL で定義する
 
    ```
-   R1(config)# interface GigabitEthernet0/0
-   R1(config-if)# shutdown
+   R1(config)# access-list 1 permit 192.168.1.0 0.0.0.255
    ```
 
-## 手順 14: フェイルオーバーの確認（10 分）
-
-1. R2 で `show standby` を実行し、状態が **Standby → Active** に遷移したことを
-   確認する
+2. グローバルアドレスプールを作成する（**あえて 2 個だけ**にし、後で枯渇を再現する）
 
    ```
-   R2# show standby
+   R1(config)# ip nat pool DYN 203.0.113.20 203.0.113.21 netmask 255.255.255.0
    ```
 
-2. PC1 の連続 ping 画面を観察し、R1 の shutdown 直後に数回だけ応答が途切れた
-   （Request timed out）あと、ping が再び成功するようになることを確認し、
-   何回程度失われたかを記録する
-
-## 手順 15: 復旧とプリエンプトの確認（5 分）
-
-1. R1 の Gi0/0 を復旧させる
+3. ACL とプールを結び付けて動的 NAT を有効化する
 
    ```
-   R1(config)# interface GigabitEthernet0/0
-   R1(config-if)# no shutdown
+   R1(config)# ip nat inside source list 1 pool DYN
    ```
 
-2. `show standby brief` を R1・R2 双方で実行し、プリエンプト設定により
-   R1 が再び **Active** を奪還したことを確認する
+4. PC1 から `ping 198.51.100.8` を実行し、続けて PC2 からも `ping 198.51.100.8` を実行する
+   （**手順 4〜6 は間を空けず連続で実行してください**。変換エントリは一定時間
+   無通信が続くとタイムアウトで解放されるため、間隔が空くと手順 6 の枯渇が
+   再現できないことがあります）
+5. R1 で `show ip nat translations` を実行し、PC1 と PC2 にそれぞれ
+   `203.0.113.20` と `203.0.113.21` が順に割り当てられている様子を確認する
+6. PC3 から `ping 198.51.100.8` を試みる。プールのアドレスが 2 個とも使用中のため、
+   PC3 の通信は変換されず失敗（タイムアウト）することを確認する
+7. `show ip nat statistics` で、プールの使用状況（`allocated`、`misses` の
+   増加など）を確認する
+8. 動的 NAT の設定を撤去する
 
-## 手順 16: 保存と提出（5 分）
+   ```
+   R1(config)# no ip nat inside source list 1 pool DYN
+   ```
 
-1. ファイルを保存する: `File > Save As` → `exercise13_氏名.pkt`
-2. 下記の観察レポートに解答する
+## 手順 5: PAT（NAT Overload）の構成と観察（30 分）
+
+1. R1 の Gi0/1（外部インターフェース）のアドレスに、内部ホストすべてを
+   集約する PAT を設定する
+
+   ```
+   R1(config)# ip nat inside source list 1 interface GigabitEthernet0/1 overload
+   ```
+
+   （ACL 1 は手順 4 で作成したものをそのまま再利用します）
+
+2. PC1・PC2・PC3 から**それぞれ** `ping 198.51.100.8` を実行する（同時期に実行することで
+   複数エントリが同居する様子を観察しやすくなります）
+3. R1 で `show ip nat translations` を実行し、次を確認する
+   - 3 台すべてが同一のグローバルアドレス（`203.0.113.1`、Gi0/1 のアドレス）に
+     変換されていること
+   - `Pro` 列に `icmp` が表示され、内部・グローバルの双方に番号（TCP/UDP は
+     ポート番号、ICMP はクエリ識別子）が付与されていること
+4. `show ip nat statistics` を実行し、アクティブな変換数・ヒット数・ミス数・
+   使用中のプール（インターフェースオーバーロードの場合は `interface` と
+   表示される）を確認する
+
+## 手順 6: クリアとデバッグの確認（20 分）
+
+1. 動的に生成された変換エントリをクリアする
+
+   ```
+   R1# clear ip nat translation *
+   ```
+
+   直後に `show ip nat translations` を実行し、PAT のエントリが消えていることを
+   確認する（この時点で静的 NAT エントリは設定していないため、テーブルは
+   空になります）
+
+2. `debug ip nat` を有効にする
+
+   ```
+   R1# debug ip nat
+   ```
+
+3. PC1 から再度 `ping 198.51.100.8` を実行し、コンソールに変換ログが
+   リアルタイムに出力される様子を観察する（`s=192.168.1.10->203.0.113.1` の
+   ような表示が確認できます）
+4. 観察が終わったらデバッグを停止する
+
+   ```
+   R1# undebug all
+   ```
+
+## 手順 7: 記録と保存（10 分）
+
+1. 各方式（静的 NAT／動的 NAT／PAT）を再設定した状態、または各手順で取得した
+   `show running-config | include nat` の出力をそれぞれ控え、レポートに添付する
+2. 変換テーブル（`show ip nat translations`）のスクリーンショットを、
+   最低でも静的 NAT・動的 NAT・PAT の 3 パターン分取得する
+3. `File > Save As` で `exercise13_氏名.pkt` として保存する
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. 4 つの OSPF 障害それぞれについて、ネイバー状態（Down / Init / ExStart 等）と
-   原因、確認に用いたコマンド、実施した修正を**表にまとめよ**。
-2. R1・R2 の `show ip route` に現れたデフォルトルートは何コード（例: O*E2）で
-   表示され、その配布元と広告に用いたコマンドは何か。
-3. R1 の Gi0/0 を shutdown した際、`show standby` で R2 の状態はどう遷移し、
-   PC からの連続 ping は何回程度失われたか。プリエンプトを有効にした場合と
-   無効の場合で復旧挙動はどう変わるか説明せよ。
+1. PAT 構成時の `show ip nat translations` において、3 台の PC が同一の
+   グローバルアドレスに変換されながらも、戻りパケットが正しい各 PC に届くのは
+   なぜか。出力のどの列（フィールド）がそれを可能にしているかを示して説明せよ。
+   （本ラボでは ping＝ICMP のみのため、その列には ICMP クエリ識別子が表示されます。
+   TCP/UDP のポート番号と同じく「個体識別のためのキー」として機能する値である、
+   という点に触れて説明してください）
+2. 動的 NAT 構成で PC3 の ping が失敗した一方、PAT に変更すると 3 台とも
+   成功した。この違いが生じた理由を、両方式のアドレス割り当ての仕組みの差から
+   説明せよ。
+3. 観察した変換テーブルから、静的 NAT エントリと動的／PAT エントリを見分ける
+   具体的な特徴（表示上の差異）を 2 点挙げよ。
 
 ## 提出方法
 
 1. `exercise13_氏名.pkt` を Backlog のラボ課題に**添付**する
-2. 手順 3〜6・9・12・14・15 の確認結果（`show` コマンドの出力や連続 ping の
-   様子、スクリーンショット可）と観察レポートを課題の**コメント**に貼る
+2. `show ip nat translations` / `show ip nat statistics` のスクリーンショットと、
+   観察レポートの回答を課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| R1-R3 間のネイバーが一切現れない（設定直後） | `show ip ospf interface` で両側の Hello/Dead interval を比較（手順 3 の修正漏れ。タイマー不一致の Hello は相手に破棄されるため Init にも進みません） |
-| R2-R3 間にネイバーが全く現れない（設定直後） | `show ip protocols` で R2 の `network` 文に `10.0.23.0/30` が含まれているか（手順 4） |
-| network 文を追加してもまだネイバーが現れない | R3 側の `show ip protocols` で Passive Interface に該当リンクが入っていないか（手順 5） |
-| R1-R3 間が ExStart／Exchange で停滞する | `show ip interface \| include MTU` で両側の IP MTU が 1500 で揃っているか（手順 6。`show interfaces` の MTU は L2 の値のため `ip mtu` の変更を反映しません。Packet Tracer では停滞せず FULL のままのこともあります） |
-| PC1-PC3 の ping が通らない | 全リンクの `show ip ospf neighbor` が FULL か、`show ip route ospf` に経路があるか |
-| `O*E2` が学習されない | R3 で `ip route 0.0.0.0 0.0.0.0 Null0` と `default-information originate` の両方が投入されているか |
-| `show standby brief` で Active/Standby が逆 | R1 の priority が 110 になっているか、`standby 1 ip` の仮想 IP が両ルータで一致しているか |
-| R1 復旧後も R2 が Active のまま | R1 に `standby 1 preempt` が設定されているか |
+| どの方式でも変換が一切行われない | R1 の Gi0/0 に `ip nat inside`、Gi0/1 に `ip nat outside` が設定されているか |
+| 静的 NAT なのに変換されない | `ip nat inside source static` のアドレス指定ミス、inside/outside の設定漏れ |
+| 動的 NAT で誰も変換されない | ACL の対象範囲（`access-list 1`）が内部アドレスと一致しているか、プールのアドレス範囲・マスクが正しいか |
+| 動的 NAT でプールが枯渇するはずの PC3 が成功してしまう | PC1/PC2 の変換エントリがタイムアウトで解放された可能性があります。手順 4〜6 を間を空けず連続で実行し直してください |
+| PAT で複数ホストが変換されない | `overload` キーワードの付け忘れ |
+| PC1 から Srv1 に ping が全く届かない（NAT 設定前から） | R1 のデフォルトルート、R1・R2 の各インターフェース IP・`no shutdown` を確認 |
+| `show ip nat translations` に何も出ない | 変換対象の実トラフィック（ping 等）をまだ発生させていない可能性。ping 実行後に再確認 |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

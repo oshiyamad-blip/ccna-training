@@ -1,6 +1,6 @@
 # Exercise 8 講義: VLAN 間ルーティング
 
-> 配置先: ドキュメント `01_教材 > LESSON2 > Exercise08`
+> 配置先: ドキュメント `01_教材 > LESSON2 > Exercise8`
 > 学習時間の目安: 3.5 時間 ／ 準拠: CCNA 200-301 v1.1 ドメイン 1・2
 
 ## 学習目標
@@ -19,7 +19,7 @@
 ## ウォームアップ（想起クイズ）
 
 > 教材を見ずに、まず自力で思い出してください（分散学習: Exercise 1「ネットワークの
-> 全体像と OSI / TCP-IP モデル」 / Exercise 5「TCP / UDP・スイッチング動作・物理層」 /
+> 全体像と OSI / TCP-IP モデル」 / Exercise 2「TCP / UDP・スイッチング動作・物理層」 /
 > Exercise 7「トランクと VLAN 設計」 の範囲から出題）。
 
 **W1.** OSI 参照モデルの第 3 層（ネットワーク層）は、TCP/IP モデルでは何層に
@@ -444,6 +444,6 @@ L3 スイッチを使う場合の使い分けとしては、**端末を収容す
 
 ## 次のステップ
 
-この Exercise のラボ課題「[Exercise08] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
+この Exercise のラボ課題「[Exercise8] ラボ: VLAN 間ルーティング — Router-on-a-Stick と
 L3 スイッチ + SVI」に進み、Router-on-a-Stick と L3 スイッチの両方式で
 VLAN10・VLAN20 間の疎通を実際に構築・比較してください。

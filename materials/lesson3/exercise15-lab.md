@@ -1,263 +1,207 @@
-# Exercise 15 ラボ手順書: DHCP リレー・NTP 同期・Syslog 収集の統合構成
+# Exercise 15 ラボ手順書: IPv6 アドレッシング — 静的設定と SLAAC の構成
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON3 > Exercise15`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise15`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- R1 を 2 つのサブネット（ローカル LAN／リモート LAN）向けの DHCP サーバとして構成できる
-- 離れたサブネットの PC が、R2 の `ip helper-address`（DHCP リレー）経由でアドレスを
-  取得できることを確認できる
-- R1 を NTP マスタ、R2 を NTP クライアントとして時刻を同期させ、`show ntp status` /
-  `show ntp associations` で同期状態を確認できる
-- R1・R2 のログを Syslog サーバへ送出し、severity 付きメッセージが記録されることを
-  検証できる
+- ルータで `ipv6 unicast-routing` を有効化し、2 つの IPv6 セグメントを構成できる
+- 片方のセグメントの PC に静的 IPv6 アドレスを設定できる
+- もう片方のセグメントの PC に SLAAC（ステートレス自動設定）でアドレスを取得させ、
+  EUI-64 によるインターフェース ID の生成を観察できる
+- 各インターフェースにリンクローカル（`fe80::`）と GUA が付与されることを確認できる
+- 同一セグメント内・異なるセグメント間の両方で IPv6 ping による疎通を確認できる
 
 ## 完成トポロジ
 
 ![Exercise 15 トポロジ図](../images/exercise15-topology.png)
 
+\* Gi0/1 は `eui-64` オプションで設定するため、インターフェース ID は R1 の
+MAC アドレスから自動生成されます（`::1` のような固定値にはなりません）。
+
 ### IP アドレス表
 
-| 機器 | インターフェース | IP アドレス | 備考 |
-|---|---|---|---|
-| PC1 | Fa0 | DHCP 取得 | LAN1 プールから 192.168.1.x を取得 |
-| PC2 | Fa0 | DHCP 取得 | LAN1 プールから 192.168.1.x を取得 |
-| Syslog サーバ | FastEthernet0 | 192.168.1.10/24（固定） | GW: 192.168.1.1、Services > SYSLOG を有効化 |
-| SW1 | Fa0/1〜Fa0/4 | — | L2 スイッチ、設定不要 |
-| R1 | Gi0/0 | 192.168.1.1/24 | `ip nat` 等は使用しない。LAN1 の DHCP デフォルトゲートウェイ |
-| R1 | Gi0/1 | 10.0.0.1/30 | R2 との WAN リンク、NTP マスタ（stratum 3） |
-| R2 | Gi0/1 | 10.0.0.2/30 | R1 との WAN リンク |
-| R2 | Gi0/0 | 192.168.2.1/24 | LAN2 の DHCP デフォルトゲートウェイ、`ip helper-address` 設定対象 |
-| SW2 | Fa0/1〜Fa0/3 | — | L2 スイッチ、設定不要 |
-| PC3 | Fa0 | DHCP 取得 | LAN2 プールから 192.168.2.x をリレー経由で取得 |
-| PC4 | Fa0 | DHCP 取得 | LAN2 プールから 192.168.2.x をリレー経由で取得 |
+| 機器 | インターフェース | セグメント | IPv6 アドレス | 割り当て方式 |
+|---|---|---|---|---|
+| R1 | Gi0/0 | 静的セグメント | `2001:DB8:0:1::1/64` | 静的 |
+| R1 | Gi0/1 | SLAAC セグメント | `2001:DB8:0:2::/64`（EUI-64、インターフェース ID は MAC から自動生成） | 静的（EUI-64） |
+| PC1 | NIC | 静的セグメント | `2001:DB8:0:1::10/64` | 静的 |
+| PC2 | NIC | 静的セグメント | `2001:DB8:0:1::11/64` | 静的 |
+| PC3 | NIC | SLAAC セグメント | `2001:DB8:0:2::/64` の自動割当 | SLAAC |
+| PC4 | NIC | SLAAC セグメント | `2001:DB8:0:2::/64` の自動割当 | SLAAC |
 
-R1 が DHCP サーバと NTP マスタを兼務し、R2 は DHCP リレーエージェントと NTP
-クライアントを兼務します。DHCP・NTP・Syslog のすべてのサーバ役を、ローカル LAN 側の
-Syslog サーバ（192.168.1.10）とルータ自身が分担する構成です。
+- 使用機器: Router 2911 × 1、Switch 2960 × 2、PC × 4
+- 接続: R1 Gi0/0 ─ SW1 Fa0/1、PC1 ─ SW1 Fa0/2、PC2 ─ SW1 Fa0/3、
+  R1 Gi0/1 ─ SW2 Fa0/1、PC3 ─ SW2 Fa0/2、PC4 ─ SW2 Fa0/3
+- スイッチはデフォルト VLAN のアクセスポートのまま使用（追加設定なし）
 
 ---
 
-## 手順 1: 基本ネットワーク構成（25 分）
+## 手順 1: トポロジの作成と基本設定（20 分）
 
-1. トポロジ図のとおりに R1・R2・SW1・SW2・PC1〜PC4・Syslog サーバを配置し、
-   ケーブルで接続する（ルータ間・ルータ-スイッチ間はストレート、または
-   自動判定のケーブルを使用）
-2. Syslog サーバの [Desktop] → [IP Configuration] で IP を手動設定する:
-   `192.168.1.10` / `255.255.255.0` / GW `192.168.1.1`
-3. R1・R2 の各インターフェースに IP アドレスを設定し `no shutdown` する
+1. Packet Tracer を起動し、新規ファイルを開く
+2. [Network Devices] → [Routers] から **2911** を 1 台、[Switches] から **2960** を
+   2 台、[End Devices] から **PC** を 4 台配置する
+3. トポロジ表のとおりにケーブル（ルータ・スイッチ間 / PC・スイッチ間ともにストレート
+   ケーブルで自動判定される）を接続する
+4. すべてのリンクが緑になるまで待つ
+5. R1 の CLI（[CLI] タブ）を開き、次のコマンドでホスト名を設定する
 
    ```
-   R1(config)# interface GigabitEthernet0/0
-   R1(config-if)# ip address 192.168.1.1 255.255.255.0
+   Router> enable
+   Router# configure terminal
+   Router(config)# hostname R1
+   ```
+
+## 手順 2: ルータでの IPv6 有効化と静的アドレス設定（25 分）
+
+1. グローバルコンフィギュレーションモードで IPv6 転送を有効化する
+
+   ```
+   R1(config)# ipv6 unicast-routing
+   ```
+
+2. Gi0/0（静的セグメント側）にアドレスを設定する
+
+   ```
+   R1(config)# interface gigabitEthernet 0/0
+   R1(config-if)# ipv6 address 2001:DB8:0:1::1/64
    R1(config-if)# no shutdown
    R1(config-if)# exit
-   R1(config)# interface GigabitEthernet0/1
-   R1(config-if)# ip address 10.0.0.1 255.255.255.252
+   ```
+
+3. Gi0/1（SLAAC セグメント側）に、EUI-64 でインターフェース ID を生成させて
+   アドレスを設定する
+
+   ```
+   R1(config)# interface gigabitEthernet 0/1
+   R1(config-if)# ipv6 address 2001:DB8:0:2::/64 eui-64
    R1(config-if)# no shutdown
+   R1(config-if)# exit
    ```
 
-   ```
-   R2(config)# interface GigabitEthernet0/1
-   R2(config-if)# ip address 10.0.0.2 255.255.255.252
-   R2(config-if)# no shutdown
-   R2(config-if)# exit
-   R2(config)# interface GigabitEthernet0/0
-   R2(config-if)# ip address 192.168.2.1 255.255.255.0
-   R2(config-if)# no shutdown
-   ```
-
-4. 相互のサブネットへ静的ルートを設定し、全区間の疎通を確保する
+4. Gi0/0 の詳細情報を確認し、リンクローカルアドレス（`fe80::` で始まる）が
+   自動的に付与されていることを確認する
 
    ```
-   R1(config)# ip route 192.168.2.0 255.255.255.0 10.0.0.2
+   R1# show ipv6 interface gi0/0
    ```
 
-   ```
-   R2(config)# ip route 192.168.1.0 255.255.255.0 10.0.0.1
-   ```
+## 手順 3: PC の IPv6 設定（30 分）
 
-5. R1 から `ping 10.0.0.2`、`ping 192.168.1.10` を実行し、この時点での疎通を確認する
-   （PC・Syslog サーバはまだ DHCP 未取得のため、PC 側からの ping はこの後の手順で
-   確認します）
+### PC1・PC2（静的セグメント）
 
-## 手順 2: R1 の DHCP サーバ構成（20 分）
+1. PC1 をクリック → [Desktop] タブ → **IP Configuration** を開く
+2. IPv6 の設定を **Static** にし、次を入力する
+   - IPv6 Address: `2001:DB8:0:1::10` ／ Prefix Length: `64`
+   - IPv6 Default Gateway: `2001:DB8:0:1::1`
+3. PC2 も同様に、アドレス `2001:DB8:0:1::11`、プレフィックス長 `64`、
+   デフォルトゲートウェイ `2001:DB8:0:1::1` を設定する
 
-1. 固定用に使うアドレスを除外する（ローカル LAN 側の予約範囲とリモート LAN 側の
-   ゲートウェイアドレス）
+### PC3・PC4（SLAAC セグメント）
 
-   ```
-   R1(config)# ip dhcp excluded-address 192.168.1.1 192.168.1.10
-   R1(config)# ip dhcp excluded-address 192.168.2.1 192.168.2.1
-   ```
+1. PC3 をクリック → [Desktop] タブ → **IP Configuration** を開く
+2. IPv6 の設定を **Automatic**（SLAAC）にする
+3. 数秒待ち、RA（ルータ広告）を受信してアドレスが自動的に入力されることを確認する
+4. PC4 も同様に **Automatic** に設定する
 
-2. ローカル LAN 用のプールを作成する
+PC1〜PC4 の設定が終わったら、ファイルを保存する: `File > Save As` → `exercise15_氏名.pkt`
 
-   ```
-   R1(config)# ip dhcp pool LAN1
-   R1(dhcp-config)# network 192.168.1.0 255.255.255.0
-   R1(dhcp-config)# default-router 192.168.1.1
-   R1(dhcp-config)# dns-server 192.168.1.10
-   R1(dhcp-config)# lease 0 8 0
-   R1(dhcp-config)# exit
-   ```
+## 手順 4: アドレス割り当ての確認（30 分）
 
-3. リモート LAN 用のプールを作成する（デフォルトゲートウェイは R2 の Gi0/0）
+1. R1 で次のコマンドを実行し、両インターフェースのリンクローカルと GUA を一覧確認する
 
    ```
-   R1(config)# ip dhcp pool LAN2
-   R1(dhcp-config)# network 192.168.2.0 255.255.255.0
-   R1(dhcp-config)# default-router 192.168.2.1
-   R1(dhcp-config)# dns-server 192.168.1.10
-   R1(dhcp-config)# exit
+   R1# show ipv6 interface brief
    ```
 
-4. `show ip dhcp pool` を実行し、2 つのプール（LAN1・LAN2）が作成されたことを確認する
-
-## 手順 3: PC1・PC2 の DHCP 取得確認（15 分）
-
-1. PC1・PC2 の [Desktop] → [IP Configuration] で **DHCP** に設定する
-2. 両 PC が `192.168.1.11` 以降のアドレスを取得できることを `ipconfig` で確認する
-   （除外範囲 `192.168.1.1〜.10` の外側から払い出されることを確認する）
-3. PC1 から `ping 192.168.1.10`（Syslog サーバ）を実行し、疎通を確認する
-
-## 手順 4: R2 の DHCP リレー構成（10 分）
-
-1. R2 のクライアント側インターフェース（Gi0/0）に、DHCP サーバ（R1 の Gi0/1）を
-   指す `ip helper-address` を設定する
-
-   ```
-   R2(config)# interface GigabitEthernet0/0
-   R2(config-if)# ip helper-address 10.0.0.1
-   ```
-
-   これにより、PC3・PC4 が送出する DHCP Discover（ブロードキャスト）が、
-   R2 によってユニキャストへ変換されて R1 へ転送されるようになります。
-
-## 手順 5: PC3・PC4 の DHCP 取得確認と binding の確認（20 分）
-
-1. PC3・PC4 の [IP Configuration] で **DHCP** に設定する
-2. 両 PC が `192.168.2.2` 以降のアドレスを、リレー経由で取得できることを
-   `ipconfig` で確認する（デフォルトゲートウェイが `192.168.2.1` になっていることも
-   確認する）
-3. R1 で `show ip dhcp binding` を実行し、**4 台分**（PC1〜PC4）のリースが
+2. R1 で経路テーブルを確認し、connected（C）と local（L）の経路が両セグメント分
    登録されていることを確認する
 
    ```
-   R1# show ip dhcp binding
+   R1# show ipv6 route
    ```
 
-4. PC3 から Syslog サーバ（`ping 192.168.1.10`）への疎通を確認する
-
-## 手順 6: NTP マスタ／クライアントの構成と確認（20 分）
-
-1. R1 の時刻を手動設定し、NTP マスタとして動作させる
+3. PC3・PC4 の [Desktop] → **Command Prompt** を開き、次のコマンドで SLAAC で
+   取得したアドレスを確認する
 
    ```
-   R1# clock set 10:00:00 13 July 2026
-   R1(config)# ntp master 3
+   ipconfig
    ```
 
-2. R2 を R1 に同期する NTP クライアントとして設定する
+4. PC3・PC4 のインターフェース ID 部分に `fffe` が含まれていることを確認し、
+   手元にメモしておく（EUI-64 で生成されたことの裏付けになります。手順 6 の
+   観察レポート設問 1 で使います）
+
+> **観察のヒント**: PC3・PC4 の GUA のインターフェース ID 部分と、PC の MAC アドレス
+> （`ipconfig /all` 相当。PT では NIC の設定画面で確認可）を見比べ、講義で学んだ
+> EUI-64 の変換ルール（中央に `fffe` を挿入・先頭バイトの U/L ビット反転）が
+> 実際に成立しているかを確かめてみましょう。
+
+## 手順 5: 疎通確認と NDP の観察（30 分）
+
+1. PC1 の Command Prompt から、同一セグメント内の PC2 へ ping する
 
    ```
-   R2(config)# ntp server 10.0.0.1
+   ping 2001:DB8:0:1::11
    ```
 
-3. 数分待ってから、R2 で同期状態を確認する
+2. PC1（静的セグメント）から、PC3（SLAAC セグメント）の GUA へ ping する
+   （PC3 の `ipconfig` で確認したアドレスを使用する）
 
    ```
-   R2# show ntp status
-   R2# show ntp associations
+   ping 2001:DB8:0:2:xxxx:xxxx:xxxx:xxxx
    ```
 
-   - `show ntp associations` の出力で、R1（`10.0.0.1`）の行の先頭に `*` が
-     付いていれば、そのピアと**同期中**であることを示します
-   - `show ntp status` で `Clock is synchronized` と、stratum が **4**
-     （R1 の stratum 3 より 1 つ大きい値）になっていることを確認する
-
-## 手順 7: Syslog の構成とイベント発生・確認（25 分）
-
-1. R1・R2 の両方で、タイムスタンプ付きログと Syslog サーバへの送出を設定する
+3. 疎通が成功したら、R1 で NDP により学習された近隣情報を確認する
 
    ```
-   R1(config)# service timestamps log datetime msec
-   R1(config)# logging host 192.168.1.10
-   R1(config)# logging trap informational
+   R1# show ipv6 neighbors
    ```
 
-   ```
-   R2(config)# service timestamps log datetime msec
-   R2(config)# logging host 192.168.1.10
-   R2(config)# logging trap informational
-   ```
+4. IPv6-MAC の対応が、IPv4 の ARP テーブルと同様の考え方で表示されていることを
+   確認する
 
-2. R2 のいずれかのインターフェース（例: Gi0/0）で `shutdown` → `no shutdown` を
-   実行し、意図的にリンクの up/down イベントを発生させる
+## 手順 6: 設定保存と提出準備（15 分）
+
+1. R1 で設定を保存する
 
    ```
-   R2(config)# interface GigabitEthernet0/0
-   R2(config-if)# shutdown
-   R2(config-if)# no shutdown
+   R1# copy running-config startup-config
    ```
 
-3. Syslog サーバの [Services] タブ → **SYSLOG** 画面を開き、`%LINK` /
-   `%LINEPROTO` を含むメッセージが記録されていることを確認する
-4. R2 で `show logging` を実行し、コンソール上でも同様のメッセージが
-   バッファに記録されていることを確認する
-
-## 手順 8: 総合検証と保存（15 分）
-
-1. 各ルータで次のコマンドを実行し、設定全体を検証する
-
-   ```
-   R1# show ip dhcp pool
-   R1# show ntp status
-   R1# show logging
-   R2# show ntp status
-   R2# show logging
-   ```
-
-2. `File > Save As` で `exercise15_氏名.pkt` として保存する
+2. `exercise15_氏名.pkt` を上書き保存する（`File > Save`、または `Ctrl + S`）
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. PC3・PC4 がリレー経由で取得した IP アドレスとデフォルトゲートウェイは
-   何だったか。R2 の `ip helper-address` を外すと PC3・PC4 のアドレス取得は
-   どうなるか、その理由（DHCP Discover がブロードキャストである点）と
-   あわせて述べよ。
-2. R2 で `show ntp status` / `show ntp associations` を実行したとき、
-   同期状態と R2 の stratum 値はいくつだったか。R1 の `ntp master` の値との
-   関係を説明せよ。
-3. Syslog サーバに記録されたインターフェース down/up メッセージ
-   （`%LINK-x-UPDOWN` 等）の severity レベルは何番で、その名称は何か。
-   `logging trap` のレベルを `warning` に変えると、このメッセージは
-   送出されるか。あわせて、同時に記録される `%LINEPROTO-5-UPDOWN`
-   （severity 5）についても、`logging trap warning` で送出されるかどうかを
-   確認し、`%LINK-3-UPDOWN` との違いとその理由（severity としきい値の
-   大小関係）を記述せよ。
+1. SLAAC で自動取得した PC3/PC4 のインターフェース ID は、EUI-64 の観点で
+   どのように生成されているか。MAC アドレスとの対応（`fffe` の挿入位置・U/L
+   ビットの反転）を示して説明せよ。
+2. `show ipv6 interface brief` で各インターフェースにリンクローカル（`fe80::`）と
+   GUA の 2 つが表示された。それぞれのアドレスの役割の違いと、リンクローカルが
+   常に存在する理由を述べよ。
+3. 静的セグメントの PC1 と SLAAC セグメントの PC3 が通信できたのはなぜか。
+   ルータで `ipv6 unicast-routing` を有効にした意味と、両 PC のデフォルト
+   ゲートウェイの役割を含めて説明せよ。
 
-## 提出方法
+## 手順 7: 提出
 
 1. `exercise15_氏名.pkt` を Backlog のラボ課題に**添付**する
-2. `show ip dhcp binding` / `show ntp status` / `show ntp associations` /
-   Syslog サーバの記録画面のスクリーンショットと、観察レポートの回答を
-   課題の**コメント**に貼る
+2. 手順 4〜5 のコマンド結果（スクリーンショット可）と観察レポートを課題の
+   **コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| PC1・PC2 が DHCP アドレスを取得できない | R1 の `ip dhcp pool LAN1` の `network` 設定、R1 Gi0/0 の `no shutdown`、除外アドレス範囲の誤り |
-| PC3・PC4 が DHCP アドレスを取得できない | R2 Gi0/0 に `ip helper-address 10.0.0.1` が設定されているか、R1↔R2 間の静的ルート（往復とも）が入っているか |
-| R1 で `show ip dhcp binding` に PC3・PC4 が出ない | リレーで転送されたパケットが R1 へ届いていない可能性。R1↔R2 間の疎通・ルーティングを再確認 |
-| R2 が NTP に同期しない（`show ntp status` が unsynchronized） | R1 の `ntp master` 設定漏れ、R2 の `ntp server` の宛先 IP 誤り、しばらく時間をおいて再確認（同期には数分かかることがある） |
-| Syslog サーバに何も記録されない | R1・R2 の `logging host 192.168.1.10` の設定漏れ、Syslog サーバの IP・GW 設定、`logging trap` のレベル設定 |
-| リンク up/down のログが出ない | `shutdown` → `no shutdown` を確実に実行したか、対象インターフェースを取り違えていないか |
+| PC3/PC4 に IPv6 アドレスが表示されない（SLAAC 失敗） | R1 で `ipv6 unicast-routing` を入力し忘れていないか。Gi0/1 が `no shutdown` されているか |
+| `show ipv6 interface brief` に GUA が出ない | インターフェースに `ipv6 address` コマンドを入力後、`no shutdown` を実行したか |
+| PC1 → PC2 の ping が失敗する | 両 PC のアドレス・プレフィックス長（64）の入力ミス、リンクが緑かを確認 |
+| PC1 → PC3（セグメント間）の ping が失敗する | 各 PC のデフォルトゲートウェイの入力ミス、R1 の両インターフェースが `no shutdown` されているか |
+| `show ipv6 neighbors` に何も表示されない | 先に ping を実行して NDP のやり取りを発生させたか |
 
-30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
-課題のコメントに書いて質問してください。
+30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を課題の
+コメントに書いて質問してください。

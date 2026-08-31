@@ -1,296 +1,256 @@
-# Exercise 2 ラボ手順書: IOS の基本操作とデバイス初期設定
+# Exercise 2 ラボ手順書: MAC アドレステーブルと ARP の観察、デュプレックス不一致の障害切り分け
 
-> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise02`
+> 配置先: ドキュメント `02_ラボ手順書 > LESSON1 > Exercise2`
 > 所要時間の目安: 2.5 時間 ／ 使用ツール: Cisco Packet Tracer 9.x
 
 ## ゴール
 
-- ルータ 1 台・スイッチ 2 台に、ホスト名・`enable secret`・コンソール/VTY パスワード・
-  管理 IP アドレスを設定できる
-- SSHv2 を有効化し、Telnet を排除した状態を作れる
-- Admin-PC から各機器へ SSH でリモートログインし、show コマンドで状態を確認できる
-- 設定を startup-config に保存し、`show running-config` で保存内容を検証できる
+- スイッチの MAC アドレステーブルと ARP の学習動作をシミュレーションモードで
+  観察し、フラッディングと学習の流れを自分の言葉で説明できる
+- 速度 / デュプレックス不一致による障害を `show interfaces` 系コマンドで切り分け、
+  正しい設定に修正して復旧できる
 
 ## 完成トポロジ
 
 ![Exercise 2 トポロジ図](../images/exercise02-topology.png)
 
-※ コンソール接続（ロールオーバーケーブル）は Admin-PC の RS232 ポートと、設定対象の
-機器（R1 → SW1 → SW2 の順）の Console ポートを、手順ごとに順次つなぎ替えて使用します。
-
 ### IP アドレス割り当て表
 
-| 機器 | インターフェース | IP アドレス | サブネットマスク | デフォルトゲートウェイ |
-|---|---|---|---|---|
-| R1 | Gi0/0 | 192.168.1.1 | 255.255.255.0 | — |
-| SW1 | VLAN 1（SVI） | 192.168.1.11 | 255.255.255.0 | 192.168.1.1 |
-| SW2 | VLAN 1（SVI） | 192.168.1.12 | 255.255.255.0 | 192.168.1.1 |
-| PC1 | NIC | 192.168.1.101 | 255.255.255.0 | 192.168.1.1 |
-| PC2 | NIC | 192.168.1.102 | 255.255.255.0 | 192.168.1.1 |
-| Admin-PC | NIC | 192.168.1.100 | 255.255.255.0 | 192.168.1.1 |
+全ノードは同一サブネット `192.168.10.0/24` に属します（デフォルトゲートウェイは
+不要です）。
 
-### 配線一覧
-
-| 接続元 | ポート | 接続先 | ポート | ケーブル種別 |
-|---|---|---|---|---|
-| R1 | Gi0/0 | SW1 | Fa0/24 | ストレート |
-| SW1 | Fa0/1 | PC1 | FastEthernet0 | ストレート |
-| SW1 | Fa0/2 | Admin-PC | FastEthernet0 | ストレート |
-| SW1 | Fa0/23 | SW2 | Fa0/23 | クロス |
-| SW2 | Fa0/1 | PC2 | FastEthernet0 | ストレート |
+| 機器 | 接続先ポート | IP アドレス | サブネットマスク |
+|---|---|---|---|
+| PC1 | SW1 Fa0/1 | 192.168.10.11 | 255.255.255.0 |
+| PC2 | SW1 Fa0/2 | 192.168.10.12 | 255.255.255.0 |
+| PC3 | SW2 Fa0/1 | 192.168.10.13 | 255.255.255.0 |
+| PC4 | SW2 Fa0/2 | 192.168.10.14 | 255.255.255.0 |
+| SW1 | Gi0/1 | SW2 の Gi0/1 と接続（スイッチ間リンク） | — |
+| SW2 | Gi0/1 | SW1 の Gi0/1 と接続（スイッチ間リンク） | — |
 
 ---
 
-## 手順 1: R1 へのコンソール接続とモード遷移確認（5 分）
+## 手順 1: トポロジの作成と初期設定（20 分）
 
-1. トポロジ画面で、Exercise 1 手順 1 と同じ要領で接続ツール（稲妻アイコン）→
-   **ロールオーバーケーブル**を選び、Admin-PC の **RS232** ポートと R1 の
-   **Console** ポートを順にクリックしてケーブルをつなぐ
-2. Admin-PC をクリックし、[Desktop] → **Terminal** を開く（設定はデフォルトの
-   9600/8-N-1 のままで OK）
-3. 接続後に表示される `Router>` プロンプトで `enable` を実行し、`Router#` に
-   変わることを確認する
-4. `configure terminal` を実行し、`Router(config)#` に変わることを確認する
+1. Packet Tracer を起動し、新規ファイルを開く
+2. [Network Devices] → [Switches] → **2960** を 2 台配置（SW1, SW2）
+3. [End Devices] → **PC** を 4 台配置（PC1〜PC4）
+4. ケーブル（すべて**ストレートケーブル**、スイッチ間は Auto-MDIX により
+   ストレートで問題ありません）で接続する
+   - PC1 — SW1 `FastEthernet0/1`
+   - PC2 — SW1 `FastEthernet0/2`
+   - PC3 — SW2 `FastEthernet0/1`
+   - PC4 — SW2 `FastEthernet0/2`
+   - SW1 `GigabitEthernet0/1` — SW2 `GigabitEthernet0/1`（スイッチ間リンク）
+5. 全リンクの●が緑になるまで待つ
+6. SW1・SW2 それぞれの CLI で hostname を設定する
 
-## 手順 2: R1 の基本設定（ホスト名・enable secret・バナー）（10 分）
+   ```
+   enable
+   configure terminal
+   hostname SW1
+   ```
 
-```
-Router(config)# hostname R1
-R1(config)# enable secret cisco123
-R1(config)# enable password cisco456
-R1(config)# banner motd #Authorized access only#
-```
+   SW2 も同様に `hostname SW2` を設定します。
 
-## 手順 3: R1 のコンソール保護と管理 IP（15 分）
+## 手順 2: PC の IP 設定（10 分）
 
-```
-R1(config)# line console 0
-R1(config-line)# password consolepw
-R1(config-line)# login
-R1(config-line)# logging synchronous
-R1(config-line)# exit
-R1(config)# interface gigabitEthernet 0/0
-R1(config-if)# ip address 192.168.1.1 255.255.255.0
-R1(config-if)# no shutdown
-R1(config-if)# exit
-```
+1. 各 PC の [Desktop] タブ → **IP Configuration** で、上の割り当て表に従い
+   IP アドレスとサブネットマスクを設定する（デフォルトゲートウェイは空欄でよい）
+2. ファイルを保存: `File > Save As` → `exercise02_氏名.pkt`
 
-## 手順 4: R1 の SSH 前提条件の設定（15 分）
+## 手順 3: 通信前の初期状態を確認する（10 分）
 
-```
-R1(config)# ip domain-name example.local
-R1(config)# crypto key generate rsa
-```
+1. SW1・SW2 それぞれの CLI で次のコマンドを実行し、MAC アドレステーブルの
+   エントリが空、または少ないことを確認する
 
-鍵長を聞かれたら `1024` を入力します。
+   ```
+   show mac address-table
+   ```
 
-```
-How many bits in the modulus [512]: 1024
-```
+2. PC1〜PC4 それぞれの Command Prompt で `arp -a` を実行し、ARP キャッシュが
+   空であることを確認する
 
-続けて SSHv2 への固定とローカルユーザを作成します。
+## 手順 4: シミュレーションモードで ARP とフレームの流れを追跡する（30 分・この Exercise のメイン）
 
-```
-R1(config)# ip ssh version 2
-R1(config)# username admin privilege 15 secret adminpw
-```
+1. 右下の **Simulation** タブに切り替える
+2. [Edit Filters] で **ICMP** と **ARP** のみにチェックを入れる
+3. PC1 の Command Prompt で `ping 192.168.10.13` を実行し、自動再生を止めて
+   コマ送り（▶ の隣のステップボタン）で 1 ステップずつ進める
+4. 最初に流れる **ARP Request** をクリックし、次を確認する
+   - 画面下部の一覧表（PDU 一覧。通信の 1 コマごとの通過記録が並ぶ表）の
+     「At Device」列で、SW1 → SW2 の両方に**同時に転送**されている
+     （ブロードキャストのフラッディング）ことを確認する
+   - Outbound PDU Details の宛先 MAC アドレスが `FFFF.FFFF.FFFF` であることを確認する
+5. PC3 が返す **ARP Reply** をクリックし、次を確認する
+   - PC3 から PC1 へのみ**ユニキャスト**で転送されていること（他の PC には
+     流れないこと）を確認する
+   - 宛先 MAC アドレスが PC1 の MAC アドレスになっていることを確認する
+6. 続く **ICMP**（ping）のフレームをクリックし、スイッチがすでに学習した
+   MAC アドレステーブルをもとにユニキャストで転送していることを確認する
 
-## 手順 5: R1 の VTY を SSH 限定に設定（5 分）
+## 手順 5: 学習結果を確認する（15 分）
 
-```
-R1(config)# line vty 0 4
-R1(config-line)# transport input ssh
-R1(config-line)# login local
-R1(config-line)# exit
-```
+1. **Realtime** タブに戻る
+2. SW1・SW2 それぞれで再度 MAC アドレステーブルを確認する
 
-## 手順 6: R1 の保存と確認（10 分）
+   ```
+   show mac address-table
+   ```
 
-```
-R1(config)# end
-R1# copy running-config startup-config
-```
+   手順4で通信したのは PC1 と PC3 のみです。PC1 の MAC アドレスが SW1 の
+   該当ポートに、PC3 の MAC アドレスが SW2 の該当ポートに、それぞれ動的
+   エントリ（Type: DYNAMIC）として学習されていることを記録する。また
+   SW1・SW2 双方の MAC アドレステーブルに、スイッチ間リンク（Gi0/1）を
+   介して相手側の PC（SW1 側は PC3、SW2 側は PC1）の MAC アドレスも
+   学習されていることを確認する。PC2・PC4 はまだ一度も通信していないため、
+   この時点では MAC アドレステーブルに現れない（手順6で通信させると学習される）
 
-続けて以下のコマンドを実行し、結果を記録します。
+3. PC1 の Command Prompt で `arp -a` を実行し、PC3 の IP アドレス
+   （192.168.10.13）に対応する MAC アドレスが学習されたことを確認する
 
-```
-R1# show ip ssh
-R1# show ip interface brief
-```
+## 手順 6: MAC アドレステーブルのクリアと再学習（15 分）
 
-## 手順 7: SW1 の基本設定（10 分）
+1. SW1・SW2 それぞれで次のコマンドを実行し、動的エントリを消去する
 
-Admin-PC のロールオーバーケーブルを SW1 の Console ポートへつなぎ替え、手順 2・3 と
-同様に基本設定を行います。
+   ```
+   clear mac address-table dynamic
+   ```
 
-```
-Switch(config)# hostname SW1
-SW1(config)# enable secret cisco123
-SW1(config)# enable password cisco456
-SW1(config)# banner motd #Authorized access only#
-SW1(config)# line console 0
-SW1(config-line)# password consolepw
-SW1(config-line)# login
-SW1(config-line)# logging synchronous
-SW1(config-line)# exit
-```
+2. 消去直後に `show mac address-table` を実行し、テーブルが空（またはスタティック
+   エントリのみ）になっていることを確認する
+3. PC2 から PC4 へ `ping 192.168.10.14` を実行し、再度 MAC アドレステーブルを
+   確認して**再学習**されることを確認する
+4. 次のコマンドでエージングタイム（既定値）を確認する
 
-## 手順 8: SW1 の管理 IP（SVI）とデフォルトゲートウェイ（10 分）
+   ```
+   show mac address-table aging-time
+   ```
 
-```
-SW1(config)# interface vlan 1
-SW1(config-if)# ip address 192.168.1.11 255.255.255.0
-SW1(config-if)# no shutdown
-SW1(config-if)# exit
-SW1(config)# ip default-gateway 192.168.1.1
-```
+   既定値が 300 秒（5 分）であることを記録する
 
-## 手順 9: SW1 の SSH 有効化（10 分）
+## 手順 7: 障害演習 — デュプレックス / 速度不一致の発生（20 分）
 
-```
-SW1(config)# ip domain-name example.local
-SW1(config)# crypto key generate rsa
-```
+> ⚠️ **注意**: Packet Tracer では、デュプレックスミスマッチによるエラーカウンタ
+> （CRC / late collision 等）の増加や、それに伴うパケットロスは再現しない場合が
+> あります。本演習の主眼は、`show interfaces` / `show interfaces status` の
+> **duplex 欄が両端で食い違う**（例: 固定側の SW1 = `full`/`100`、auto 側の
+> SW2 = `a-half`/`a-100`。`a-` はオートネゴシエーションで決定した値であることを
+> 示すプレフィックスです）ことを確認する点に置いてください。
 
-鍵長は `1024` を入力します。
+1. SW1 の CLI で、スイッチ間リンク側のポートに速度とデュプレックスを固定で設定する
 
-```
-SW1(config)# ip ssh version 2
-SW1(config)# username admin privilege 15 secret adminpw
-SW1(config)# line vty 0 4
-SW1(config-line)# transport input ssh
-SW1(config-line)# login local
-SW1(config-line)# exit
-```
+   ```
+   interface gigabitEthernet0/1
+    speed 100
+    duplex full
+    exit
+   ```
 
-## 手順 10: SW2 も同様に設定（15 分）
+2. SW2 側の `GigabitEthernet0/1` は変更せず、**オートネゴシエーション（auto）**の
+   ままにしておく（不一致の状態を作る）
+3. SW1・SW2 それぞれで次のコマンドを実行し、速度 / デュプレックスの表示と
+   リンク状態を確認する
 
-Admin-PC のロールオーバーケーブルを SW2 の Console ポートへつなぎ替え、手順 7〜9 を
-繰り返します。ホスト名は `SW2`、管理 IP は `192.168.1.12 255.255.255.0` とし、それ
-以外のパスワード・SSH 設定は SW1 と同じ値で構いません。
+   ```
+   show interfaces gigabitEthernet0/1
+   show interfaces status
+   ```
 
-## 手順 11: 全機器の保存と service password-encryption の比較（10 分）
+4. `runts`、`CRC`、`collisions`、`late collision` などのエラーカウンタの値を記録する
+   （Packet Tracer では増加しない場合があります。その場合は「増加なし」と
+   記録して構いません）
 
-R1・SW1・SW2 それぞれで、コンソールケーブルをその機器の Console ポートへつなぎ替え、
-特権 EXEC モードで設定を保存します。この時点では Admin-PC にまだ IP アドレスを設定
-していないため、SSH では接続できません（Admin-PC の IP 設定は手順 12、SSH ログインは
-手順 13 で行います）。
+### 手順 7': 速度ハード不一致でリンクダウンを観察する（発展・推奨）
 
-```
-R1# copy running-config startup-config
-SW1# copy running-config startup-config
-SW2# copy running-config startup-config
-```
+Packet Tracer で確実に観察できる障害として、速度そのものを両端で完全に
+不一致にする方法もあります。時間に余裕があれば試してください。
 
-続けて SW1 で以下を行います。コンソールケーブルが SW1 の Console ポートに接続されて
-いることを確認してください。
+1. SW1 の `GigabitEthernet0/1` を `speed 1000` に固定する
 
-```
-SW1# show running-config
-```
+   ```
+   interface gigabitEthernet0/1
+    speed 1000
+    exit
+   ```
 
-`enable password`・`enable secret`・`line` 配下の `password` の表示を確認し記録します。
-続けて設定モードへ入り、`service password-encryption` を実行します。
+2. SW2 の `GigabitEthernet0/1` を `speed 100` に固定する
 
-```
-SW1# configure terminal
-SW1(config)# service password-encryption
-```
+   ```
+   interface gigabitEthernet0/1
+    speed 100
+    exit
+   ```
 
-設定モードを抜けずに確認するには、講義で扱った `do` を使います。
+3. `show interfaces status` を実行し、リンクが `notconnect`（line protocol
+   down 相当）になることを確認する
+4. PC1 から PC3 へ `ping 192.168.10.13` を実行し、すべて `Request timed out`
+   になることを確認する
 
-```
-SW1(config)# do show running-config
-```
+## 手順 8: 障害の影響を観察する（15 分）
 
-`enable password` とコンソール/VTY の `password` の表示がどう変化したか、また
-`enable secret` の行に変化があったかを記録します。
+1. 手順 7 のデュプレックス不一致の状態で、PC1 から PC3 へ
+   `ping 192.168.10.13` を複数回（`ping 192.168.10.13 -n 10` など）実行し、
+   応答時間の増加やパケットロス（Request timed out）が発生するかを観察して
+   記録する。Packet Tracer では変化が見られないことも多く、その場合は
+   「duplex 欄の不一致のみ確認、通信自体への影響は見られず」と記録してよい
+2. 手順 7' を実施した場合は、速度不一致によるリンクダウンで、すべての ping が
+   `Request timed out` になることを確認する
+3. 手順 7 で確認したエラーカウンタが ping 実行後にさらに増加していないかを
+   再度 `show interfaces gigabitEthernet0/1` で確認する
 
-## 手順 12: PC の IP 設定と疎通確認（10 分）
+## 手順 9: 復旧（10 分）
 
-1. PC1・PC2・Admin-PC それぞれの [Desktop] → **IP Configuration** で、上記の IP
-   アドレス割り当て表のとおりに IP アドレス・サブネットマスク・デフォルトゲートウェイ
-   を設定する
-2. Admin-PC の Command Prompt から、R1・SW1・SW2 へそれぞれ ping を実行し、すべて
-   成功することを確認する
+1. SW1・SW2 双方の `GigabitEthernet0/1` を元のオートネゴシエーションに戻す
 
-```
-ping 192.168.1.1
-ping 192.168.1.11
-ping 192.168.1.12
-```
+   ```
+   interface gigabitEthernet0/1
+    speed auto
+    duplex auto
+    exit
+   ```
 
-## 手順 13: Admin-PC から SW1 へ SSH 接続（10 分）
+   （デュプレックスのみを不一致にした場合は、両端を同一の固定値
+   `speed 100` / `duplex full` に揃える方法でも解消します。今回は両端を
+   auto に統一する方法で復旧します）
 
-Admin-PC の Command Prompt から次のコマンドを実行します。
-
-```
-ssh -l admin 192.168.1.11
-```
-
-※ `-l` は小文字の**エル（L）**です（数字の 1 ではありません）。ログインユーザ名を
-指定するオプションです。
-
-パスワード `adminpw` を入力してログインし、リモートセッション上で次のコマンドを
-実行して結果を記録します。
-
-```
-SW1# show ip interface brief
-```
-
-## 手順 14: SW1 での状態確認（5 分）
-
-SW1 のコンソール側（または SSH セッション）で、次のコマンドを実行し出力を記録します。
-
-```
-SW1# show ssh
-SW1# show mac address-table
-SW1# show version
-```
-
-## 手順 15: Telnet が拒否されることの確認（10 分）
-
-Admin-PC の Command Prompt から R1 へ Telnet 接続を試みます。
-
-```
-telnet 192.168.1.1
-```
-
-`transport input ssh` を設定した VTY では Telnet が拒否される（接続が確立しない）
-ことを確認し、結果を記録します。
+2. `show interfaces status` を実行し、SW1・SW2 双方の `GigabitEthernet0/1` が
+   同じ速度・デュプレックスで `connected` になっていることを確認する
+3. PC1 から PC3 へ再度 `ping 192.168.10.13` を実行し、ロスなく応答が返ることを
+   確認する
 
 ### 観察レポート（コメント提出用）
 
 以下 3 問に答えて、課題のコメントに記入してください。
 
-1. `service password-encryption` を有効化する前と後で、`show running-config` の
-   `enable password`・`line` 配下の `password`・`enable secret` の表示はそれぞれ
-   どう変わったか。`enable secret` が影響を受けなかった理由は何か。
-2. 手順 15 で R1 へ Telnet（`telnet 192.168.1.1`）を試みた結果は成功したか失敗したか。
-   R1・SW1・SW2 のいずれも `transport input ssh` を設定しているため、SW1 や SW2 に
-   Telnet を試みても同じ結果になるはずです。その理由もあわせて述べよ。
-3. SW1 の VLAN1 インターフェースに `ip default-gateway` を設定しなかった場合、別
-   サブネットの PC から SW1 へ管理アクセスできるか。スイッチが管理 IP を SVI に
-   持つ理由とあわせて説明せよ。
+1. PC1 から PC3 へ最初に ping したとき、ARP Request と ARP Reply はそれぞれ
+   ユニキャスト・ブロードキャストのどちらで送られたか。また ping 前後で
+   `show mac address-table` のエントリがどう変化したかを記述せよ。
+2. デュプレックス不一致を発生させたとき（手順 7）、`show interfaces status` の
+   duplex / speed 欄の表示はどうなったか。エラーカウンタや ping 結果に変化が
+   あれば併せて記述せよ（Packet Tracer の制約で変化が見られなくても構わない）。
+   手順 7' を実施した場合は、速度ハード不一致によるリンクダウンの表示と ping
+   の結果も記述せよ。
+3. デュプレックスミスマッチを恒久的に防ぐには、リンク両端の速度 / デュプレックス
+   設定をどう構成すべきか。オートネゴシエーションの観点から説明せよ。
 
-## 提出方法
+## 手順 10: 提出（5 分）
 
-1. ファイルを `exercise02_氏名.pkt` の名前で保存し、Backlog のラボ課題に**添付**する
-2. 手順 6・13・14・15 の実行結果（スクリーンショット可）と、観察レポートの
-   3 問の解答を課題の**コメント**に貼る
+1. `exercise02_氏名.pkt` を Backlog のラボ課題に**添付**する
+2. 手順 5〜9 のコマンド結果（スクリーンショット可）と観察レポート 3 問の回答を
+   課題の**コメント**に貼る
 3. 課題の状態を「処理済み」に変更する
 
 ## うまくいかないとき
 
 | 症状 | 確認すること |
 |---|---|
-| コンソールに何も表示されない | ケーブルの接続先ポート、端末エミュレータのビットレート（9600）設定 |
-| `enable secret` を設定したのに `Router#` のまま反映されない | コマンドの打ち間違い、`end` または `exit` でモードを抜けたか |
-| SSH で接続できない（Connection refused 等） | `crypto key generate rsa` を実行したか、`ip ssh version 2` が設定済みか、VTY の `transport input` に `ssh` が含まれているか |
-| SSH のパスワードが通らない | `username` コマンドのユーザ名・パスワードと、ログイン時に入力した値の一致、`login local` の設定漏れ |
-| SW1 で ping が届くが SSH が届かない | `ip domain-name` の設定漏れ、RSA 鍵の未生成、VTY の `login local` 設定漏れ |
-| 別サブネットから SW1 に管理アクセスできない | `ip default-gateway` の設定漏れ（SVI に IP はあるがゲートウェイ未設定） |
-| `no shutdown` 後もインターフェースが up/up にならない | 対向ポートの状態、ケーブル種別（ストレート/クロス）の誤り |
+| ping が全てタイムアウトする（初期状態） | 各 PC の IP / サブネットマスクの入力ミス、ケーブルが緑か |
+| `show mac address-table` に何も表示されない | 通信（ping）を実際に発生させたか、`clear` 直後でまだ再学習していないだけではないか |
+| Simulation で ARP / ICMP が表示されない | [Edit Filters] で ARP・ICMP にチェックが入っているか |
+| `speed` / `duplex` コマンドが入力できない | インターフェースモード（`interface gigabitEthernet0/1` の直後）にいるか確認する |
+| 障害演習後に ping が完全に通らなくなった | 手順 7'（速度ハード不一致）を実施した場合はリンクダウンによる全滅が正常な結果。手順 7（デュプレックス不一致）のみで通らない場合は、片方だけ固定・片方 auto という意図した組み合わせになっているか再確認する |
+| 復旧後も `show interfaces status` の速度 / デュプレックスが揃わない | SW1・SW2 両方に `speed auto` と `duplex auto` を入力し直し、リンクが再ネゴシエーションするまで数秒待つ |
 
 30 分試して解決しない場合は、状況（スクリーンショット + 試したこと）を
 課題のコメントに書いて質問してください。

@@ -148,7 +148,7 @@ Exercise00 を追加して 71 課題（運営課題込みで 78 課題）。命�
    │    └─ P1〜P5 講義
    ├─ 📁 LESSON1_ネットワーク基礎
    │    ├─ Exercise01_ネットワークの全体像とOSIモデル
-   │    ├─ Exercise02_Cisco IOS の基本操作
+   │    ├─ Exercise02_TCP-UDPとスイッチング動作
    │    └─ ...
    ├─ 📁 LESSON2_ネットワークアクセス
    ├─ 📁 LESSON3_IPコネクティビティとIPサービス

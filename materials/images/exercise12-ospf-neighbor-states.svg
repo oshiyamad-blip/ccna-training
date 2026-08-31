@@ -21,7 +21,7 @@
   <rect width="1500" height="550" fill="#ffffff"/>
 
   <text class="title" x="40" y="50">OSPF ネイバー状態遷移とトラブルシューティング</text>
-  <text class="sub" x="40" y="78">Down から Full までの各遷移点で、そこに停滞したときに疑うべき典型原因を整理する（Exercise13 ラボの4つの障害に対応）</text>
+  <text class="sub" x="40" y="78">Down から Full までの各遷移点で、そこに停滞したときに疑うべき典型原因を整理する（Exercise12 ラボの4つの障害に対応）</text>
 
   <!-- state chain arrows -->
   <line x1="185" y1="190" x2="262" y2="190" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrow)"/>
@@ -110,7 +110,7 @@
 
   <!-- footer: link to lab -->
   <rect x="40" y="420" width="1420" height="90" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
-  <text class="footerTitle" x="60" y="446">🔗 Exercise13 ラボの4つの障害との対応</text>
+  <text class="footerTitle" x="60" y="446">🔗 Exercise12 ラボの4つの障害との対応</text>
   <text class="footerLine" x="60" y="470">障害1（Hello/Dead タイマー不一致）→ ネイバーが現れない ／ 障害2（network 文漏れ）・障害3（passive-interface 誤設定）→ Down のまま現れない</text>
   <text class="footerLine" x="60" y="492">障害4（MTU 不一致）→ ExStart/Exchange で停滞 ― 4 つすべてを解消して初めて Full（隣接完了）に到達する</text>
 </svg>
