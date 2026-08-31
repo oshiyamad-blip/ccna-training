@@ -228,6 +228,39 @@ await check('バッククォート内に書いたリポジトリ内パスが実�
   return bad
 })
 
+await check('講義に本文の章が存在する', async () => {
+  // 2026-08: ウォームアップ節の一括置換が、区切り線の無いファイルで本文 7 章を
+  // まるごと削り取った（Exercise11 の OSPF 講義が学習目標と確認問題だけになった）。
+  // 「参照は全部正しいのに中身が無い」状態は他のどの検査にも掛からなかったため、
+  // 本文の分量そのものを見る。
+  const MIN_CHAPTERS = 3
+  const MIN_CHARS = 4000
+  const bad = []
+  for (const d of DAYS) {
+    const p2 = join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lecture.md`)
+    if (!(await exists(p2))) continue
+    const txt = await read(p2)
+    const chapters = [...txt.matchAll(/^## \d+\. /gm)].length
+    const chars = txt.replace(/\s/g, '').length
+    if (chapters < MIN_CHAPTERS) bad.push(`${rel(p2)}: 本文の章が ${chapters} 個（最低 ${MIN_CHAPTERS} 章）`)
+    else if (chars < MIN_CHARS) bad.push(`${rel(p2)}: 全体で ${chars} 字（最低 ${MIN_CHARS} 字）`)
+  }
+  return bad
+})
+
+await check('ラボ手順書に手順と提出方法がある', async () => {
+  const bad = []
+  for (const d of DAYS) {
+    const p2 = join(MATERIALS, lessonDir(d.day), `exercise${pad(d.day)}-lab.md`)
+    if (!(await exists(p2))) continue
+    const txt = await read(p2)
+    const steps = [...txt.matchAll(/^## 手順 ?\d+/gm)].length
+    if (steps < 3) bad.push(`${rel(p2)}: 手順が ${steps} 個`)
+    if (!/氏名\.pkt/.test(txt)) bad.push(`${rel(p2)}: 提出ファイル名（exerciseNN_氏名.pkt）の記載がない`)
+  }
+  return bad
+})
+
 // --------------------------------------------------- D. ウォームアップ想起クイズ
 
 // 出典は「1 つ前・3 つ前・5 つ前」。materials/README.md・01-curriculum.md に書かれた設計。

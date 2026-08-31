@@ -69,6 +69,9 @@ try "ビルドシートが存在しない手順を参照" \
 try "機種にないポートをビルドシートが指定" \
   "sed -i '0,/Gi0\/2/s//Gi0\/7/' materials/pkt-build-sheets/exercise05.md" \
   "は実在しない"
+try "講義の本文が丸ごと消える（今回の実際の事故）" \
+  "python3 -c \"import re,pathlib;p=pathlib.Path('materials/lesson3/exercise11-lecture.md');s=p.read_text();i=s.index('## 1.');j=s.index('## 確認問題');p.write_text(s[:i]+s[j:])\"" \
+  "本文の章が"
 try "手順書のチェックリストから開始ファイルが抜ける" \
   "sed -i '/- \\[ \\] Exercise17 — start/d' materials/pkt-build-guide.md" \
   "start 一覧が"
