@@ -38,7 +38,7 @@ export const MILESTONES = [
 
 
 // LESSON 0「IT ベーシック」プレコース（P1〜P5）。ITリテラシーゼロの受講者向け。
-// day は LESSON0 内の営業日（1〜5）。経験者は --skip-precourse で丸ごと省略できる
+// day は LESSON0 内のパート番号（P1〜P5）。経験者は --skip-precourse で丸ごと省略できる
 export const PRE_PHASE_ISSUES = [
   { day: 1, type: '講義', summary: '[P1] 講義: コンピュータの基礎（ハードウェア・OS・ファイル）',
     description: '## 進め方\n- 教材「lesson0 > P1」を読む（3h目安）。CPU=作業する人、メモリ=作業机、ストレージ=本棚、のたとえで全体像をつかむ\n- わからない言葉が出てきたら、それ自体を課題コメントで質問してOK（この研修では質問が最重要スキルです）' },
@@ -68,7 +68,7 @@ export const PRE_PHASE_ISSUES = [
 ]
 
 // 試験対策フェーズ（Exercise 21〜25）。詳細は 07-exam-phase.md
-// type は ISSUE_TYPES の名前、day は開始日からの営業日数（Exercise1 = 1）
+// type は ISSUE_TYPES の名前、day は Exercise 番号（Exercise1 = 1）
 export const EXAM_PHASE_ISSUES = [
   {
     day: 21, type: '講義', summary: '[Exercise21] 本試験オリエン＋通し訓練: 形式・時間配分・Sim/Testletの解き方（B1）',
@@ -168,7 +168,7 @@ export const EXAM_PHASE_ISSUES = [
     day: 25, type: '講義', summary: '[受験前日] リハーサル＋当日チェックリスト（B5）',
     description: [
       '## 実施タイミング',
-      '- 受験予約日の**前営業日**に実施（GO 判定後に期限を予約日の前日へ更新する）',
+      '- 受験予約日の**前日**に実施（GO 判定後に期限を予約日の前日へ更新する）',
       '',
       '## 前日リハ',
       '- 会場までの経路・所要時間・出発時刻を確認',
@@ -221,7 +221,7 @@ export const OPS_ISSUES = [
     week: 1, at: 'end', summary: '[運営] LESSON伴走①(LESSON1): 離脱シグナル確認・KPI更新・個人スコアカード更新（A1/A3/B4/C）',
     description: [
       '## LESSON ごとの伴走メニュー',
-      '- [ ] 離脱シグナル（黄・赤）を確認し、該当者に翌営業日フォロー（A1）',
+      '- [ ] 離脱シグナル（黄・赤）を確認し、該当者に次の Exercise の冒頭でフォロー（A1）',
       '- [ ] KPI シートを更新（残存率・再テスト率・ドメイン別平均）（C）',
       '- [ ] 個人スコアカードを更新し、弱点ドメインに再読課題を発行（B4）',
       '- [ ] マイルストーン消化率を各受講者にフィードバック（A3）',

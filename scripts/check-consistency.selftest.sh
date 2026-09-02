@@ -84,6 +84,9 @@ try "開始ファイルなしのラボから配置手順が消える" \
 try "3桁インターフェース名の解説が消える" \
   "sed -i 's|^### インターフェース名の桁数が機種によって違う|### （削除された見出し）|' materials/lesson4/exercise17-lecture.md" \
   "の解説がない"
+try "営業日での数え方が復活する" \
+  "sed -i '0,/1 サイクルが 1 Exercise です。/s//1 サイクルが 1 Exercise（1 営業日ぶん）です。/' 04-guidance.md" \
+  "「営業日」で数えている"
 try "LESSON フォルダ名の接尾辞ゆれ" \
   "sed -i '0,/📁 LESSON1$/s//📁 LESSON1_ネットワーク基礎/' 02-backlog-design.md" \
   "接尾辞なし"

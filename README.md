@@ -1,7 +1,7 @@
 # CCNA 研修プログラム（Backlog 構築用）
 
-CCNA 200-301 v1.1 に準拠した社内研修（LESSON0 プレコース 5 営業日 / 35 時間を含め
-計 25 営業日 / 175 時間。本編は 20 営業日 / 140 時間）を、
+CCNA 200-301 v1.1 に準拠した社内研修（LESSON0 プレコース P1〜P5 / 35 時間を含め
+計 175 時間。本編は Exercise01〜20 / 140 時間）を、
 Nulab **Backlog** 上に構築するための設計ドキュメント・教材・ツール一式です。
 
 ## 構成
@@ -25,7 +25,7 @@ Nulab **Backlog** 上に構築するための設計ドキュメント・教材�
 
 1. Backlog に研修用プロジェクト（例: キー `CCNA`）を作成する
 2. `02-backlog-design.md` に従い、ドキュメント機能に教材フォルダを作成する
-3. `scripts/create-backlog-issues.mjs` で 20 日分の課題（講義・ラボ・小テスト）を一括投入する
+3. `scripts/create-backlog-issues.mjs` で全 Exercise 分の課題（講義・ラボ・小テスト）を一括投入する
 
    ```bash
    BACKLOG_SPACE_URL=https://your-space.backlog.jp \

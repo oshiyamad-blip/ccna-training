@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Backlog へ CCNA 研修の課題（講義・ラボ・小テスト × 20 日分）を一括投入するスクリプト。
+// Backlog へ CCNA 研修の課題（講義・ラボ・小テスト × Exercise01〜20）を一括投入するスクリプト。
 // 種別・カテゴリー・マイルストーンが未作成なら先に作成する。
 //
 // 使い方:
@@ -42,7 +42,7 @@ const START = argValue('--start')
 const TRAINEE = argValue('--trainee')
 const ASSIGNEE = argValue('--assignee')
 const DRY_RUN = args.includes('--dry-run')
-// 既定では LESSON0「ITベーシック」プレコース（5営業日）から開始する（受講者はITリテラシーゼロ前提）。
+// 既定では LESSON0「ITベーシック」プレコース（P1〜P5）から開始する（受講者はITリテラシーゼロ前提）。
 // IT経験者には --skip-precourse を指定すると Exercise1 から開始し、Exercise00（環境構築）課題を別途作成する
 const SKIP_PRE = args.includes('--skip-precourse')
 const OFFSET = SKIP_PRE ? 0 : 5 // 本編 Exercise1 の開始が LESSON0 のぶん後ろにずれる

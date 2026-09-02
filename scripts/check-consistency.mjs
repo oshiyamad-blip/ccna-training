@@ -506,6 +506,33 @@ await check('LESSON の区切りを示す Exercise 番号が全文書で一致',
   return bad
 })
 
+await check('進度を営業日で数える記載が復活していない', async () => {
+  // 2026-08 決定: ローリング入学のため受講者ごとに進度が違う。規模も所要も
+  // 「営業日」ではなく Exercise 数で表す（カレンダーの日数で数えない）。
+  // 例外: create-backlog-issues.mjs の日付ユーティリティは Backlog の期限日を
+  // 実際に土日を飛ばして計算するため、その説明コメントだけは残す。
+  const ALLOW = [
+    'scripts/create-backlog-issues.mjs', // 期限日計算（土日スキップ）の実装コメント
+    'scripts/curriculum-data.mjs',       // 同上（at: の説明）
+    'scripts/check-consistency.mjs',     // この検査自身（判定文字列を含むため）
+  ]
+  const bad = []
+  for (const p2 of await allMarkdown()) {
+    const lines = (await read(p2)).split('\n')
+    lines.forEach((l, i) => {
+      if (/営業日/.test(l)) bad.push(`${rel(p2)}:${i + 1} 「営業日」で数えている: ${l.trim().slice(0, 60)}`)
+    })
+  }
+  for (const f of (await readdir(join(ROOT, 'scripts')))) {
+    if (!f.endsWith('.mjs') || ALLOW.includes(`scripts/${f}`)) continue
+    const lines = (await read(join(ROOT, 'scripts', f))).split('\n')
+    lines.forEach((l, i) => {
+      if (/営業日/.test(l)) bad.push(`scripts/${f}:${i + 1} 「営業日」で数えている`)
+    })
+  }
+  return bad
+})
+
 await check('LESSON フォルダ名に接尾辞が付いていない', async () => {
   // 2026-08 決定: フォルダ名は upload-wiki.mjs が実際に作る `LESSON1` の形に統一する
   // （`LESSON1_ネットワーク基礎` のような接尾辞付きは使わない）。
