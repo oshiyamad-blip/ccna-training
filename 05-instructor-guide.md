@@ -240,7 +240,7 @@ node ai-grade.mjs --issue CCNA-42 --exercise 3 --post
 
 | シグナル | 黄（要観察） | 赤（即フォロー） |
 |---|---|---|
-| 提出遅延 | 期限当日に未提出 | 2 Exercise 連続で未提出 |
+| 提出遅延 | 直近の Exercise の提出物が揃っていない | 2 Exercise 連続で未提出 |
 | 小テスト | 1 回 70% 未満 | 2 回連続 70% 未満 |
 | 質問 | 3 Exercise 連続で質問ゼロ | 5 Exercise 連続で発話ゼロ |
 | ログイン／活動 | 1 Exercise 分の活動なし | 2 Exercise 分の活動なし |

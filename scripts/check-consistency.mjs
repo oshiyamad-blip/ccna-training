@@ -511,6 +511,9 @@ await check('進度を営業日で数える記載が復活していない', asyn
   // 「営業日」ではなく Exercise 数で表す（カレンダーの日数で数えない）。
   // 例外: create-backlog-issues.mjs の日付ユーティリティは Backlog の期限日を
   // 実際に土日を飛ばして計算するため、その説明コメントだけは残す。
+  // 数え上げ・換算の用法だけを見る。「毎営業日を研修に充てられるとは限らない」の
+  // ように、営業日という語を使って前提そのものを説明している文は対象外。
+  const COUNTING = /\d+\s*営業日|[翌前次]営業日|営業日(数|目|以内|ベース|換算|後|前)/
   const ALLOW = [
     'scripts/create-backlog-issues.mjs', // 期限日計算（土日スキップ）の実装コメント
     'scripts/curriculum-data.mjs',       // 同上（at: の説明）
@@ -520,14 +523,14 @@ await check('進度を営業日で数える記載が復活していない', asyn
   for (const p2 of await allMarkdown()) {
     const lines = (await read(p2)).split('\n')
     lines.forEach((l, i) => {
-      if (/営業日/.test(l)) bad.push(`${rel(p2)}:${i + 1} 「営業日」で数えている: ${l.trim().slice(0, 60)}`)
+      if (COUNTING.test(l)) bad.push(`${rel(p2)}:${i + 1} 営業日で数えている: ${l.trim().slice(0, 60)}`)
     })
   }
   for (const f of (await readdir(join(ROOT, 'scripts')))) {
     if (!f.endsWith('.mjs') || ALLOW.includes(`scripts/${f}`)) continue
     const lines = (await read(join(ROOT, 'scripts', f))).split('\n')
     lines.forEach((l, i) => {
-      if (/営業日/.test(l)) bad.push(`scripts/${f}:${i + 1} 「営業日」で数えている`)
+      if (COUNTING.test(l)) bad.push(`scripts/${f}:${i + 1} 営業日で数えている`)
     })
   }
   return bad

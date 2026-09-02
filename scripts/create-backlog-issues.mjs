@@ -5,7 +5,8 @@
 // 使い方:
 //   BACKLOG_SPACE_URL=https://your-space.backlog.jp \
 //   BACKLOG_API_KEY=xxxxxxxx \
-//   node create-backlog-issues.mjs --project CCNA --start 2026-08-03 [--trainee 山田] [--assignee <userId>] [--dry-run]
+//   node create-backlog-issues.mjs --project CCNA --start 2026-08-03 [--trainee 山田] [--assignee <userId>]
+//     [--pace <1週あたりのExercise数>] [--no-due-dates] [--dry-run]
 //
 //   --project   Backlog プロジェクトキー（必須）
 //   --start     Exercise 1 の日付 YYYY-MM-DD（必須）。土日はスキップして期限日を採番する
@@ -46,6 +47,24 @@ const DRY_RUN = args.includes('--dry-run')
 // IT経験者には --skip-precourse を指定すると Exercise1 から開始し、Exercise00（環境構築）課題を別途作成する
 const SKIP_PRE = args.includes('--skip-precourse')
 const OFFSET = SKIP_PRE ? 0 : 5 // 本編 Exercise1 の開始が LESSON0 のぶん後ろにずれる
+
+// --- 進度の設定 -------------------------------------------------------------
+// 受講者は必ずしも毎営業日を研修に充てられるとは限らない（他業務と兼務、
+// 週の一部だけ参加など）。期限日を「1 Exercise = 1 営業日」で固定すると、
+// ペースの遅い受講者は数週で全課題が期限切れになり、Backlog が赤で埋まる。
+// 未経験者にとってこれ自体が強い離脱要因になるため、ペースを指定できるようにする。
+//
+//   --pace <1週あたりの Exercise 数>  既定 5（毎営業日）。例: --pace 2 で週 2 回
+//   --no-due-dates                    期限日を設定しない（順序だけで運用する）
+const PACE = Number(argValue('--pace') ?? 5)
+const NO_DUE = args.includes('--no-due-dates')
+if (!NO_DUE && (!Number.isFinite(PACE) || PACE <= 0 || PACE > 5)) {
+  console.error('--pace は 1〜5 の数値で指定してください（1 週あたりに進める Exercise 数）。')
+  process.exit(1)
+}
+// Exercise n 個分の進捗が、実際に何営業日ぶんに相当するかを返す
+const paceDays = (n) => Math.round(n * (5 / PACE))
+const dueLabel = (d) => d ?? 'なし'
 // 既定で継続率・合格率の運営課題（LESSON伴走・KPI・キックオフ等）も作成する。
 // 運営タスクを別管理する純粋な学習者専用プロジェクトでは --skip-ops で省略できる。
 const SKIP_OPS = args.includes('--skip-ops')
@@ -60,7 +79,7 @@ const API_KEY = process.env.BACKLOG_API_KEY
 if (!PROJECT_KEY || !START || (!DRY_RUN && (!SPACE_URL || !API_KEY))) {
   console.error('必須の指定が不足しています。')
   console.error('  環境変数: BACKLOG_SPACE_URL, BACKLOG_API_KEY（--dry-run 時は不要）')
-  console.error('  引数    : --project <KEY> --start <YYYY-MM-DD> [--assignee <userId>] [--dry-run]')
+  console.error('  引数    : --project <KEY> --start <YYYY-MM-DD> [--assignee <userId>]\n            [--pace 1〜5（1週あたりのExercise数・既定5）] [--no-due-dates] [--dry-run]')
   process.exit(1)
 }
 if (!/^\d{4}-\d{2}-\d{2}$/.test(START)) {
@@ -175,8 +194,8 @@ async function main() {
       MILESTONES.filter((m) => !(SKIP_PRE && m.week === 0)).map((m) => ({
         ...m,
         name: milestonePrefix + m.name,
-        startDate: addBusinessDays(START, m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5),
-        releaseDueDate: addBusinessDays(START, (m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5) + 4),
+        startDate: addBusinessDays(START, paceDays(m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5)),
+        releaseDueDate: addBusinessDays(START, paceDays((m.week === 0 ? 0 : OFFSET + (m.week - 1) * 5) + 4)),
       })),
       (m) => api('POST', `/projects/${PROJECT_KEY}/versions`, {
         name: m.name, startDate: m.startDate, releaseDueDate: m.releaseDueDate,
@@ -198,10 +217,10 @@ async function main() {
   // LESSON 0 プレコース（既定）: P1〜P5 の課題
   if (!SKIP_PRE) {
     for (const e of PRE_PHASE_ISSUES) {
-      const dueDate = addBusinessDays(START, e.day - 1)
+      const dueDate = NO_DUE ? undefined : addBusinessDays(START, paceDays(e.day - 1))
       const summary = summaryPrefix + e.summary
       if (DRY_RUN) {
-        console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=${e.type} 週=LESSON0`)
+        console.log(`[dry-run] 課題: ${summary}  期限=${dueLabel(dueDate)} 種別=${e.type} 週=LESSON0`)
         created++
         continue
       }
@@ -216,14 +235,14 @@ async function main() {
         ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
       })
       created++
-      console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+      console.log(`課題を作成しました: ${summary} (期限 ${dueLabel(dueDate)})`)
     }
   }
 
   // Exercise 0: 環境構築（期限 = 開講前日）。プレコースあり時は P5 に統合されるため作成しない
   const exercise00 = {
     summary: `${summaryPrefix}[Exercise00] 環境構築: Packet Tracer セットアップ`,
-    dueDate: prevBusinessDay(START),
+    dueDate: NO_DUE ? undefined : prevBusinessDay(START),
     description: [
       '## ゴール',
       '- 研修で毎日使う Cisco Packet Tracer を自分の PC で使える状態にする',
@@ -245,7 +264,7 @@ async function main() {
   if (!SKIP_PRE) {
     // プレコースありの場合、環境構築は P5 で実施
   } else if (DRY_RUN) {
-    console.log(`[dry-run] 課題: ${exercise00.summary}  期限=${exercise00.dueDate} 種別=ラボ 週=LESSON1`)
+    console.log(`[dry-run] 課題: ${exercise00.summary}  期限=${dueLabel(exercise00.dueDate)} 種別=ラボ 週=LESSON1`)
     created++
   } else {
     await api('POST', '/issues', {
@@ -259,12 +278,12 @@ async function main() {
       ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
     })
     created++
-    console.log(`課題を作成しました: ${exercise00.summary} (期限 ${exercise00.dueDate})`)
+    console.log(`課題を作成しました: ${exercise00.summary} (期限 ${dueLabel(exercise00.dueDate)})`)
   }
 
   for (const d of DAYS) {
     const dd = String(d.day).padStart(2, '0')
-    const dueDate = addBusinessDays(START, OFFSET + d.day - 1)
+    const dueDate = NO_DUE ? undefined : addBusinessDays(START, paceDays(OFFSET + d.day - 1))
     const quizType = d.weeklyTest ? 'LESSONまとめテスト' : '小テスト'
     const quizTitle = d.finalTest
       ? `${summaryPrefix}[Exercise${dd}] 修了テスト: 全範囲（60問/90分）`
@@ -280,7 +299,7 @@ async function main() {
 
     for (const issue of issues) {
       if (DRY_RUN) {
-        console.log(`[dry-run] 課題: ${issue.summary}  期限=${dueDate} 種別=${issue.type} 週=LESSON${d.week} カテゴリー=${d.categories.join(',')}`)
+        console.log(`[dry-run] 課題: ${issue.summary}  期限=${dueLabel(dueDate)} 種別=${issue.type} 週=LESSON${d.week} カテゴリー=${d.categories.join(',')}`)
         created++
         continue
       }
@@ -296,16 +315,16 @@ async function main() {
         ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
       })
       created++
-      console.log(`課題を作成しました: ${issue.summary} (期限 ${dueDate})`)
+      console.log(`課題を作成しました: ${issue.summary} (期限 ${dueLabel(dueDate)})`)
     }
   }
 
   // 試験対策フェーズ（Exercise 21〜25）: 模試サイクルの課題
   for (const e of EXAM_PHASE_ISSUES) {
-    const dueDate = addBusinessDays(START, OFFSET + e.day - 1)
+    const dueDate = NO_DUE ? undefined : addBusinessDays(START, paceDays(OFFSET + e.day - 1))
     const summary = summaryPrefix + e.summary
     if (DRY_RUN) {
-      console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=${e.type} 週=LESSON5`)
+      console.log(`[dry-run] 課題: ${summary}  期限=${dueLabel(dueDate)} 種別=${e.type} 週=LESSON5`)
       created++
       continue
     }
@@ -320,7 +339,7 @@ async function main() {
       ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
     })
     created++
-    console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+    console.log(`課題を作成しました: ${summary} (期限 ${dueLabel(dueDate)})`)
   }
 
   // 運営課題（継続率・合格率の伴走タスク。10-retention-and-pass-rate.md に対応）
@@ -328,14 +347,16 @@ async function main() {
     for (const o of OPS_ISSUES) {
       // 期限日: pre=開講前日 / start=その週の開始日 / end=その週の最終営業日
       const base = o.week === 0 ? 0 : OFFSET + (o.week - 1) * 5
-      const dueDate = o.at === 'pre'
-        ? prevBusinessDay(START)
-        : addBusinessDays(START, o.at === 'end' ? base + 4 : base)
+      const dueDate = NO_DUE
+        ? undefined
+        : o.at === 'pre'
+          ? prevBusinessDay(START)
+          : addBusinessDays(START, paceDays(o.at === 'end' ? base + 4 : base))
       // マイルストーン: LESSON0 が省略されている場合は LESSON1 に寄せる
       const mWeek = (o.week === 0 && SKIP_PRE) ? 1 : o.week
       const summary = summaryPrefix + o.summary
       if (DRY_RUN) {
-        console.log(`[dry-run] 課題: ${summary}  期限=${dueDate} 種別=運営 週=LESSON${mWeek}`)
+        console.log(`[dry-run] 課題: ${summary}  期限=${dueLabel(dueDate)} 種別=運営 週=LESSON${mWeek}`)
         created++
         continue
       }
@@ -350,7 +371,7 @@ async function main() {
         ...(ASSIGNEE ? { assigneeId: ASSIGNEE } : {}),
       })
       created++
-      console.log(`課題を作成しました: ${summary} (期限 ${dueDate})`)
+      console.log(`課題を作成しました: ${summary} (期限 ${dueLabel(dueDate)})`)
     }
   }
 
